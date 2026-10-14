@@ -400,6 +400,9 @@
 .pa-tab-bar{display:none;gap:8px;margin:20px auto 0;max-width:1200px;padding:0 16px;overflow-x:auto}
 body.pa-mode .pa-tab-bar{display:flex}
 body.pa-mode .tab-bar{display:none}
+body.pa-mode .tab-content:not(.pa-section){display:none!important}
+body.pa-mode .pa-section{display:none}
+body.pa-mode .pa-section.active{display:block}
 body.pa-mode .side-drawer .drawer-menu-item[data-pa="1"]{display:flex!important}
 body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!important}
 .pa-metric-card{cursor:pointer;transition:transform .2s}
@@ -658,7 +661,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 <div class="brand-logo-box" id="paLoginLogoBox" style="font-size:1.3rem;padding:8px 16px;margin-bottom:8px">FinTrack Business</div>
 <h2 style="font-size:1.05rem;font-weight:900;color:var(--atmos-navy);text-transform:uppercase">Platform Admin Login</h2>
 </div>
-<div class="pa-modal-field"><label>Administrator Name</label><input type="text" id="paLoginName" placeholder="Enter name" required></div>
+<div class="pa-modal-field"><label>Administrator Email</label><input type="email" id="paLoginName" placeholder="Enter email address" required></div>
 <div class="pa-modal-field"><label>Password</label><input type="password" id="paLoginPassword" placeholder="Enter password" required></div>
 <button class="btn-admin" onclick="performPlatformAdminLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Platform Portal</button>
 <div id="paForgotLink" style="margin-top:10px;text-align:center;display:none">
@@ -3299,6 +3302,11 @@ const FIREBASE_CONFIG = {
 
   /* Internal sign-in address. Nobody has to know or type it. */
   function authEmailFor(user) {
+    /* The administrator signs in with the email address they already own, so the
+       built-in "forgot password" email works without any extra service. */
+    if (user && user.role === 'Admin' && user.email) {
+      return String(user.email).trim().toLowerCase();
+    }
     var gen = (user && user.authVersion) ? user.authVersion : 1;
     var raw = getActiveBusinessId() + '-' + accountKey(user) + '-g' + gen;
     return raw.toLowerCase().replace(/[^a-z0-9._-]/g, '') + AUTH_EMAIL_DOMAIN;
@@ -3616,7 +3624,8 @@ const FIREBASE_CONFIG = {
     const customUrl = localStorage.getItem('ATMOS_FIREBASE_URL');
     try {
       if (!firebase.apps.length) {
-        firebase.initializeApp(customUrl ? { databaseURL: customUrl } : FIREBASE_CONFIG);
+        /* The api key must always be present - without it Firebase Auth cannot start and the app silently falls back to local storage. */
+        firebase.initializeApp(customUrl ? Object.assign({}, FIREBASE_CONFIG, { databaseURL: customUrl }) : FIREBASE_CONFIG);
       }
       /* The business data is only reachable once someone is signed in. */
       setupAccountDirectory();
@@ -3639,7 +3648,9 @@ const FIREBASE_CONFIG = {
     if (alreadyDone) return Promise.resolve();
     /* Never overwrite a business that already holds data - only seed an empty one. */
     return businessDataRef().once('value').then(function (cur) {
-      if (cur && cur.val()) { markMigrationDone(); return null; }
+      var curVal = cur ? cur.val() : null;
+      var hasRealData = !!(curVal && Array.isArray(curVal.userAccounts) && curVal.userAccounts.length);
+      if (hasRealData) { markMigrationDone(); return null; }
       return firebase.database().ref('atmos_hub_data_v12').once('value').then(function (snapshot) {
         var legacy = snapshot.val();
         if (!legacy) { markMigrationDone(); return null; }
@@ -4746,37 +4757,33 @@ const FIREBASE_CONFIG = {
     var statusEl = document.getElementById('adminResetStatus');
     var btn = document.getElementById('adminResetSendBtn');
 
+    function finish(msg, ok) {
+      if (statusEl) {
+        statusEl.style.display = 'block';
+        statusEl.style.color = ok ? 'var(--accent-green)' : 'var(--atmos-red)';
+        statusEl.innerText = msg;
+      }
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Reset Link to Email'; }
+    }
+
     if (!admin) return alert('No administrator account found.');
     if (!email) return alert('Please enter the administrator email address.');
     if (!admin.email || email !== String(admin.email).trim().toLowerCase()) {
       return alert('This email does not match the registered administrator email address.');
     }
 
-    function finish(msg, ok) {
-      statusEl.style.display = 'block';
-      statusEl.style.color = ok ? 'var(--accent-green)' : 'var(--atmos-red)';
-      statusEl.innerText = msg;
-      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Reset Link to Email'; }
+    var auth = firebaseAuth();
+    if (!auth || typeof auth.sendPasswordResetEmail !== 'function') {
+      return finish('Password reset by email is unavailable right now. Please try again later.', false);
     }
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...'; }
 
-    var token = generateAdminResetToken();
-    pendingAdminResetToken = token;
-    appData.adminPasswordReset = { token: token, email: email, expiresAt: Date.now() + ADMIN_RESET_VALIDITY_MS, used: false };
-    saveData();
-
-    var link = window.location.href.split('#')[0].split('?')[0] + '?reset=' + token;
-    sendResetEmail(email, admin.name, link, Math.round(ADMIN_RESET_VALIDITY_MS / 60000))
-      .then(function() {
-        finish('A password reset link has been emailed to ' + email + '. It expires in 30 minutes and can be used once.', true);
-      })
-      .catch(function(err) {
-        if (err && err.message === 'EMAIL_NOT_CONFIGURED') {
-          finish('Reset email delivery is not set up yet. An administrator must add the email service details in Admin Controls \u2192 Login PIN & Security.', false);
-        } else {
-          finish('The reset email could not be sent. Please check the internet connection and the email settings, then try again.', false);
-        }
-      });
+    auth.sendPasswordResetEmail(email).then(function () {
+      finish('A reset link has been sent to ' + email + '. Open it, set a new password, then sign in here with that new password.', true);
+    }).catch(function (err) {
+      console.error('Reset email failed:', err);
+      finish('Could not send the reset link. Please check the address and try again.', false);
+    });
   }
 
   function openAdminResetLinkModal() {
@@ -8103,7 +8110,10 @@ function performPlatformAdminLogin() {
   var name = document.getElementById('paLoginName').value.trim();
   var password = document.getElementById('paLoginPassword').value.trim();
   if (!platformData.credentials) return alert('No platform administrator configured. Please set up first.');
-  if (platformData.credentials.name === name && platformData.credentials.password === password) {
+  var nameKey = name.toLowerCase();
+  var cred = platformData.credentials;
+  var idMatches = (cred.email && String(cred.email).trim().toLowerCase() === nameKey) || cred.name === name;
+  if (idMatches && cred.password === password) {
     platformAdminUser = platformData.credentials;
     document.getElementById('paLoginModal').style.display = 'none';
     document.getElementById('loginModal').style.display = 'none';
