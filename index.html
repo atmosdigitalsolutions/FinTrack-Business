@@ -502,6 +502,32 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 #loginModal .pin-forgot{display:block;text-align:center;margin:14px 0 4px}
 #pinModal .modal-card{border-radius:var(--radius-lg)}
 #pinModal .btn-admin{background:var(--primary);color:#fff;border:none;border-radius:var(--radius-md);font-weight:900;padding:12px;font-family:inherit}
+
+    /* ===== GUEST PORTAL: no business content before sign-in ===== */
+    body.guest-mode:not(.pa-mode) nav,
+    body.guest-mode:not(.pa-mode) .tab-bar,
+    body.guest-mode:not(.pa-mode) .tab-content,
+    body.guest-mode:not(.pa-mode) .floating-support,
+    body.guest-mode:not(.pa-mode) #mobileViewOnlyBanner,
+    body.guest-mode #subLockModal { display:none !important; }
+    /* ===== LOGIN CARD: fit the screen, no inner scrollbar ===== */
+    #loginModal.login-modal{overflow-y:auto;align-items:flex-start}
+    #loginModal .login-card{max-height:none;overflow:visible;margin:auto}
+    #loginModal .login-error{display:flex;gap:8px;align-items:flex-start;background:var(--accent-rose-bg);border:1px solid #fecdd3;color:#9f1239;font-size:.78rem;font-weight:700;line-height:1.45;padding:10px 12px;border-radius:var(--radius-md);margin-bottom:14px}
+    @media (max-height:780px){
+      #loginModal .login-card{padding:16px 18px 14px}
+      #loginModal .login-head{margin-bottom:14px}
+      #loginModal .login-logo-box{width:44px;height:44px}
+      #loginModal .login-tabs{margin-bottom:12px}
+    }
+    @media (max-height:640px){
+      #loginModal .login-card{padding:12px 14px 10px}
+      #loginModal .login-head{margin-bottom:10px}
+      #loginModal .login-title{font-size:1rem}
+      #loginModal .login-tagline{display:none}
+    }
+    /* ===== PLATFORM ADMIN: only platform entries in the menu ===== */
+    body.pa-mode .side-drawer .drawer-menu-item:not([data-pa="1"]){display:none!important}
 </style>
 </head>
 <body>
@@ -551,10 +577,10 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
     </div>
 
     <div id="bizRegStep1">
-      <div class="pa-modal-field"><label>Business / Shop Name</label><input type="text" id="bizRegName" placeholder="e.g. ATMOS Digital Solutions" required></div>
+      <div class="pa-modal-field"><label>Business / Shop Name</label><input type="text" id="bizRegName" placeholder="Enter the business name" required></div>
       <div class="pa-modal-field"><label>Administrator Name</label><input type="text" id="bizRegAdmin" placeholder="Business administrator full name" required></div>
-      <div class="pa-modal-field"><label>Mobile Number</label><input type="tel" id="bizRegMobile" placeholder="e.g. 8089278115" required></div>
-      <div class="pa-modal-field"><label>Email Address</label><input type="email" id="bizRegEmail" placeholder="admin@business.com" required></div>
+      <div class="pa-modal-field"><label>Mobile Number</label><input type="tel" id="bizRegMobile" placeholder="Enter the mobile number" required></div>
+      <div class="pa-modal-field"><label>Email Address</label><input type="email" id="bizRegEmail" placeholder="Enter the email address" required></div>
       <div class="pa-modal-field"><label>Password</label><input type="password" id="bizRegPass" placeholder="Create a password" required></div>
       <div class="pa-modal-field"><label>Confirm Password</label><input type="password" id="bizRegPass2" placeholder="Re-enter password" required></div>
       <button class="btn-primary" onclick="bizRegNext()"><i class="fa-solid fa-arrow-right"></i> Continue to Business Profile</button>
@@ -570,7 +596,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
           <button class="btn-danger" style="width:auto;margin-top:8px;padding:6px 12px;font-size:.75rem" onclick="removeBizRegLogo()">Remove Logo</button>
         </div>
       </div>
-      <div class="pa-modal-field" style="margin-top:14px"><label>Business Motto / Caption</label><input type="text" id="bizRegMotto" placeholder="e.g. Fast. Secure. Seamless."></div>
+      <div class="pa-modal-field" style="margin-top:14px"><label>Business Motto / Caption</label><input type="text" id="bizRegMotto" placeholder="Enter the business motto"></div>
       <div class="pa-modal-field"><label>Business Category</label>
         <select id="bizRegCategory" onchange="toggleBizRegCustomCategory()">
           <option value="Akshaya Center">Akshaya Center</option>
@@ -667,7 +693,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         <label>Administrator Email or Name</label>
         <div class="login-input-wrap">
           <i class="fa-solid fa-envelope"></i>
-          <input type="text" id="loginEmailInput" placeholder="admin@business.com" autocomplete="off">
+          <input type="text" id="loginEmailInput" placeholder="Enter the email address" autocomplete="off">
         </div>
       </div>
 
@@ -688,6 +714,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         <span id="forgotPasswordBtnContainer" style="display:none"><a class="login-link" onclick="openForgotPasswordModal()">Forgot Password?</a></span>
       </div>
 
+      <div id="loginErrorMsg" class="login-error" style="display:none"><i class="fa-solid fa-circle-exclamation" style="margin-top:2px"></i><span id="loginErrorText"></span></div>
       <button class="login-btn-primary" onclick="performLogin()">Access FinTrack <i class="fa-solid fa-arrow-right"></i></button>
       <button class="login-btn-secondary" id="loginPinSwitchBtn" style="display:none" onclick="showPinLogin()"><i class="fa-solid fa-keyboard"></i> Enter FinPIN</button>
     </div>
@@ -729,7 +756,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 <div class="pa-modal-field"><label>Email Address</label><input type="email" id="paSetupEmail" placeholder="Enter email address" required></div>
 <div class="pa-modal-field"><label>Password (min 8 characters)</label><input type="password" id="paSetupPassword" placeholder="Enter secure password" minlength="8" required></div>
 <div class="pa-modal-field"><label>Confirm Password</label><input type="password" id="paSetupConfirmPassword" placeholder="Re-enter password" required></div>
-<div class="pa-modal-field"><label>Security PIN (4 digits — for password reset)</label><input type="text" id="paSetupPin" placeholder="e.g. 8055" maxlength="4" required></div>
+<div class="pa-modal-field"><label>Security PIN (4 digits — for password reset)</label><input type="text" id="paSetupPin" placeholder="Enter a 4-digit PIN" maxlength="4" required></div>
 <button class="btn-admin" onclick="performPlatformAdminSetup()"><i class="fa-solid fa-shield-halved"></i> Create Platform Administrator</button>
 <button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closePaSetupModal()">Cancel</button>
 </div>
@@ -771,7 +798,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 
     <div class="form-group">
       <label>Administrator Email</label>
-      <input type="email" id="adminResetEmailInput" placeholder="admin@business.com" autocomplete="off">
+      <input type="email" id="adminResetEmailInput" placeholder="Enter the email address" autocomplete="off">
     </div>
     <button class="btn-primary" id="adminResetSendBtn" onclick="requestAdminPasswordReset()"><i class="fa-solid fa-paper-plane"></i> Send Reset Link to Email</button>
     <p id="adminResetStatus" style="display:none;font-size:.75rem;font-weight:700;margin-top:12px;line-height:1.45"></p>
@@ -825,7 +852,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
     </div>
     <div class="pa-modal-field" id="bizDetCustomCategoryWrap" style="display:none"><label>Enter Your Category</label><input type="text" id="bizDetCustomCategory" placeholder="Type your business category"></div>
     <div class="pa-modal-field"><label>Administrator Mobile Number</label><input type="tel" id="bizDetMobile" placeholder="10-digit mobile number"></div>
-    <div class="pa-modal-field"><label>Administrator Email Address</label><input type="email" id="bizDetEmail" placeholder="admin@business.com"></div>
+    <div class="pa-modal-field"><label>Administrator Email Address</label><input type="email" id="bizDetEmail" placeholder="Enter the email address"></div>
     <button class="btn-admin" onclick="saveBusinessDetails()"><i class="fa-solid fa-circle-check"></i> Save Business Details</button>
     <button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closeBizDetailsModal()">Later</button>
   </div>
@@ -984,7 +1011,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
           </div>
           <div class="form-group" style="margin: 0;">
             <label>New Absolute Amount (₹)</label>
-            <input type="number" id="modBalanceAmount" min="0" placeholder="e.g. 3500" required>
+            <input type="number" id="modBalanceAmount" min="0" placeholder="Enter the amount" required>
           </div>
           <button type="submit" class="btn-primary" style="height: 42px; background: var(--accent-green);">Update Balance</button>
         </form>
@@ -1060,15 +1087,15 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
             </div>
             <div class="form-group">
               <label>Service Name</label>
-              <input type="text" id="staffNewServiceName" placeholder="e.g. KSEB Bill Payment, KWA, Recharge" required>
+              <input type="text" id="staffNewServiceName" placeholder="Enter the service name" required>
             </div>
             <div class="form-group">
               <label>Standard Service Charge (₹)</label>
-              <input type="number" id="staffNewServicePrice" min="0" placeholder="e.g. 30" required>
+              <input type="number" id="staffNewServicePrice" min="0" placeholder="Enter the amount" required>
             </div>
             <div class="form-group" id="staffDeptFeeGroup" style="display: none;">
               <label>Default Department Fee (₹)</label>
-              <input type="number" id="staffNewServiceDeptFee" min="0" value="0" placeholder="e.g. 50">
+              <input type="number" id="staffNewServiceDeptFee" min="0" value="0" placeholder="Enter the amount">
             </div>
             <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Add to Master Catalog</button>
           </form>
@@ -1135,17 +1162,17 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 
           <div class="form-group">
             <label>Service Description / Notes (For Future Reference)</label>
-            <input type="text" id="serviceNotesInput" placeholder="e.g. Customer name, document type, work details">
+            <input type="text" id="serviceNotesInput" placeholder="Enter the details">
           </div>
 
           <div style="display: flex; gap: 12px;">
             <div class="form-group" style="flex: 1;">
               <label>Department Fee (₹)</label>
-              <input type="number" id="deptFeeInput" value="0" min="0" oninput="calculateFinalPrice()" placeholder="e.g. 1263">
+              <input type="number" id="deptFeeInput" value="0" min="0" oninput="calculateFinalPrice()" placeholder="Enter the amount">
             </div>
             <div class="form-group" style="flex: 1;">
               <label>Service Charge (₹)</label>
-              <input type="number" id="basePrice" value="0" min="0" oninput="calculateFinalPrice()" placeholder="e.g. 37">
+              <input type="number" id="basePrice" value="0" min="0" oninput="calculateFinalPrice()" placeholder="Enter the amount">
             </div>
           </div>
 
@@ -1338,13 +1365,13 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 
           <div class="form-group">
             <label>Description / Vendor Details</label>
-            <input type="text" id="expenseDesc" placeholder="e.g. Rent payment / Paper reams" required>
+            <input type="text" id="expenseDesc" placeholder="Enter the expense description" required>
           </div>
           
           <div style="display: flex; gap: 12px;">
             <div class="form-group" style="flex: 1;">
               <label>Amount Spent (₹)</label>
-              <input type="number" id="expenseAmount" min="1" placeholder="e.g. 4000" required style="font-weight: 800; color: var(--accent-rose);">
+              <input type="number" id="expenseAmount" min="1" placeholder="Enter the amount" required style="font-weight: 800; color: var(--accent-rose);">
             </div>
             <div class="form-group" style="flex: 1;">
               <label>Deduct From</label>
@@ -1432,7 +1459,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         </div>
         <div class="form-group" style="margin: 0;">
           <label>Transfer Amount (₹)</label>
-          <input type="number" id="domainTransferAmount" min="1" placeholder="e.g. 5000" required>
+          <input type="number" id="domainTransferAmount" min="1" placeholder="Enter the amount" required>
         </div>
         <button type="submit" class="btn-primary" style="height: 42px; background: var(--primary);">Record Transfer</button>
       </form>
@@ -1494,11 +1521,11 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
           </div>
           <div class="form-group">
             <label>Description (Optional)</label>
-            <input type="text" id="adminTransferDescInput" placeholder="e.g. Cash sent to Admin">
+            <input type="text" id="adminTransferDescInput" placeholder="Enter the description">
           </div>
           <div class="form-group">
             <label>Amount (₹)</label>
-            <input type="number" id="adminTransferAmountInput" min="1" placeholder="e.g. 10000" required style="font-weight:800; color:#10B981;">
+            <input type="number" id="adminTransferAmountInput" min="1" placeholder="Enter the amount" required style="font-weight:800; color:#10B981;">
           </div>
           <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">Transfer to Admin</button>
         </form>
@@ -1512,11 +1539,11 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
           </div>
           <div class="form-group">
             <label>Description (Optional)</label>
-            <input type="text" id="adminReceivedDescInput" placeholder="e.g. Funds received from Admin">
+            <input type="text" id="adminReceivedDescInput" placeholder="Enter the description">
           </div>
           <div class="form-group">
             <label>Amount (₹)</label>
-            <input type="number" id="adminReceivedAmountInput" min="1" placeholder="e.g. 5000" required style="font-weight:800; color:#F59E0B;">
+            <input type="number" id="adminReceivedAmountInput" min="1" placeholder="Enter the amount" required style="font-weight:800; color:#F59E0B;">
           </div>
           <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">Received from Admin</button>
         </form>
@@ -1629,7 +1656,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
       </table>
 
       <div class="no-print mobile-restricted" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-        <input type="text" id="invItemDesc" placeholder="Service description (e.g. Passport Photo)" style="flex: 3; min-width: 150px;">
+        <input type="text" id="invItemDesc" placeholder="Service description" style="flex: 3; min-width: 150px;">
         <input type="number" id="invItemDept" placeholder="Dept Fee" style="flex: 1; min-width: 80px;" oninput="calcInvItemRowTotal()">
         <input type="number" id="invItemSrv" placeholder="Srv Charge" style="flex: 1; min-width: 80px;" oninput="calcInvItemRowTotal()">
         <input type="number" id="invItemAmt" placeholder="Total" style="flex: 1; min-width: 80px; background: #eef2ff;" readonly>
@@ -1803,11 +1830,11 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
           </div>
           <div class="form-group" style="margin-bottom: 10px;">
             <label>Total Service Charge (₹)</label>
-            <input type="number" id="historicalServiceCharge" min="0" placeholder="e.g. 100000" required style="font-weight:800; color:var(--accent-green);">
+            <input type="number" id="historicalServiceCharge" min="0" placeholder="Enter the amount" required style="font-weight:800; color:var(--accent-green);">
           </div>
           <div class="form-group" style="margin-bottom: 10px;">
             <label>Total Expense (₹)</label>
-            <input type="number" id="historicalExpense" min="0" placeholder="e.g. 70000" required style="font-weight:800; color:var(--accent-rose);">
+            <input type="number" id="historicalExpense" min="0" placeholder="Enter the amount" required style="font-weight:800; color:var(--accent-rose);">
           </div>
           <button type="submit" class="btn-primary" style="background: var(--accent-amber); margin-top: 6px;">Save Historical Month Data</button>
         </form>
@@ -1992,7 +2019,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
           <input type="month" id="openingBalMonthPicker" onchange="loadAdminOpeningBalancesForPicker()">
         </div>
       </div>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Set the actual starting balances for physical cash drawer, bank/UPI account, and credit receivables. No default is applied — enter the real opening balance (e.g. Cash ₹2,000 + Bank ₹2,000 + Receivables ₹1,000 = ₹5,000 total).</p>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Set the actual starting balances for physical cash drawer, bank/UPI account, and credit receivables. No default is applied — enter the real opening balance.</p>
       
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 14px;">
         <div class="form-group">
@@ -2150,15 +2177,15 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
             </div>
             <div class="form-group">
               <label>Service Name</label>
-              <input type="text" id="newServiceName" placeholder="e.g. KSEB Bill Payment, KWA, Recharge" required>
+              <input type="text" id="newServiceName" placeholder="Enter the service name" required>
             </div>
             <div class="form-group">
               <label>Standard Service Charge (₹)</label>
-              <input type="number" id="newServicePrice" min="0" placeholder="e.g. 30" required>
+              <input type="number" id="newServicePrice" min="0" placeholder="Enter the amount" required>
             </div>
             <div class="form-group" id="adminDeptFeeGroup" style="display: none;">
               <label>Default Department Fee (₹)</label>
-              <input type="number" id="newServiceDeptFee" min="0" value="0" placeholder="e.g. 50">
+              <input type="number" id="newServiceDeptFee" min="0" value="0" placeholder="Enter the amount">
             </div>
             <button type="submit" class="btn-admin" id="saveServiceBtn">Add to Master Catalog</button>
           </form>
@@ -2187,7 +2214,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         
         <div class="form-group">
           <label>Firebase Database URL</label>
-          <input type="text" id="firebaseDbUrlInput" placeholder="e.g. https://atmos-operational-hub-default-rtdb.asia-southeast1.firebasedatabase.app">
+          <input type="text" id="firebaseDbUrlInput" placeholder="Enter the Firebase database URL">
         </div>
         <button class="btn-primary" onclick="saveFirebaseSettings()" style="width: auto;"><i class="fa-solid fa-plug"></i> Connect & Sync Cloud Database</button>
       </div>
@@ -2256,9 +2283,9 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         <div id="pinEmailBlock" style="border-top:1px solid var(--border); margin-top:6px; padding-top:14px">
           <div class="sec-label" style="margin-bottom:8px"><i class="fa-solid fa-envelope-circle-check"></i> Password Reset Email Delivery</div>
           <p style="font-size:.75rem;color:var(--text-muted);margin-bottom:12px">The admin password-reset link is emailed to the registered administrator address. This app runs entirely in the browser with no server and does not use Firebase Authentication accounts for these logins, so a free EmailJS account is required to deliver the email.</p>
-          <div class="form-group"><label>Service ID</label><input type="text" id="pinEmailService" placeholder="service_xxxxxxx"></div>
-          <div class="form-group"><label>Template ID</label><input type="text" id="pinEmailTemplate" placeholder="template_xxxxxxx"></div>
-          <div class="form-group"><label>Public Key</label><input type="text" id="pinEmailPublicKey" placeholder="Your EmailJS public key"></div>
+          <div class="form-group"><label>Service ID</label><input type="text" id="pinEmailService" placeholder="Enter the EmailJS service ID"></div>
+          <div class="form-group"><label>Template ID</label><input type="text" id="pinEmailTemplate" placeholder="Enter the EmailJS template ID"></div>
+          <div class="form-group"><label>Public Key</label><input type="text" id="pinEmailPublicKey" placeholder="Enter the EmailJS public key"></div>
           <p style="font-size:.72rem;color:var(--text-muted);margin-bottom:12px">Use these template variables in your EmailJS template: <strong>{{to_email}}</strong>, <strong>{{admin_name}}</strong>, <strong>{{business_name}}</strong>, <strong>{{reset_link}}</strong>, <strong>{{expiry_minutes}}</strong>.</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn-admin" style="width:auto" onclick="saveResetEmailConfig()"><i class="fa-solid fa-floppy-disk"></i> Save Email Settings</button>
@@ -2539,7 +2566,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 <div class="app-card" style="border-left:5px solid var(--primary)">
 <h3 style="font-size:1rem;font-weight:800;margin-bottom:12px"><i class="fa-solid fa-paper-plane" style="color:var(--primary)"></i> Send Individual Notification</h3>
 <div class="form-group"><label>Select Business</label><select id="paNotifBusinessSelect"></select></div>
-<div class="form-group"><label>Subject</label><input type="text" id="paNotifSubject" placeholder="e.g. Payment Approved / Subscription Expiring"></div>
+<div class="form-group"><label>Subject</label><input type="text" id="paNotifSubject" placeholder="Enter the subject"></div>
 <div class="form-group"><label>Message</label><textarea id="paNotifMessage" rows="3" placeholder="Enter notification message"></textarea></div>
 <div style="display:flex;gap:12px;flex-wrap:wrap">
 <div class="form-group" style="flex:1;min-width:150px"><label>Publish Date (optional)</label><input type="date" id="paNotifPublishDate"></div>
@@ -2729,7 +2756,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
     </div>
     <div class="form-group">
       <label>Description / Notes (For Future Reference)</label>
-      <input type="text" id="editLoggedServiceNotes" placeholder="e.g. Customer name, document type, work details">
+      <input type="text" id="editLoggedServiceNotes" placeholder="Enter the details">
     </div>
     <div style="display: flex; gap: 12px;">
       <div class="form-group" style="flex: 1;">
@@ -2895,11 +2922,11 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
     <input type="hidden" id="staffEditIndex" value="-1">
     <div class="form-group">
       <label>Full Name</label>
-      <input type="text" id="staffNameInput" placeholder="e.g. Rahul Nair" required>
+      <input type="text" id="staffNameInput" placeholder="Enter the staff full name" required>
     </div>
     <div class="form-group">
       <label>Mobile Number</label>
-      <input type="text" id="staffMobileInput" placeholder="e.g. 9895000000">
+      <input type="text" id="staffMobileInput" placeholder="Enter the mobile number">
     </div>
     <div class="form-group">
       <label>Password</label>
@@ -2930,7 +2957,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
     </div>
     <div class="form-group">
       <label>Incentive (%) — 0 to 100</label>
-      <input type="number" id="editProfIncentivePctInput" min="0" max="100" placeholder="e.g. 20" required>
+      <input type="number" id="editProfIncentivePctInput" min="0" max="100" placeholder="Enter the percentage" required>
     </div>
     <div style="display: flex; gap: 10px; margin-top: 16px;">
       <button style="flex: 1; background: var(--bg); color: var(--text-muted);" onclick="closeEditStaffInfoModal()">Cancel</button>
@@ -2992,11 +3019,11 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 <div id="paAddBusinessModal" class="modal" style="display:none">
 <div class="modal-card" style="max-width:520px">
 <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:16px">Register New Business</h3>
-<div class="form-group"><label>Business Name</label><input type="text" id="paNewBizName" placeholder="e.g. ATMOS Digital Solutions" required></div>
+<div class="form-group"><label>Business Name</label><input type="text" id="paNewBizName" placeholder="Enter the business name" required></div>
 <div class="form-group"><label>Category</label><select id="paNewBizCategory"><option value="CSC">Common Service Center</option><option value="Retail">Retail Shop</option><option value="Services">Service Business</option><option value="Other">Other</option></select></div>
 <div class="form-group"><label>Administrator Name</label><input type="text" id="paNewBizAdmin" placeholder="Business admin name" required></div>
-<div class="form-group"><label>Administrator Contact Number</label><input type="text" id="paNewBizContact" placeholder="e.g. 8089278115"></div>
-<div class="form-group"><label>Administrator Email (optional)</label><input type="email" id="paNewBizEmail" placeholder="admin@business.com"></div>
+<div class="form-group"><label>Administrator Contact Number</label><input type="text" id="paNewBizContact" placeholder="Enter the mobile number"></div>
+<div class="form-group"><label>Administrator Email (optional)</label><input type="email" id="paNewBizEmail" placeholder="Enter the email address"></div>
 <div style="display:flex;gap:10px;margin-top:16px">
 <button style="flex:1;background:var(--bg);color:var(--text-muted)" onclick="closePaAddBizModal()">Cancel</button>
 <button style="flex:1" class="btn-admin" onclick="addNewBusiness()">Register Business</button>
@@ -3031,9 +3058,9 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 <div class="form-group"><label>Select Plan</label><select id="paPayPlan" onchange="syncPayAmount();refreshPaymentQr();"><option value="1month">Monthly</option><option value="3months">Quarterly</option><option value="6months">Half-Yearly</option><option value="12months">Yearly</option></select></div>
 <div class="form-group"><label>Pricing Type</label><select id="paPayPricingType"><option value="normal">Normal Pricing</option></select><div id="paPayPricingHint" style="font-size:.68rem;color:var(--text-muted);margin-top:5px"></div></div>
 <div class="form-group"><label>Transaction / Reference ID</label><input type="text" id="paPayTxnId" placeholder="Enter UPI transaction/reference ID" required></div>
-<div class="form-group"><label>Your Mobile Number</label><input type="tel" id="paPayMobile" placeholder="e.g. 8089278115" required></div>
+<div class="form-group"><label>Your Mobile Number</label><input type="tel" id="paPayMobile" placeholder="Enter the mobile number" required></div>
 <div class="form-group"><label>Payment Screenshot</label><input type="file" id="paPayScreenshot" accept="image/*"></div>
-<div class="form-group"><label>Amount Paid (₹)</label><input type="number" id="paPayAmount" placeholder="e.g. 149" min="1" oninput="refreshPaymentQr()" required></div>
+<div class="form-group"><label>Amount Paid (₹)</label><input type="number" id="paPayAmount" placeholder="Enter the amount" min="1" oninput="refreshPaymentQr()" required></div>
 <div style="display:flex;gap:10px;margin-top:16px">
 <button style="flex:1;background:var(--bg);color:var(--text-muted)" onclick="closePaSubmitPayment()">Cancel</button>
 <button style="flex:1" class="btn-primary" onclick="submitPayment()"><i class="fa-brands fa-whatsapp"></i> Submit for Verification</button>
@@ -3416,23 +3443,43 @@ const FIREBASE_CONFIG = {
   }
 
   /* Sign in - or, on a genuine first sign-in, create - this account's identity. */
+  function authEmailCandidates(user) {
+    var list = [];
+    function push(e) { if (e && list.indexOf(e) < 0) list.push(e); }
+    push(authEmailFor(user));
+    if (user && user.role === 'Admin' && user.email) push(String(user.email).trim().toLowerCase());
+    var gen = (user && user.authVersion) ? user.authVersion : 1;
+    [getActiveBusinessId(), DEFAULT_BUSINESS_ID].forEach(function (biz) {
+      if (!biz) return;
+      push((biz + '-' + accountKey(user) + '-g' + gen).toLowerCase().replace(/[^a-z0-9._-]/g, '') + AUTH_EMAIL_DOMAIN);
+    });
+    return list;
+  }
+
   function firebaseSignIn(user, typedPassword) {
     var auth = firebaseAuth();
     if (!auth) return Promise.reject(new Error('AUTH_UNAVAILABLE'));
-    var email = authEmailFor(user);
+    var candidates = authEmailCandidates(user);
     var stillHasOriginalPassword = !!user.pass;
-    return auth.signInWithEmailAndPassword(email, typedPassword).catch(function (err) {
+    var idx = 0;
+    function tryNext() {
+      if (idx >= candidates.length) return Promise.reject({ code: 'AUTH_NO_ACCOUNT' });
+      var email = candidates[idx++];
+      return auth.signInWithEmailAndPassword(email, typedPassword).catch(function (err) {
+        var code = (err && err.code) ? err.code : '';
+        if (code === 'auth/user-not-found') return tryNext();
+        /* invalid-credential is ambiguous - it can mean a wrong password OR no
+           account. Only treat it as "no account" when the local record still
+           holds the original password to compare against. */
+        if ((code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') && stillHasOriginalPassword) return tryNext();
+        throw err;
+      });
+    }
+    return tryNext().catch(function (err) {
       var code = (err && err.code) ? err.code : '';
-      var unknownAccount = code === 'auth/user-not-found' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials';
-      /* Only create the identity when we still hold the original password and it
-         matches what was typed - so nobody can mint an account for someone else. */
-      if (unknownAccount && stillHasOriginalPassword && user.pass === typedPassword) {
-        return auth.createUserWithEmailAndPassword(email, typedPassword);
-      }
-      if (unknownAccount && !stillHasOriginalPassword) {
-        var noLocal = new Error('NO_LOCAL_CREDENTIAL');
-        noLocal.code = 'NO_LOCAL_CREDENTIAL';
-        throw noLocal;
+      /* The owner of the business must never be locked out of their own account. */
+      if (code === 'AUTH_NO_ACCOUNT' && (stillHasOriginalPassword || user.role === 'Admin')) {
+        return auth.createUserWithEmailAndPassword(candidates[0], typedPassword);
       }
       throw err;
     }).then(function (cred) {
@@ -4658,6 +4705,8 @@ const FIREBASE_CONFIG = {
   }
 
   function completeLogin(user) {
+    document.body.classList.remove('guest-mode');
+    hideWelcomeScreen();
     currentUser = user;
     document.getElementById('activeUserBadge').innerText = user.name + ' (' + user.role + ')';
     document.getElementById('loginModal').style.display = 'none';
@@ -4702,11 +4751,20 @@ const FIREBASE_CONFIG = {
   }
 
   function performLogin() {
+    clearLoginError();
     const pass = document.getElementById('loginPassword').value;
     let user = null;
     if (currentLoginMode === 'Admin') {
       const emailInput = document.getElementById('loginEmailInput');
       const typedEmail = ((emailInput && emailInput.value) || '').trim().toLowerCase();
+      /* The Main Platform Administrator signs in here too. */
+      const paCred = platformData.credentials;
+      if (paCred && (((paCred.email && String(paCred.email).trim().toLowerCase() === typedEmail)) || String(paCred.name || '').trim().toLowerCase() === typedEmail)) {
+        if (paCred.password !== pass) { showLoginError('Incorrect password. Please check your password and try again.'); return; }
+        document.getElementById('loginPassword').value = '';
+        enterPlatformAdminMode();
+        return;
+      }
       user = appData.users.find(u => u.role === 'Admin' && (String(u.email || '').trim().toLowerCase() === typedEmail || String(u.name || '').trim().toLowerCase() === typedEmail));
     } else {
       const typedId = ((document.getElementById('loginStaffId') || {}).value || '').trim().toLowerCase();
@@ -4714,15 +4772,14 @@ const FIREBASE_CONFIG = {
     }
 
     if (!user) {
-      alert("Invalid credentials. Please enter the correct password.");
+      showLoginError(currentLoginMode === 'Admin'
+        ? 'No administrator account matches that email or name. Please check the spelling, or register your business if you have not done so yet.'
+        : 'No staff account matches that ID or name. Please check with your administrator.');
       return;
     }
 
-    /* Accounts that still carry their original password are checked here, so the
-       very first sign-in can create the Firebase identity. Once an account has
-       been migrated the password exists only inside Firebase Authentication. */
     if (user.pass && user.pass !== pass) {
-      alert("Invalid credentials. Please enter the correct password.");
+      showLoginError('Incorrect password. Please check your password and try again.');
       return;
     }
 
@@ -4737,32 +4794,34 @@ const FIREBASE_CONFIG = {
       document.getElementById('loginPassword').value = '';
       user.authUid = uid;
       markAccountMigrated(user, uid);
-      user.pass = '';   /* plain-text password is no longer stored anywhere */
+      user.pass = '';
       currentUser = user;
+      if (user.role === 'Admin') clearPendingAdminReset();
       return afterFirebaseLogin(user).then(function () {
         var remember = document.getElementById('loginRememberDevice');
         if (remember && remember.checked) savePinDevice(user); else clearPinDevice();
         completeLogin(user);
-        /* Offer a PIN once, only if the account has none yet */
         if (!user.pinHash) offerPinSetup();
       });
     }).catch(function (err) {
       restoreBtn();
       var code = (err && err.code) ? err.code : '';
-      if (code === 'NO_LOCAL_CREDENTIAL') {
-        alert("This device does not have your saved sign-in details yet.\n\nPlease sign in once on the device you normally use, or ask your administrator to sign in on this device first.");
-      } else if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials' || code === 'auth/user-not-found') {
-        alert("Invalid credentials. Please enter the correct password.");
+      if (code === 'auth/user-not-found') {
+        showLoginError('This account is not registered for secure sign-in yet. Please use "Forgot Password?" to set a password, or ask platform support to reset it for you.');
+      } else if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') {
+        showLoginError('Incorrect password. Please check your password and try again. If you have forgotten it, use "Forgot Password?".');
+      } else if (code === 'auth/too-many-requests') {
+        showLoginError('Too many attempts. Please wait a minute and try again.');
       } else if (code === 'auth/operation-not-allowed') {
-        alert("Secure sign-in is not switched on for this Firebase project yet.\n\nPlease enable it in Firebase Console \u2192 Authentication \u2192 Sign-in method \u2192 Email/Password.");
+        showLoginError('Secure sign-in is not switched on for this project yet. Please enable Email/Password in Firebase Console, under Authentication and Sign-in method.');
       } else if (code === 'auth/api-key-not-valid' || code === 'auth/invalid-api-key') {
-        alert("The Firebase API key in this file is not valid, so secure sign-in cannot run. Please check the Firebase configuration.");
-      } else if (code === 'auth/network-request-failed') {
-        alert("Could not reach the secure sign-in service. Please check the internet connection and try again.");
-      } else if (code === 'AUTH_UNAVAILABLE') {
-        alert("Secure sign-in could not start on this device. Please check the internet connection and try again.");
+        showLoginError('The Firebase API key in this file is not valid, so secure sign-in cannot run.');
+      } else if (code === 'auth/network-request-failed' || code === 'AUTH_UNAVAILABLE') {
+        showLoginError('Could not reach the secure sign-in service. Please check your internet connection and try again.');
+      } else if (code === 'NO_LOCAL_CREDENTIAL') {
+        showLoginError('We could not verify this account. Please use "Forgot Password?" or ask platform support to reset it for you.');
       } else {
-        alert("Sign-in could not be completed: " + ((err && err.message) ? err.message : 'unknown error'));
+        showLoginError('Sign-in could not be completed. Please try again.');
       }
     });
   }
@@ -8205,10 +8264,6 @@ function setupPlatformFirebaseSync() {
 
 /* UPDATE PLATFORM ADMIN LOGIN UI */
 function updatePlatformAdminLoginUI() {
-  var setupLink = document.getElementById('paSetupLinkContainer');
-  if (setupLink) {
-    setupLink.style.display = platformData.setupCompleted ? 'none' : 'block';
-  }
   var forgotLink = document.getElementById('paForgotLink');
   if (forgotLink) {
     forgotLink.style.display = platformData.credentials ? 'block' : 'none';
@@ -8252,27 +8307,33 @@ function performPlatformAdminSetup() {
 }
 
 /* PLATFORM ADMIN LOGIN */
+function enterPlatformAdminMode() {
+  platformAdminUser = platformData.credentials;
+  document.body.classList.remove('guest-mode');
+  document.body.classList.add('pa-mode');
+  var paModal = document.getElementById('paLoginModal');
+  if (paModal) paModal.style.display = 'none';
+  var loginModal = document.getElementById('loginModal');
+  if (loginModal) loginModal.style.display = 'none';
+  hideWelcomeScreen();
+  document.querySelectorAll('.tab-btn:not(.pa-tab-btn)').forEach(function(b) { b.style.display = 'none'; });
+  document.querySelectorAll('.tab-content:not(.pa-section)').forEach(function(c) { c.classList.remove('active'); });
+  document.querySelectorAll('.pa-tab-btn').forEach(function(b) { b.style.display = 'inline-block'; });
+  var badge = document.getElementById('activeUserBadge');
+  if (badge) badge.innerText = platformAdminUser.name + ' (Platform Admin)';
+  switchPATab('paDashboardTab');
+  renderPlatformAdminViews();
+}
+
 function performPlatformAdminLogin() {
   var name = document.getElementById('paLoginName').value.trim();
   var password = document.getElementById('paLoginPassword').value.trim();
-  if (!platformData.credentials) return alert('No platform administrator configured. Please set up first.');
-  var nameKey = name.toLowerCase();
   var cred = platformData.credentials;
+  if (!cred) return alert('No platform administrator configured.');
+  var nameKey = name.toLowerCase();
   var idMatches = (cred.email && String(cred.email).trim().toLowerCase() === nameKey) || cred.name === name;
-  if (idMatches && cred.password === password) {
-    platformAdminUser = platformData.credentials;
-    document.getElementById('paLoginModal').style.display = 'none';
-    document.getElementById('loginModal').style.display = 'none';
-    document.body.classList.add('pa-mode');
-    document.querySelectorAll('.tab-btn:not(.pa-tab-btn)').forEach(function(b) { b.style.display = 'none'; });
-    document.querySelectorAll('.tab-content:not(.pa-section)').forEach(function(c) { c.classList.remove('active'); });
-    document.querySelectorAll('.pa-tab-btn').forEach(function(b) { b.style.display = 'inline-block'; });
-    document.getElementById('activeUserBadge').innerText = platformAdminUser.name + ' (Platform Admin)';
-    switchPATab('paDashboardTab');
-    renderPlatformAdminViews();
-  } else {
-    alert('Invalid platform admin credentials.');
-  }
+  if (idMatches && cred.password === password) { enterPlatformAdminMode(); }
+  else { alert('Invalid platform admin credentials.'); }
 }
 
 /* RESET PA PASSWORD */
@@ -8552,6 +8613,17 @@ function openBusinessProfile(bizId) {
     metricBox('Subscription', '<span class="pa-badge pa-badge-'+subStatus+'">'+subStatus.charAt(0).toUpperCase()+subStatus.slice(1)+'</span>','fa-credit-card',subStatus==='active'?'green':subStatus==='trial'?'purple':'amber')+
     metricBox('Expiry Date', b.subscriptionExpiry||'-','fa-calendar-xmark','blue')+
     '</div></div>';
+
+  /* Administrator Credentials Section */
+  html += '<div class="app-card" style="border-left:5px solid var(--accent-purple)"><h3 style="font-size:1rem;font-weight:800;margin-bottom:6px"><i class="fa-solid fa-key" style="color:var(--accent-purple)"></i> Administrator Credentials</h3>'
+    + '<p style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px">Registered administrator email: <strong>' + (b.adminEmail || 'not registered') + '</strong></p>'
+    + '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">'
+    + '<div style="flex:1;min-width:200px"><label style="font-size:.72rem;font-weight:800;color:var(--text-muted)">Set a new password for this administrator</label>'
+    + '<input type="text" id="paBizNewPass" placeholder="New password (at least 6 characters)" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-family:inherit;margin-top:4px"></div>'
+    + '<button class="btn-primary" onclick="paSetBizAdminPassword(\'' + bizId + '\')" style="width:auto;padding:10px 16px;font-size:.8rem"><i class="fa-solid fa-floppy-disk"></i> Update Password</button>'
+    + '<button class="btn-admin" onclick="paSendBizResetEmail(\'' + bizId + '\')" style="width:auto;padding:10px 16px;font-size:.8rem"><i class="fa-solid fa-envelope"></i> Send Reset Email</button>'
+    + '</div>'
+    + '<p id="paBizCredStatus" style="font-size:.75rem;color:var(--text-muted);margin-top:10px"></p></div>';
 
   /* Data Usage Section */
   html += '<div class="app-card" style="border-left:5px solid var(--primary)"><h3 style="font-size:1rem;font-weight:800;margin-bottom:12px"><i class="fa-solid fa-database" style="color:var(--primary)"></i> Business Data Usage (IST)</h3>'+
@@ -9530,7 +9602,11 @@ function openBizRegisterModal() {
   resetBizRegisterForm();
   document.getElementById('bizRegisterModal').style.display = 'flex';
 }
-function closeBizRegisterModal() { document.getElementById('bizRegisterModal').style.display = 'none'; }
+function closeBizRegisterModal() {
+    document.getElementById('bizRegisterModal').style.display = 'none';
+    resetBizRegisterForm();
+    ensureGuestPortal();
+  }
 
 function resetBizRegisterForm() {
   bizRegLogoDataUrl = '';
@@ -9658,14 +9734,7 @@ window.addEventListener('DOMContentLoaded', function() {
   /* Add platform admin portal link to login modal */
   var loginModalCard = document.querySelector('#loginModal .modal-card');
   if (loginModalCard) {
-    var setupLinkDiv = document.createElement('div');
-    setupLinkDiv.id = 'paSetupLinkContainer';
-    setupLinkDiv.style.display = 'none';
-    setupLinkDiv.innerHTML = '<a class="pa-portal-link" onclick="openPaSetupModal()"><i class="fa-solid fa-shield-halved"></i> First-time Platform Admin Setup</a>';
-    loginModalCard.appendChild(setupLinkDiv);
-    var portalLinkDiv = document.createElement('div');
-    portalLinkDiv.innerHTML = '<a class="pa-portal-link" onclick="openPlatformAdminLogin()"><i class="fa-solid fa-shield-halved"></i> Platform Admin Portal</a>';
-    loginModalCard.appendChild(portalLinkDiv);
+    
   }
   /* Welcome screen: shown before login for first-time visitors; returning users go straight to login */
   applyPlatformBranding();
@@ -9682,7 +9751,7 @@ window.addEventListener('DOMContentLoaded', function() {
     } else {
       var seenWelcome = false;
       try { seenWelcome = localStorage.getItem('ATMOS_WELCOME_SEEN') === '1'; } catch (e) { seenWelcome = false; }
-      if (!seenWelcome) showWelcomeScreen();
+      ensureGuestPortal();
     }
   }
 
@@ -9930,6 +9999,93 @@ window.addEventListener('DOMContentLoaded', function() {
       + (next ? 'New customers will see introductory prices. Normal pricing cannot be selected.'
               : 'Normal pricing now applies to all customers and renewals.'));
   }
+
+  /* ============================================================
+     GUEST PORTAL, LOGIN MESSAGING & PLATFORM CREDENTIAL TOOLS
+     ============================================================ */
+  function ensureGuestPortal() {
+    if (currentUser || platformAdminUser) { document.body.classList.remove('guest-mode'); return; }
+    document.body.classList.add('guest-mode');
+    showWelcomeScreen();
+  }
+
+  function showLoginError(msg) {
+    var box = document.getElementById('loginErrorMsg');
+    var txt = document.getElementById('loginErrorText');
+    if (txt) txt.innerText = msg;
+    if (box) box.style.display = 'flex';
+  }
+  function clearLoginError() {
+    var box = document.getElementById('loginErrorMsg');
+    if (box) box.style.display = 'none';
+  }
+
+  function getPendingAdminReset() {
+    var bizId = null;
+    try { bizId = getCurrentPlatformBusinessId(); } catch (e) { bizId = null; }
+    if (!bizId) return null;
+    return (platformData.passwordResets || {})[bizId] || null;
+  }
+  function clearPendingAdminReset() {
+    var bizId = null;
+    try { bizId = getCurrentPlatformBusinessId(); } catch (e) { bizId = null; }
+    if (bizId && platformData.passwordResets && platformData.passwordResets[bizId]) {
+      delete platformData.passwordResets[bizId];
+      savePlatformData();
+    }
+  }
+
+  function paSetBizAdminPassword(bizId) {
+    var b = (platformData.businesses || {})[bizId];
+    if (!b) return;
+    var el = document.getElementById('paBizNewPass');
+    var status = document.getElementById('paBizCredStatus');
+    var pw = (el && el.value) ? el.value.trim() : '';
+    if (pw.length < 6) { if (status) status.innerText = 'Please enter a password of at least 6 characters.'; return; }
+    if (!b.adminEmail) { if (status) status.innerText = 'No administrator email is on record for this business, so a password cannot be set. Ask the owner to add one first.'; return; }
+    if (!platformData.passwordResets) platformData.passwordResets = {};
+    platformData.passwordResets[bizId] = { password: pw, email: String(b.adminEmail).trim().toLowerCase(), setAt: Date.now() };
+    savePlatformData();
+    if (el) el.value = '';
+    if (status) status.innerText = 'Password updated for ' + b.adminEmail + '. They can sign in with this new password.';
+    alert('Password updated.\n\nAdministrator: ' + b.adminEmail + '\n\nThey can now sign in with the new password you set.');
+  }
+
+  function paSendBizResetEmail(bizId) {
+    var b = (platformData.businesses || {})[bizId];
+    if (!b) return;
+    var status = document.getElementById('paBizCredStatus');
+    var email = String(b.adminEmail || '').trim().toLowerCase();
+    if (!email) {
+      if (status) status.innerText = 'This email is not registered in the list - no administrator email is on record for this business.';
+      return;
+    }
+    var known = Object.keys(platformData.businesses || {}).some(function (k) {
+      return String((platformData.businesses[k] || {}).adminEmail || '').trim().toLowerCase() === email;
+    });
+    if (!known) { if (status) status.innerText = 'This email is not registered in the list.'; return; }
+    var auth = firebaseAuth();
+    if (!auth) { if (status) status.innerText = 'The email service is unavailable right now. Please try again.'; return; }
+    if (status) status.innerText = 'Sending...';
+    auth.sendPasswordResetEmail(email).then(function () {
+      if (status) status.innerText = 'Password reset email sent to ' + email + '.';
+    }).catch(function (err) {
+      var code = (err && err.code) || '';
+      if (status) status.innerText = code === 'auth/user-not-found'
+        ? 'This email is not registered in the list.'
+        : 'Could not send the reset email. Please try again.';
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var fpc = document.getElementById('forgotPasswordBtnContainer');
+    function syncForgot() { if (fpc) fpc.style.display = (currentLoginMode === 'Admin') ? 'inline' : 'none'; }
+    var ta = document.getElementById('loginTabAdmin');
+    var ts = document.getElementById('loginTabStaff');
+    if (ta) ta.addEventListener('click', function () { setTimeout(syncForgot, 0); });
+    if (ts) ts.addEventListener('click', function () { setTimeout(syncForgot, 0); });
+    syncForgot();
+  });
 </script>
 </body>
 </html>
