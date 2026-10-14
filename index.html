@@ -690,7 +690,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
       </div>
 
       <div class="login-field" id="loginEmailWrap" style="display:none">
-        <label>Administrator Email or Name</label>
+        <label>Administrator Email</label>
         <div class="login-input-wrap">
           <i class="fa-solid fa-envelope"></i>
           <input type="text" id="loginEmailInput" placeholder="Enter the email address" autocomplete="off">
@@ -4763,14 +4763,14 @@ const FIREBASE_CONFIG = {
       const typedEmail = ((emailInput && emailInput.value) || '').trim().toLowerCase();
       /* The Main Platform Administrator signs in here too. */
       const paCred = platformData.credentials;
-      if (paCred && (((paCred.email && String(paCred.email).trim().toLowerCase() === typedEmail)) || String(paCred.name || '').trim().toLowerCase() === typedEmail)) {
+      if (paCred && paCred.email && String(paCred.email).trim().toLowerCase() === typedEmail) {
         if (paCred.password !== pass) { showLoginError('Incorrect password. Please check your password and try again.'); return; }
         document.getElementById('loginPassword').value = '';
         openPlatformAdminFirebaseSession(paCred, pass);
         enterPlatformAdminMode();
         return;
       }
-      user = appData.users.find(u => u.role === 'Admin' && (String(u.email || '').trim().toLowerCase() === typedEmail || String(u.name || '').trim().toLowerCase() === typedEmail));
+      user = appData.users.find(u => u.role === 'Admin' && String(u.email || '').trim().toLowerCase() === typedEmail);
     } else {
       const typedId = ((document.getElementById('loginStaffId') || {}).value || '').trim().toLowerCase();
       user = appData.users.find(u => u.role === 'Staff' && (String(u.id || '').trim().toLowerCase() === typedId || String(u.name || '').trim().toLowerCase() === typedId));
@@ -4778,7 +4778,7 @@ const FIREBASE_CONFIG = {
 
     if (!user) {
       showLoginError(currentLoginMode === 'Admin'
-        ? 'No administrator account matches that email or name. Please check the spelling, or register your business if you have not done so yet.'
+        ? 'No administrator account matches that email. Please check the spelling, or register your business if you have not done so yet.'
         : 'No staff account matches that ID or name. Please check with your administrator.');
       return;
     }
@@ -4913,6 +4913,30 @@ const FIREBASE_CONFIG = {
     return Array.prototype.map.call(bytes, function(b) { return ('0' + b.toString(16)).slice(-2); }).join('');
   }
 
+  /* Ensures a Firebase Authentication account exists for the given email, so the
+     built-in "forgot password" email is actually delivered. The account is created
+     with a throwaway password through a second Firebase app instance (the admin's own
+     session is never touched); the real password is then set via the reset link
+     Firebase emails. If the account already exists this is a no-op. */
+  function ensureFirebaseAccountWithEmail(email, tempPassword) {
+    var auth = firebaseAuth();
+    if (!auth || !email) return Promise.resolve(false);
+    var secondary = null;
+    try { secondary = firebase.app('atmos-provisioner'); }
+    catch (e) { try { secondary = firebase.initializeApp(firebase.app().options, 'atmos-provisioner'); } catch (e2) { return Promise.resolve(false); } }
+    if (!secondary || !secondary.auth) return Promise.resolve(false);
+    var sAuth = secondary.auth();
+    return sAuth.createUserWithEmailAndPassword(email, tempPassword).then(function () {
+      try { sAuth.signOut(); } catch (e) {}
+      return true;
+    }).catch(function (err) {
+      try { sAuth.signOut(); } catch (e) {}
+      var code = (err && err.code) || '';
+      if (code === 'auth/email-already-in-use') return true;
+      return false;
+    });
+  }
+
   /* Generates the single-use token and emails the link. The link is never shown on screen. */
   function requestAdminPasswordReset() {
     var email = (document.getElementById('adminResetEmailInput').value || '').trim().toLowerCase();
@@ -4941,7 +4965,12 @@ const FIREBASE_CONFIG = {
     }
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...'; }
 
-    auth.sendPasswordResetEmail(email).then(function () {
+    /* Make sure a Firebase account exists for this email first - otherwise the reset
+       email is silently not delivered (the secure identity may live under an internal
+       address). Then send the real, single-use reset link. */
+    ensureFirebaseAccountWithEmail(email, 'TempReset_' + Date.now() + '!A1').then(function () {
+      return auth.sendPasswordResetEmail(email);
+    }).then(function () {
       finish('A reset link has been sent to ' + email + '. Open it, set a new password, then sign in here with that new password.', true);
     }).catch(function (err) {
       console.error('Reset email failed:', err);
@@ -8360,7 +8389,7 @@ function performPlatformAdminLogin() {
   var cred = platformData.credentials;
   if (!cred) return alert('No platform administrator configured.');
   var nameKey = name.toLowerCase();
-  var idMatches = (cred.email && String(cred.email).trim().toLowerCase() === nameKey) || cred.name === name;
+  var idMatches = !!(cred.email && String(cred.email).trim().toLowerCase() === nameKey);
   if (idMatches && cred.password === password) { enterPlatformAdminMode(); }
   else { alert('Invalid platform admin credentials.'); }
 }
@@ -9557,7 +9586,7 @@ function saveBusinessDetails() {
   var email = document.getElementById('bizDetEmail').value.trim();
   if (!name) return alert('Please enter your business name.');
   if (category === 'Other' && !customCategory) return alert('Please enter your business category.');
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('Please enter a valid email address.');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('Please enter a valid administrator email address. It is required for sign-in and password recovery.');
   if (mobile && !/^[0-9]{10}$/.test(mobile.replace(/[^0-9]/g, ''))) return alert('Please enter a valid 10-digit mobile number.');
 
   appData.logoDataUrl = bizDetLogoDataUrl;
@@ -9586,6 +9615,10 @@ function saveBusinessDetails() {
 /* Existing admins are asked to complete their business details after signing in */
 function maybePromptBusinessDetails(user) {
   if (!user || user.role !== 'Admin') return;
+  /* An existing administrator without an email must complete it - just like a new
+     registration - so email-only sign-in and password recovery both work. */
+  var admin = (appData.users || []).find(function (u) { return u.role === 'Admin'; });
+  if (admin && !admin.email) { openBizDetailsModal(); return; }
   var p = (appData && appData.businessProfile) || {};
   if (p.detailsConfirmed) return;
   openBizDetailsModal();
@@ -10096,7 +10129,9 @@ window.addEventListener('DOMContentLoaded', function() {
     var auth = firebaseAuth();
     if (!auth) { if (status) status.innerText = 'The email service is unavailable right now. Please try again.'; return; }
     if (status) status.innerText = 'Sending...';
-    auth.sendPasswordResetEmail(email).then(function () {
+    ensureFirebaseAccountWithEmail(email, 'TempReset_' + Date.now() + '!A1').then(function () {
+      return auth.sendPasswordResetEmail(email);
+    }).then(function () {
       if (status) status.innerText = 'Password reset email sent to ' + email + '.';
     }).catch(function (err) {
       var code = (err && err.code) || '';
