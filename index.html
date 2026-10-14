@@ -10,6 +10,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- html2pdf.js for Financial Reports & Invoice Exporting -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- QR Code generator for UPI payment QR codes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <!-- Firebase Compatibility Libraries for Real-Time Cross-Device Live Sync -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -582,6 +584,24 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
       <button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="bizRegBack()">Back</button>
     </div>
   </div>
+</div>
+
+<!-- SUBSCRIPTION LOCKOUT MODAL -->
+<div id="subLockModal" class="modal" style="display:none;z-index:2000">
+<div class="modal-card" style="max-width:440px;text-align:center;border-top:6px solid var(--atmos-red)">
+<div style="font-size:2.6rem;color:var(--atmos-red);margin-bottom:10px"><i class="fa-solid fa-lock"></i></div>
+<h3 id="subLockTitle" style="font-size:1.2rem;font-weight:900;color:var(--atmos-navy);margin-bottom:10px">Subscription Required</h3>
+<p id="subLockMsg" style="font-size:.85rem;color:var(--text-muted);line-height:1.55;margin-bottom:18px"></p>
+<div style="background:var(--accent-amber-bg);border:1px solid var(--accent-amber);border-radius:var(--radius-md);padding:12px;margin-bottom:16px;font-size:.78rem;color:#92400e;text-align:left">
+<strong>What happens next?</strong><br>
+1. Pay by UPI QR.<br>
+2. Submit your transaction ID, mobile number, amount and screenshot.<br>
+3. Your details go straight to platform support on WhatsApp.<br>
+4. The Main Platform Administrator verifies and restores full access.
+</div>
+<button class="btn-primary" onclick="openPaSubmitPaymentFromLock()" style="width:100%"><i class="fa-solid fa-qrcode"></i> Complete Payment</button>
+<a href="https://wa.me/918089278115?text=Hi%2C%20I%20need%20help%20with%20my%20ATMOS%20subscription." target="_blank" style="display:block;margin-top:12px;font-size:.8rem;color:var(--text-muted);text-decoration:none;font-weight:700"><i class="fa-brands fa-whatsapp"></i> Contact support on WhatsApp</a>
+</div>
 </div>
 
 <!-- FLOATING WHATSAPP SUPPORT -->
@@ -2476,13 +2496,18 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 <div id="paSubscriptionsTab" class="pa-section tab-content">
 <div class="section-header admin-header"><i class="fa-solid fa-credit-card"></i> Subscriptions & Manual UPI Payments</div>
 <div class="app-card" style="border-left:5px solid var(--atmos-red)">
-<h3 style="font-size:1rem;font-weight:900;color:var(--atmos-navy);margin-bottom:8px"><i class="fa-solid fa-upi-brands" style="color:var(--atmos-red)"></i> UPI Payment ID: <strong>8089278115@superyes</strong></h3>
+<h3 style="font-size:1rem;font-weight:900;color:var(--atmos-navy);margin-bottom:8px"><i class="fa-solid fa-qrcode" style="color:var(--atmos-red)"></i> Platform Payment QR</h3>
+<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+<div id="paAdminQr" style="background:#fff;padding:8px;border:1px solid var(--border);border-radius:var(--radius-md)"></div>
+<div style="font-size:.75rem;color:var(--text-muted)">Customers scan this QR to pay by UPI.<br><span style="font-size:.68rem">Payee: ATMOS Digital Solutions</span></div>
+</div>
 <p style="font-size:.8rem;color:var(--text-muted)">Business administrators submit transaction/reference ID and payment screenshot. Only verified approval from the Main Platform Administrator activates or extends a subscription.</p>
 </div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:20px">
 <div class="app-card"><h3 style="font-size:.9rem;font-weight:800;margin-bottom:10px">Subscription Plans — Normal Pricing</h3>
 <div id="paNormalPlans"></div></div>
-<div class="app-card" style="border:2px solid var(--accent-green)"><h3 style="font-size:.9rem;font-weight:800;margin-bottom:10px;color:var(--accent-green)">Introductory Pricing <span id="paIntroBadge" class="pa-badge pa-badge-active" style="font-size:.65rem">Active</span></h3>
+<div class="app-card" style="border:2px solid var(--accent-green)"><h3 style="font-size:.9rem;font-weight:800;margin-bottom:10px;color:var(--accent-green);display:flex;justify-content:space-between;align-items:center;gap:8px">Introductory Pricing <span id="paIntroBadge" class="pa-badge pa-badge-active" style="font-size:.65rem">Active</span></h3>
+<button class="btn-admin" id="paIntroToggleBtn" onclick="toggleIntroOffer()" style="width:100%;margin-bottom:10px;font-size:.75rem;padding:8px"></button>
 <div id="paIntroPlans"></div></div>
 </div>
 <div class="app-card">
@@ -2994,18 +3019,24 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 </div>
 
 <!-- SUBMIT PAYMENT MODAL (for business admins) -->
-<div id="paSubmitPaymentModal" class="modal" style="display:none">
-<div class="modal-card" style="max-width:520px">
+<div id="paSubmitPaymentModal" class="modal" style="display:none;z-index:1600">
+<div class="modal-card" style="max-width:540px;max-height:92vh;overflow-y:auto">
 <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:6px">Submit UPI Payment</h3>
-<p style="font-size:.8rem;color:var(--text-muted);margin-bottom:14px">Pay to UPI ID: <strong>8089278115@superyes</strong>. After payment, submit your transaction/reference ID and screenshot below.</p>
-<div class="form-group"><label>Select Plan</label><select id="paPayPlan"><option value="1month">1 Month</option><option value="3months">3 Months</option><option value="6months">6 Months</option><option value="12months">12 Months</option></select></div>
-<div class="form-group"><label>Pricing Type</label><select id="paPayPricingType"><option value="normal">Normal Pricing</option><option value="introductory">Introductory Pricing</option></select></div>
+<p style="font-size:.8rem;color:var(--text-muted);margin-bottom:12px">Scan the QR below with any UPI app and enter the amount. Then submit your payment details for verification.</p>
+<div style="text-align:center;margin-bottom:14px">
+<div id="paPayQr" style="display:inline-block;background:#fff;padding:10px;border:1px solid var(--border);border-radius:var(--radius-md)"></div>
+<div id="paPayQrAmount" style="font-size:1.05rem;font-weight:900;color:var(--accent-green);margin-top:8px">&#8377;0</div>
+<div style="font-size:.68rem;color:var(--text-muted);margin-top:2px">Scan with PhonePe / GPay / Paytm / any UPI app</div>
+</div>
+<div class="form-group"><label>Select Plan</label><select id="paPayPlan" onchange="syncPayAmount();refreshPaymentQr();"><option value="1month">Monthly</option><option value="3months">Quarterly</option><option value="6months">Half-Yearly</option><option value="12months">Yearly</option></select></div>
+<div class="form-group"><label>Pricing Type</label><select id="paPayPricingType"><option value="normal">Normal Pricing</option></select><div id="paPayPricingHint" style="font-size:.68rem;color:var(--text-muted);margin-top:5px"></div></div>
 <div class="form-group"><label>Transaction / Reference ID</label><input type="text" id="paPayTxnId" placeholder="Enter UPI transaction/reference ID" required></div>
+<div class="form-group"><label>Your Mobile Number</label><input type="tel" id="paPayMobile" placeholder="e.g. 8089278115" required></div>
 <div class="form-group"><label>Payment Screenshot</label><input type="file" id="paPayScreenshot" accept="image/*"></div>
-<div class="form-group"><label>Amount Paid (₹)</label><input type="number" id="paPayAmount" placeholder="e.g. 199" min="1" required></div>
+<div class="form-group"><label>Amount Paid (₹)</label><input type="number" id="paPayAmount" placeholder="e.g. 149" min="1" oninput="refreshPaymentQr()" required></div>
 <div style="display:flex;gap:10px;margin-top:16px">
 <button style="flex:1;background:var(--bg);color:var(--text-muted)" onclick="closePaSubmitPayment()">Cancel</button>
-<button style="flex:1" class="btn-primary" onclick="submitPayment()">Submit for Verification</button>
+<button style="flex:1" class="btn-primary" onclick="submitPayment()"><i class="fa-brands fa-whatsapp"></i> Submit for Verification</button>
 </div>
 </div>
 </div>
@@ -3440,14 +3471,13 @@ const FIREBASE_CONFIG = {
   function startBusinessSync() {
     if (isFirebaseSyncActive && firebaseDbRef) return;
     try {
+      /* Drop any earlier listener that was refused before sign-in, so the retry
+         after sign-in is a clean connection rather than a second dead one. */
+      if (firebaseDbRef) { try { firebaseDbRef.off(); } catch (e) {} firebaseDbRef = null; }
       firebaseDbRef = businessDataRef();
       firebaseDbRef.on('value', function (snapshot) {
         var val = snapshot.val();
-        var badge = document.getElementById('cloudSyncStatusBadge');
-        if (badge) {
-          badge.className = "sync-badge sync-online";
-          badge.innerHTML = '<i class="fa-solid fa-cloud"></i> Live Cloud Sync';
-        }
+        setSyncBadge('online');
         if (val) {
           var masterBefore = JSON.stringify(appData.masterServices.map(function (s) { return [s.id, s.name, s.price, s.deptFee || 0]; }));
           appData = convertLegacyData(val);
@@ -3459,7 +3489,7 @@ const FIREBASE_CONFIG = {
               relinkCurrentUser();
               try { refreshAllViews(); } catch (e) {}
             }
-          });
+          }, function () {});
           if (currentUser && currentUser.role === 'Admin') {
             syncMembershipSlots(currentUser).catch(function (e) { console.error('Membership sync failed:', e); });
             migrateAllAccounts();
@@ -3474,9 +3504,12 @@ const FIREBASE_CONFIG = {
         isFirebaseSyncActive = true;
       }, function (err) {
         console.error("Business data read failed:", err);
+        var a = firebaseAuth();
+        setSyncBadge((a && a.currentUser) ? 'local' : 'signin');
       });
     } catch (e) {
       console.error("Business sync init failed:", e);
+      setSyncBadge('local');
     }
   }
 
@@ -3673,6 +3706,7 @@ const FIREBASE_CONFIG = {
   }
 
   function saveData() {
+    if (currentUser && !platformAdminUser && getSubscriptionState().locked) { checkSubscriptionLock(); return; }
     localStorage.setItem('ATMOS_HUB_DATA_2026', JSON.stringify(appData));
     if (isFirebaseSyncActive && firebaseDbRef) {
       firebaseDbRef.set(convertToLegacyFormat()).catch(err => console.error("Firebase sync write error:", err));
@@ -3685,23 +3719,27 @@ const FIREBASE_CONFIG = {
     const customUrl = localStorage.getItem('ATMOS_FIREBASE_URL');
     try {
       if (!firebase.apps.length) {
-        /* The api key must always be present - without it Firebase Auth cannot start and the app silently falls back to local storage. */
         firebase.initializeApp(customUrl ? Object.assign({}, FIREBASE_CONFIG, { databaseURL: customUrl }) : FIREBASE_CONFIG);
       }
-      /* The business data is only reachable once someone is signed in. */
-      setupAccountDirectory();
       var auth = firebaseAuth();
       if (auth) {
         auth.onAuthStateChanged(function (fbUser) {
-          if (fbUser) startBusinessSync();
-          else isFirebaseSyncActive = false;
+          /* Reconnect on every auth change so the rules can let us in once signed in. */
+          isFirebaseSyncActive = false;
+          if (fbUser) {
+            setupAccountDirectory();
+            setSyncBadge('connecting');
+            startBusinessSync();
+          } else {
+            setSyncBadge('signin');
+          }
         });
       }
-      /* Connect straight away so the app syncs exactly as it did before, and
-         re-connect after sign-in for when the database rules are locked down. */
+      setSyncBadge('connecting');
       startBusinessSync();
     } catch (e) {
       console.error("Firebase init failed:", e);
+      setSyncBadge('local');
     }
   }
 
@@ -8160,6 +8198,7 @@ function setupPlatformFirebaseSync() {
       platformSyncActive = true;
       updatePlatformAdminLoginUI();
       if (platformAdminUser) renderPlatformAdminViews();
+      try { renderBizSubscriptionCard(); checkSubscriptionLock(); } catch (e) {}
     });
   } catch(e) { console.error('Platform Firebase init failed:', e); }
 }
@@ -8673,10 +8712,16 @@ function renderPASubscriptions() {
     introHtml += '<div style="background:var(--accent-green-bg);padding:10px;border-radius:var(--radius-md);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center"><div><strong>'+ip.name+'</strong></div><div style="font-weight:800;color:var(--accent-green)">₹'+ip.price+'</div></div>';
   });
   var np = document.getElementById('paNormalPlans'); if (np) np.innerHTML = normalHtml;
+  renderQrInto('paAdminQr', upiPayUri(0), 130);
   var ip2 = document.getElementById('paIntroPlans'); if (ip2) ip2.innerHTML = introHtml;
   var offer = platformData.introductoryOffer || {};
   var badge = document.getElementById('paIntroBadge');
   if (badge) { badge.className = 'pa-badge '+(offer.active?'pa-badge-active':'pa-badge-expired'); badge.innerText = offer.active?'Active':'Inactive'; }
+  var toggleBtn = document.getElementById('paIntroToggleBtn');
+  if (toggleBtn) {
+    toggleBtn.innerText = offer.active ? 'Withdraw Introductory Pricing (switch everyone to Normal Pricing)' : 'Activate Introductory Pricing';
+    toggleBtn.style.background = offer.active ? 'var(--atmos-red)' : 'var(--accent-green)';
+  }
 
   /* pending payments */
   var pending = Object.keys(platformData.payments||{}).filter(function(k) { return platformData.payments[k].status === 'pending'; }).map(function(k) { return Object.assign({id:k}, platformData.payments[k]); });
@@ -9224,61 +9269,88 @@ function renderCleanupLogs() {
 
 /* ===== BUSINESS ADMIN: SUBMIT PAYMENT (called from business side) ===== */
 function openPaSubmitPayment() {
-  document.getElementById('paSubmitPaymentModal').style.display = 'flex';
-}
-function closePaSubmitPayment() { document.getElementById('paSubmitPaymentModal').style.display = 'none'; }
+    var offer = platformData.introductoryOffer || {};
+    var introActive = !!offer.active;
+    var ptEl = document.getElementById('paPayPricingType');
+    if (ptEl) {
+      ptEl.innerHTML = introActive
+        ? '<option value="introductory">Introductory Pricing</option><option value="normal" disabled>Normal Pricing (not available)</option>'
+        : '<option value="normal">Normal Pricing</option>';
+      ptEl.value = introActive ? 'introductory' : 'normal';
+    }
+    var hint = document.getElementById('paPayPricingHint');
+    if (hint) hint.innerText = introActive
+      ? 'Introductory pricing is active. Normal pricing cannot be selected until the offer is withdrawn.'
+      : 'The introductory offer has ended. Normal pricing applies to all renewals.';
+    var b = getCurrentBizRecord();
+    var mobEl = document.getElementById('paPayMobile');
+    if (mobEl && !mobEl.value && b && b.adminContact) mobEl.value = b.adminContact;
+    syncPayAmount();
+    refreshPaymentQr();
+    document.getElementById('paSubmitPaymentModal').style.display = 'flex';
+  }
+function closePaSubmitPayment() {
+    document.getElementById('paSubmitPaymentModal').style.display = 'none';
+    checkSubscriptionLock();
+  }
 
 function submitPayment() {
-  var plan = document.getElementById('paPayPlan').value;
-  var pricingType = document.getElementById('paPayPricingType').value;
-  var txnId = document.getElementById('paPayTxnId').value.trim();
-  var amount = parseFloat(document.getElementById('paPayAmount').value || 0);
-  if (!txnId) return alert('Please enter the transaction/reference ID.');
-  if (amount <= 0) return alert('Please enter a valid amount.');
-  /* Duplicate payment protection */
-  var existing = Object.keys(platformData.payments||{}).some(function(k) {
-    var p = platformData.payments[k];
-    return p.txnId === txnId && p.txnId && p.status !== 'rejected';
-  });
-  if (existing) return alert('Duplicate payment detected: This transaction ID has already been submitted. Please use a different transaction/reference ID.');
-  /* Handle screenshot */
-  var fileInput = document.getElementById('paPayScreenshot');
-  var screenshotUrl = '';
-  var file = fileInput.files[0];
-  if (file) {
-    var reader = new FileReader();
-    reader.onload = function(evt) {
-      screenshotUrl = evt.target.result;
-      doSubmitPayment(plan, pricingType, txnId, amount, screenshotUrl);
-    };
-    reader.readAsDataURL(file);
-  } else {
-    doSubmitPayment(plan, pricingType, txnId, amount, '');
+    var plan = document.getElementById('paPayPlan').value;
+    var pricingType = document.getElementById('paPayPricingType').value || 'normal';
+    var txnId = document.getElementById('paPayTxnId').value.trim();
+    var mobile = (document.getElementById('paPayMobile').value || '').trim();
+    var amount = parseFloat(document.getElementById('paPayAmount').value || 0);
+    if (!txnId) return alert('Please enter the transaction/reference ID.');
+    if (amount <= 0) return alert('Please enter a valid amount.');
+    if (!mobile) return alert('Please enter your mobile number.');
+    var existing = Object.keys(platformData.payments || {}).some(function (k) {
+      var p = platformData.payments[k];
+      return p.txnId === txnId && p.txnId && p.status !== 'rejected';
+    });
+    if (existing) return alert('Duplicate payment detected: This transaction ID has already been submitted. Please use a different transaction/reference ID.');
+    var fileInput = document.getElementById('paPayScreenshot');
+    var file = fileInput.files[0];
+    if (file) {
+      var reader = new FileReader();
+      reader.onload = function (evt) { doSubmitPayment(plan, pricingType, txnId, amount, evt.target.result, mobile); };
+      reader.readAsDataURL(file);
+    } else {
+      doSubmitPayment(plan, pricingType, txnId, amount, '', mobile);
+    }
   }
-}
 
-function doSubmitPayment(plan, pricingType, txnId, amount, screenshotUrl) {
-  /* Find current business */
-  var bizId = null;
-  Object.keys(platformData.businesses||{}).forEach(function(k) {
-    if (platformData.businesses[k].isCurrentBusiness) bizId = k;
-  });
-  if (!bizId) return alert('This business is not registered with the platform. Please contact the platform administrator.');
-  var paymentId = 'PAY-' + Date.now().toString(36);
-  if (!platformData.payments) platformData.payments = {};
-  platformData.payments[paymentId] = {
-    businessId: bizId, plan: plan, pricingType: pricingType,
-    txnId: txnId, amount: amount, screenshotUrl: screenshotUrl,
-    status: 'pending', submittedAt: Date.now(), verifiedAt: 0,
-    rejectionReason: '', verifiedBy: ''
-  };
-  savePlatformData();
-  alert('Payment submitted for verification!\n\nStatus: Pending Verification\n\nThe Main Platform Administrator will review your payment and activate/extend your subscription upon verified approval. You will receive a notification once approved or rejected.');
-  closePaSubmitPayment();
-  document.getElementById('paPayTxnId').value = '';
-  document.getElementById('paPayAmount').value = '';
-  document.getElementById('paPayScreenshot').value = '';
-}
+function doSubmitPayment(plan, pricingType, txnId, amount, screenshotUrl, mobile) {
+    var bizId = null;
+    try { bizId = getCurrentPlatformBusinessId(); } catch (e) { bizId = null; }
+    if (!bizId) return alert('This business is not registered with the platform. Please contact the platform administrator.');
+    var b = (platformData.businesses || {})[bizId] || {};
+    var paymentId = 'PAY-' + Date.now().toString(36);
+    if (!platformData.payments) platformData.payments = {};
+    platformData.payments[paymentId] = {
+      businessId: bizId, plan: plan, pricingType: pricingType,
+      txnId: txnId, mobile: mobile, amount: amount, screenshotUrl: screenshotUrl,
+      status: 'pending', submittedAt: Date.now(), verifiedAt: 0,
+      rejectionReason: '', verifiedBy: ''
+    };
+    savePlatformData();
+    var msg = 'PAYMENT VERIFICATION REQUEST\n'
+      + '--------------------------------\n'
+      + 'Business: ' + (b.name || '-') + '\n'
+      + 'Business ID: ' + bizId + '\n'
+      + 'Plan: ' + (PLAN_LABELS[plan] || plan) + '\n'
+      + 'Pricing Type: ' + (pricingType === 'introductory' ? 'Introductory Pricing' : 'Normal Pricing') + '\n'
+      + 'Amount Paid: Rs ' + amount + '\n'
+      + 'Transaction / Reference ID: ' + txnId + '\n'
+      + 'Mobile Number: ' + mobile + '\n'
+      + 'Screenshot: ' + (screenshotUrl ? 'Uploaded in the platform dashboard' : 'Not uploaded') + '\n'
+      + '--------------------------------\n'
+      + 'Please verify and activate my subscription.';
+    try { window.open('https://wa.me/' + SUPPORT_WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank'); } catch (e) {}
+    alert('Payment submitted for verification!\n\nStatus: Pending Verification\n\nYour details have been sent to platform support on WhatsApp. The Main Platform Administrator will verify and activate your subscription.');
+    closePaSubmitPayment();
+    document.getElementById('paPayTxnId').value = '';
+    document.getElementById('paPayScreenshot').value = '';
+  }
 
 /* ===== PRESENCE TRACKING ===== */
 function setupPlatformPresence() {
@@ -9614,15 +9686,11 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  /* Add submit payment button to business admin tab (if admin) */
-  var adminTab = document.getElementById('adminTab');
-  if (adminTab) {
-    var payBtnDiv = document.createElement('div');
-    payBtnDiv.className = 'app-card';
-    payBtnDiv.style.cssText = 'border-left:5px solid var(--atmos-red);margin-bottom:24px';
-    payBtnDiv.innerHTML = '<h3 style="font-size:1.05rem;font-weight:900;color:var(--atmos-navy);margin-bottom:6px"><i class="fa-solid fa-credit-card" style="color:var(--atmos-red)"></i> Platform Subscription & UPI Payment</h3><p style="font-size:.8rem;color:var(--text-muted);margin-bottom:12px">Submit your UPI payment for subscription activation. UPI ID: <strong>8089278115@superyes</strong></p><button class="btn-admin" onclick="openPaSubmitPayment()" style="width:auto"><i class="fa-solid fa-paper-plane"></i> Submit Payment for Verification</button>';
-    adminTab.insertBefore(payBtnDiv, adminTab.firstChild);
-  }
+  /* Platform subscription card + trial / grace lock (business side) */
+  renderBizSubscriptionCard();
+  checkSubscriptionLock();
+  setTimeout(function () { renderBizSubscriptionCard(); checkSubscriptionLock(); }, 2500);
+  setInterval(function () { renderBizSubscriptionCard(); checkSubscriptionLock(); }, 45000);
 });
 
   /* ===== Redesigned login & PIN helpers ===== */
@@ -9676,6 +9744,192 @@ window.addEventListener('DOMContentLoaded', function() {
     } catch (e) {}
   }
   window.offerPinSetupAfterLogin = offerPinSetupAfterLogin;
+
+  /* Honest cloud-sync badge: online / connecting / needs sign-in / offline. */
+  function setSyncBadge(state) {
+    var badge = document.getElementById('cloudSyncStatusBadge');
+    if (!badge) return;
+    if (state === 'online') {
+      badge.className = 'sync-badge sync-online';
+      badge.innerHTML = '<i class="fa-solid fa-cloud"></i> Live Cloud Sync';
+    } else if (state === 'connecting') {
+      badge.className = 'sync-badge sync-local';
+      badge.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Connecting...';
+    } else if (state === 'signin') {
+      badge.className = 'sync-badge sync-local';
+      badge.innerHTML = '<i class="fa-solid fa-user-lock"></i> Sign in to sync';
+    } else {
+      badge.className = 'sync-badge sync-local';
+      badge.innerHTML = '<i class="fa-solid fa-wifi"></i> Local Sync';
+    }
+  }
+  window.setSyncBadge = setSyncBadge;
+
+  /* ============================================================
+     SUBSCRIPTION, GRACE PERIOD, UPI QR & PAYMENT VERIFICATION
+     ============================================================ */
+  var SUPPORT_WHATSAPP = '918089278115';
+  var PLATFORM_UPI_ID = '8089278115@superyes';
+  var PLATFORM_PAYEE_NAME = 'ATMOS Digital Solutions';
+  var SUB_GRACE_DAYS = 7;
+  var PLAN_LABELS = { '1month': 'Monthly', '3months': 'Quarterly', '6months': 'Half-Yearly', '12months': 'Yearly' };
+
+  function getCurrentBizRecord() {
+    var bizId = null;
+    try { bizId = getCurrentPlatformBusinessId(); } catch (e) { bizId = null; }
+    if (!bizId) return null;
+    return (platformData.businesses || {})[bizId] || null;
+  }
+
+  function getSubscriptionState() {
+    var DAY = 86400000;
+    var st = { registered: false, status: 'none', locked: false, daysLeft: 0, graceLeft: 0,
+               plan: '\u2014', pricing: '\u2014', expiryText: '\u2014' };
+    var b = getCurrentBizRecord();
+    if (!b) return st;
+    st.registered = true;
+    if (b.blocked) { st.status = 'blocked'; st.locked = true; return st; }
+    var end = 0;
+    if (b.subscriptionStatus === 'active' && b.subscriptionExpiry) {
+      end = new Date(b.subscriptionExpiry).getTime(); st.status = 'active';
+    } else if (b.subscriptionStatus === 'trial' && b.trialEndDate) {
+      end = b.trialEndDate; st.status = 'trial';
+    }
+    st.plan = PLAN_LABELS[b.subscriptionPlan] || (st.status === 'trial' ? 'Free Trial' : '\u2014');
+    st.pricing = (st.status === 'trial') ? 'Free Trial'
+                : (b.subscriptionPricingType === 'introductory' ? 'Introductory Pricing' : 'Normal Pricing');
+    if (!end) return st;
+    st.expiryText = new Date(end).toLocaleDateString('en-GB');
+    var now = Date.now();
+    if (now <= end) {
+      st.daysLeft = Math.max(0, Math.ceil((end - now) / DAY));
+      st.locked = false;
+    } else {
+      var graceEnd = end + SUB_GRACE_DAYS * DAY;
+      if (now <= graceEnd) {
+        st.status = 'grace'; st.daysLeft = 0;
+        st.graceLeft = Math.max(0, Math.ceil((graceEnd - now) / DAY));
+        st.locked = false;
+      } else { st.status = 'expired'; st.locked = true; }
+    }
+    return st;
+  }
+
+  function upiPayUri(amount) {
+    var uri = 'upi://pay?pa=' + encodeURIComponent(PLATFORM_UPI_ID) + '&pn=' + encodeURIComponent(PLATFORM_PAYEE_NAME) + '&cu=INR';
+    if (amount > 0) uri += '&am=' + Number(amount).toFixed(2);
+    uri += '&tn=' + encodeURIComponent('ATMOS Subscription');
+    return uri;
+  }
+
+  function renderQrInto(elId, text, size) {
+    var el = document.getElementById(elId);
+    if (!el) return;
+    el.innerHTML = '';
+    if (typeof QRCode === 'undefined') {
+      el.innerHTML = '<div style="font-size:.68rem;color:var(--text-muted)">QR code could not load. Check your connection.</div>';
+      return;
+    }
+    new QRCode(el, { text: text, width: size, height: size, colorDark: '#0B1E2D', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+  }
+
+  function refreshPaymentQr() {
+    var amtEl = document.getElementById('paPayAmount');
+    var amt = amtEl ? parseFloat(amtEl.value || 0) : 0;
+    renderQrInto('paPayQr', upiPayUri(amt), 170);
+    var lbl = document.getElementById('paPayQrAmount');
+    if (lbl) lbl.innerText = amt > 0 ? '\u20b9' + amt : 'Enter the amount';
+  }
+
+  function syncPayAmount() {
+    var planEl = document.getElementById('paPayPlan');
+    var ptEl = document.getElementById('paPayPricingType');
+    var amtEl = document.getElementById('paPayAmount');
+    if (!planEl || !amtEl) return;
+    var pt = (ptEl && ptEl.value) ? ptEl.value : 'normal';
+    var def = (PA_PLANS[pt] || PA_PLANS.normal)[planEl.value];
+    if (def) amtEl.value = def.price;
+  }
+
+  function renderBizSubscriptionCard() {
+    if (platformAdminUser) return;
+    var adminTab = document.getElementById('adminTab');
+    if (!adminTab) return;
+    var card = document.getElementById('bizSubCard');
+    if (!card) {
+      card = document.createElement('div');
+      card.id = 'bizSubCard';
+      card.className = 'app-card';
+      card.style.cssText = 'border-left:5px solid var(--atmos-red);margin-bottom:24px';
+      adminTab.insertBefore(card, adminTab.firstChild);
+    }
+    card.innerHTML = buildBizSubCardHtml();
+  }
+
+  function buildBizSubCardHtml() {
+    var st = getSubscriptionState();
+    var colors = { trial: 'var(--primary)', active: 'var(--accent-green)', grace: 'var(--accent-amber)', expired: 'var(--accent-rose)', blocked: 'var(--accent-rose)', none: 'var(--text-muted)' };
+    var labels = { trial: 'Free Trial', active: 'Active', grace: 'Grace Period', expired: 'Expired', blocked: 'Suspended', none: 'Not Registered' };
+    var c = colors[st.status] || 'var(--text-muted)';
+    var l = labels[st.status] || 'Unknown';
+    var daysBox;
+    if (st.status === 'grace') {
+      daysBox = '<div style="font-size:1.7rem;font-weight:900;color:var(--accent-amber);line-height:1">' + st.graceLeft + '</div><div style="font-size:.65rem;font-weight:800;color:var(--text-muted);margin-top:2px">GRACE DAYS LEFT</div>';
+    } else if (st.status === 'expired' || st.status === 'blocked') {
+      daysBox = '<div style="font-size:1.7rem;font-weight:900;color:var(--accent-rose);line-height:1">0</div><div style="font-size:.65rem;font-weight:800;color:var(--text-muted);margin-top:2px">DAYS LEFT</div>';
+    } else {
+      daysBox = '<div style="font-size:1.7rem;font-weight:900;color:' + (st.daysLeft <= 3 ? 'var(--accent-rose)' : 'var(--atmos-navy)') + ';line-height:1">' + st.daysLeft + '</div><div style="font-size:.65rem;font-weight:800;color:var(--text-muted);margin-top:2px">DAYS LEFT</div>';
+    }
+    var pill = 'background:var(--bg);border:1px solid var(--border);padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:800;color:var(--text-muted)';
+    return '<div style="display:flex;justify-content:space-between;align-items:stretch;gap:16px;flex-wrap:wrap">'
+      + '<div style="flex:1;min-width:230px">'
+      + '<h3 style="font-size:1.05rem;font-weight:900;color:var(--atmos-navy);margin-bottom:6px"><i class="fa-solid fa-credit-card" style="color:var(--atmos-red)"></i> Platform Subscription</h3>'
+      + '<p style="font-size:.8rem;color:var(--text-muted);margin-bottom:12px">Scan the payment QR and submit your payment details for verification.</p>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'
+      + '<span style="background:' + c + ';color:#fff;padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:800">' + l + '</span>'
+      + '<span style="' + pill + '">' + st.plan + '</span>'
+      + '<span style="' + pill + '">' + st.pricing + '</span>'
+      + '</div>'
+      + '<button class="btn-admin" onclick="openPaSubmitPayment()" style="width:auto"><i class="fa-solid fa-qrcode"></i> Pay / Renew Subscription</button>'
+      + '</div>'
+      + '<div style="text-align:center;min-width:150px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;display:flex;flex-direction:column;justify-content:center">'
+      + daysBox
+      + '<div style="font-size:.66rem;color:var(--text-muted);margin-top:8px">' + (st.expiryText !== '\u2014' ? 'Ends ' + st.expiryText : '\u2014') + '</div>'
+      + '</div></div>';
+  }
+
+  function openPaSubmitPaymentFromLock() {
+    var m = document.getElementById('subLockModal');
+    if (m) m.style.display = 'none';
+    openPaSubmitPayment();
+  }
+
+  function checkSubscriptionLock() {
+    var m = document.getElementById('subLockModal');
+    if (!m) return;
+    if (!currentUser || platformAdminUser) { m.style.display = 'none'; return; }
+    var st = getSubscriptionState();
+    if (!st.registered || !st.locked) { m.style.display = 'none'; return; }
+    var titleEl = document.getElementById('subLockTitle');
+    var msgEl = document.getElementById('subLockMsg');
+    if (titleEl) titleEl.innerText = st.status === 'blocked' ? 'Account Suspended' : 'Subscription Required';
+    if (msgEl) msgEl.innerText = st.status === 'blocked'
+      ? 'Your business account has been suspended by the platform administrator. Please contact support to restore access.'
+      : 'Your free trial and the 7-day grace period have ended. Adding, editing and deleting are paused until your subscription payment is verified. Complete your payment to restore full access.';
+    m.style.display = 'flex';
+  }
+
+  function toggleIntroOffer() {
+    if (!platformData.introductoryOffer) platformData.introductoryOffer = {};
+    var next = !platformData.introductoryOffer.active;
+    platformData.introductoryOffer.active = next;
+    savePlatformData();
+    renderPASubscriptions();
+    renderPASettings();
+    alert('Introductory pricing ' + (next ? 'ACTIVATED' : 'WITHDRAWN') + '.\n\n'
+      + (next ? 'New customers will see introductory prices. Normal pricing cannot be selected.'
+              : 'Normal pricing now applies to all customers and renewals.'));
+  }
 </script>
 </body>
 </html>
