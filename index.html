@@ -693,7 +693,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         <label>Administrator Email</label>
         <div class="login-input-wrap">
           <i class="fa-solid fa-envelope"></i>
-          <input type="text" id="loginEmailInput" placeholder="Enter the email address" autocomplete="off">
+          <input type="text" id="loginEmailInput" placeholder="Email (or your old admin ID, one last time)" autocomplete="off">
         </div>
       </div>
 
@@ -4770,7 +4770,13 @@ const FIREBASE_CONFIG = {
         enterPlatformAdminMode();
         return;
       }
-      user = appData.users.find(u => u.role === 'Admin' && String(u.email || '').trim().toLowerCase() === typedEmail);
+      /* One-time legacy sign-in: the old admin ID still works as long as no email
+         has been saved for the administrator yet. Once an email is set in business
+         details, only that email signs in. */
+      var looksLikeEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(typedEmail);
+      user = looksLikeEmail
+        ? appData.users.find(u => u.role === 'Admin' && String(u.email || '').trim().toLowerCase() === typedEmail)
+        : appData.users.find(u => u.role === 'Admin' && !String(u.email || '').trim() && (String(u.name || '').trim().toLowerCase() === typedEmail || String(u.id || '').trim().toLowerCase() === typedEmail));
     } else {
       const typedId = ((document.getElementById('loginStaffId') || {}).value || '').trim().toLowerCase();
       user = appData.users.find(u => u.role === 'Staff' && (String(u.id || '').trim().toLowerCase() === typedId || String(u.name || '').trim().toLowerCase() === typedId));
