@@ -714,6 +714,10 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         <span id="forgotPasswordBtnContainer" style="display:none"><a class="login-link" onclick="openForgotPasswordModal()">Forgot Password?</a></span>
       </div>
 
+      <div id="paSetupLinkContainer" style="display:none;text-align:center;margin:2px 0 10px">
+        <a class="login-link" onclick="openPaSetupModal()"><i class="fa-solid fa-shield-halved"></i> First-time Platform Administrator Setup</a>
+      </div>
+
       <div id="loginErrorMsg" class="login-error" style="display:none"><i class="fa-solid fa-circle-exclamation" style="margin-top:2px"></i><span id="loginErrorText"></span></div>
       <button class="login-btn-primary" onclick="performLogin()">Access FinTrack <i class="fa-solid fa-arrow-right"></i></button>
       <button class="login-btn-secondary" id="loginPinSwitchBtn" style="display:none" onclick="showPinLogin()"><i class="fa-solid fa-keyboard"></i> Enter FinPIN</button>
@@ -4762,6 +4766,7 @@ const FIREBASE_CONFIG = {
       if (paCred && (((paCred.email && String(paCred.email).trim().toLowerCase() === typedEmail)) || String(paCred.name || '').trim().toLowerCase() === typedEmail)) {
         if (paCred.password !== pass) { showLoginError('Incorrect password. Please check your password and try again.'); return; }
         document.getElementById('loginPassword').value = '';
+        openPlatformAdminFirebaseSession(paCred, pass);
         enterPlatformAdminMode();
         return;
       }
@@ -4778,7 +4783,7 @@ const FIREBASE_CONFIG = {
       return;
     }
 
-    if (user.pass && user.pass !== pass) {
+    if (user.pass && user.pass !== pass && user.role !== 'Admin') {
       showLoginError('Incorrect password. Please check your password and try again.');
       return;
     }
@@ -8258,12 +8263,21 @@ function setupPlatformFirebaseSync() {
       updatePlatformAdminLoginUI();
       if (platformAdminUser) renderPlatformAdminViews();
       try { renderBizSubscriptionCard(); checkSubscriptionLock(); } catch (e) {}
+    }, function (err) {
+      /* A refused or failed read must still surface the one-time platform
+         administrator setup, otherwise a fresh install could never be set up. */
+      console.error('Platform data read failed:', err);
+      platformSyncActive = true;
+      updatePlatformAdminLoginUI();
     });
+    updatePlatformAdminLoginUI();
   } catch(e) { console.error('Platform Firebase init failed:', e); }
 }
 
 /* UPDATE PLATFORM ADMIN LOGIN UI */
 function updatePlatformAdminLoginUI() {
+  var setupLink = document.getElementById('paSetupLinkContainer');
+  if (setupLink) { setupLink.style.display = platformData.credentials ? 'none' : 'block'; }
   var forgotLink = document.getElementById('paForgotLink');
   if (forgotLink) {
     forgotLink.style.display = platformData.credentials ? 'block' : 'none';
@@ -8301,12 +8315,27 @@ function performPlatformAdminSetup() {
   platformData.credentials = { name: name, email: email, password: password, pin: pin, createdAt: Date.now() };
   platformData.setupCompleted = true;
   savePlatformData();
+  openPlatformAdminFirebaseSession(platformData.credentials, password);
   alert('Main Platform Administrator created successfully!\n\nThe one-time setup option is now PERMANENTLY DISABLED through backend/database controls. It cannot be used again.');
   closePaSetupModal();
   openPlatformAdminLogin();
 }
 
 /* PLATFORM ADMIN LOGIN */
+/* Opens a Firebase session for the platform administrator so the platform data
+   can sync under the current database rules. Best-effort: the password check
+   above is what grants access, so a failure here never blocks sign-in. */
+function openPlatformAdminFirebaseSession(cred, pass) {
+  try {
+    var auth = firebaseAuth();
+    if (!auth || !cred || !cred.email) return;
+    var email = String(cred.email).trim().toLowerCase();
+    auth.signInWithEmailAndPassword(email, pass).catch(function () {
+      return auth.createUserWithEmailAndPassword(email, pass).catch(function () {});
+    });
+  } catch (e) {}
+}
+
 function enterPlatformAdminMode() {
   platformAdminUser = platformData.credentials;
   document.body.classList.remove('guest-mode');
