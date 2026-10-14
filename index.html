@@ -1560,7 +1560,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
           <div id="invoiceLogoDisplay" style="display: none; margin-bottom: 6px; text-align: left;">
             <img id="invoiceLogoImg" src="" alt="Shop Logo" style="max-height: 70px; max-width: 180px; object-fit: contain;">
           </div>
-          <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Powered by ATMOS Digital Solutions</p>
+          <p id="invoicePoweredBy" style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Powered by FinTrack Business</p>
         </div>
         <div style="text-align: right;">
           <div style="font-size: 1.1rem; font-weight: 900; color: var(--atmos-navy); margin-bottom: 25px;">
@@ -3636,6 +3636,9 @@ const FIREBASE_CONFIG = {
           else isFirebaseSyncActive = false;
         });
       }
+      /* Connect straight away so the app syncs exactly as it did before, and
+         re-connect after sign-in for when the database rules are locked down. */
+      startBusinessSync();
     } catch (e) {
       console.error("Firebase init failed:", e);
     }
@@ -3666,7 +3669,6 @@ const FIREBASE_CONFIG = {
     }).catch(function (err) {
       /* Under the locked-down rules the old node is unreadable - nothing to import. */
       console.error("Legacy data import skipped:", err);
-      markMigrationDone();
     });
   }
 
@@ -4133,15 +4135,19 @@ const FIREBASE_CONFIG = {
         invLogoImg.src = '';
       }
     }
+    var poweredBy = document.getElementById('invoicePoweredBy');
+    if (poweredBy) {
+      poweredBy.innerText = 'Powered by ' + (getBusinessProfile().shopName || getPlatformBranding().name);
+    }
     ['drawerBrandLogoBox', 'navBrandLogoBox'].forEach(function(boxId) {
       var box = document.getElementById(boxId);
       if (!box) return;
       if (logoUrl) {
         box.classList.add('has-logo');
-        box.innerHTML = '<img src="' + logoUrl + '" alt="ATMOS Logo">';
+        box.innerHTML = '<img src="' + logoUrl + '" alt="Business Logo">';
       } else {
         box.classList.remove('has-logo');
-        box.innerHTML = 'ATMOS<span>.</span>';
+        box.innerHTML = getBusinessProfile().shopName || 'Business';
       }
     });
   }
@@ -4149,14 +4155,13 @@ const FIREBASE_CONFIG = {
   function handleShopLogoUpload(e) {
     var file = e.target.files[0];
     if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(evt) {
-      appData.logoDataUrl = evt.target.result;
+    compressLogoImage(file, function (dataUrl) {
+      appData.logoDataUrl = dataUrl;
       saveData();
       updateShopLogoDisplays();
+      updateBusinessBrandingDisplays();
       alert('Shop logo updated successfully!');
-    };
-    reader.readAsDataURL(file);
+    });
   }
 
   function removeShopLogo() {
@@ -4880,6 +4885,7 @@ const FIREBASE_CONFIG = {
      REFRESH ALL UI VIEWS
   --------------------------------------------------- */
   function refreshAllViews() {
+  try { updateBusinessBrandingDisplays(); } catch (e) {}
     renderDashboard();
     renderServicesTab();
     renderExpenseTab();
@@ -7936,11 +7942,37 @@ function getBusinessProfile() {
   };
 }
 
+/* Shrinks an uploaded logo to a small icon so it never bloats storage. */
+function compressLogoImage(file, callback) {
+  var maxSide = 320;
+  var keepPng = /png|webp|gif|svg/i.test(file.type || '');
+  var reader = new FileReader();
+  reader.onload = function (evt) {
+    var original = evt.target.result;
+    var img = new Image();
+    img.onload = function () {
+      try {
+        var scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        var cw = Math.max(1, Math.round(img.width * scale));
+        var ch = Math.max(1, Math.round(img.height * scale));
+        var canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+        var out = keepPng ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.82);
+        callback(out && out.length < original.length ? out : original);
+      } catch (e) { callback(original); }
+    };
+    img.onerror = function () { callback(original); };
+    img.src = original;
+  };
+  reader.readAsDataURL(file);
+}
+
 function updateBusinessBrandingDisplays() {
   var prof = getBusinessProfile();
+  var bizLogo = (typeof appData !== 'undefined' && appData && appData.logoDataUrl) || '';
   var drawerLogo = document.getElementById('drawerBrandLogoBox');
   if (drawerLogo) {
-    var bizLogo = (typeof appData !== 'undefined' && appData && appData.logoDataUrl) || '';
     if (bizLogo) drawerLogo.innerHTML = '<img src="' + bizLogo + '" alt="Business Logo" style="max-height:38px;max-width:120px;object-fit:contain">';
     else drawerLogo.innerHTML = prof.shopName || 'Business';
   }
@@ -7954,6 +7986,25 @@ function updateBusinessBrandingDisplays() {
     drawerMotto.innerText = prof.motto || '';
     drawerMotto.style.display = prof.motto ? 'block' : 'none';
   }
+  /* The header belongs to the signed-in business - never to the platform. */
+  var isBusinessUser = !!(typeof currentUser !== 'undefined' && currentUser) && !document.body.classList.contains('pa-mode');
+  if (!isBusinessUser) return;
+  var platform = getPlatformBranding();
+  var navTitle = document.getElementById('navBrandTitle');
+  var navSub = document.getElementById('navBrandSubtitle');
+  var navBox = document.getElementById('navBrandLogoBox');
+  if (navTitle) navTitle.innerText = prof.shopName || platform.name;
+  if (navSub) navSub.innerText = prof.motto || platform.motto;
+  if (navBox) {
+    if (bizLogo) {
+      navBox.classList.add('has-logo');
+      navBox.innerHTML = '<img src="' + bizLogo + '" alt="Business Logo" style="max-height:34px;max-width:130px;object-fit:contain">';
+    } else {
+      navBox.classList.remove('has-logo');
+      navBox.innerText = prof.shopName || platform.name;
+    }
+  }
+  try { document.title = (prof.shopName || platform.name) + (prof.motto ? ' - ' + prof.motto : ''); } catch (e) {}
 }
 
 /* SUBSCRIPTION PLANS */
@@ -9255,9 +9306,7 @@ function toggleBizDetCustomCategory() {
 function handleBizDetLogo(e) {
   var file = e.target.files[0];
   if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(evt) { bizDetLogoDataUrl = evt.target.result; updateBizDetLogoPreview(); };
-  reader.readAsDataURL(file);
+  compressLogoImage(file, function (dataUrl) { bizDetLogoDataUrl = dataUrl; updateBizDetLogoPreview(); });
 }
 function removeBizDetLogo() {
   bizDetLogoDataUrl = '';
@@ -9403,9 +9452,7 @@ function toggleBizRegCustomCategory() {
 function handleBizRegLogo(e) {
   var file = e.target.files[0];
   if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(evt) { bizRegLogoDataUrl = evt.target.result; updateBizRegLogoPreview(); };
-  reader.readAsDataURL(file);
+  compressLogoImage(file, function (dataUrl) { bizRegLogoDataUrl = dataUrl; updateBizRegLogoPreview(); });
 }
 function removeBizRegLogo() {
   bizRegLogoDataUrl = '';
