@@ -458,6 +458,49 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 .biz-reg-logo-preview{width:110px;height:110px;border:2px dashed #cbd5e1;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f8fafc}
 .biz-reg-logo-preview img{width:100%;height:100%;object-fit:contain}
 </style>
+<style id="loginRedesignStyles">
+/* Login + PIN screens: same layout/terminology as the reference, app's own colours */
+#loginModal.login-modal{background:rgba(11,30,45,0.85);backdrop-filter:blur(4px);padding:18px}
+#loginModal .login-card{background:#fff;border-radius:var(--radius-lg);padding:26px 22px 20px;width:100%;max-width:400px;box-shadow:0 20px 25px -5px rgba(0,0,0,.2);max-height:94vh;overflow-y:auto}
+#loginModal .login-head{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+#loginModal .login-logo-box{width:52px;height:52px;border-radius:var(--radius-md);background:var(--bg);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--border)}
+#loginModal .login-logo-box img{width:100%;height:100%;object-fit:contain}
+#loginModal .login-logo-box:not(.has-logo){font-size:.58rem;font-weight:900;color:var(--atmos-navy);text-align:center;line-height:1.1;padding:5px}
+#loginModal .login-title{font-size:1.15rem;font-weight:900;color:var(--atmos-navy);margin:0;line-height:1.15}
+#loginModal .login-tagline{font-size:.6rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin:3px 0 0}
+#loginModal .login-tabs{display:flex;gap:6px;background:var(--bg);padding:4px;border-radius:var(--radius-md);margin-bottom:18px}
+#loginModal .login-tab{flex:1;border:none;background:transparent;color:var(--text-muted);font-weight:800;font-size:.78rem;padding:9px 6px;border-radius:var(--radius-md);cursor:pointer;font-family:inherit}
+#loginModal .login-tab.active{background:#fff;color:var(--atmos-navy);box-shadow:0 2px 6px rgba(15,23,42,.1)}
+#loginModal .login-field{margin-bottom:15px}
+#loginModal .login-field>label{display:block;font-size:.72rem;font-weight:800;color:var(--atmos-navy);margin-bottom:6px}
+#loginModal .login-input-wrap{position:relative;display:flex;align-items:center;background:#fff;border:1px solid var(--border);border-radius:var(--radius-md)}
+#loginModal .login-input-wrap:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+#loginModal .login-input-wrap>i:first-child{position:absolute;left:13px;color:var(--text-muted);font-size:.82rem;pointer-events:none}
+#loginModal .login-input-wrap input{flex:1;border:none!important;background:transparent!important;padding:12px 12px 12px 36px!important;font-size:.86rem;border-radius:var(--radius-md);width:100%;box-shadow:none!important}
+#loginModal .login-input-wrap input:focus{outline:none}
+#loginModal .login-eye{position:absolute;right:13px;color:var(--text-muted);font-size:.82rem;cursor:pointer}
+#loginModal .login-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 18px}
+#loginModal .login-remember{display:flex;align-items:center;gap:7px;font-size:.74rem;font-weight:700;color:var(--text-muted);cursor:pointer;margin:0}
+#loginModal .login-remember input{width:auto!important;margin:0}
+#loginModal .login-link{font-size:.74rem;font-weight:800;color:var(--primary);cursor:pointer;text-decoration:none}
+#loginModal .login-btn-primary{width:100%;border:none;background:var(--grad-navy);color:#fff;font-weight:900;font-size:.88rem;padding:14px;border-radius:var(--radius-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+#loginModal .login-btn-primary:hover{opacity:.95;box-shadow:0 4px 12px rgba(11,30,45,.25)}
+#loginModal .login-btn-secondary{width:100%;margin-top:10px;border:1px solid var(--border);background:var(--bg);color:var(--atmos-navy);font-weight:800;font-size:.82rem;padding:12px;border-radius:var(--radius-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+#loginModal .login-btn-secondary:hover{background:var(--primary-light)}
+#loginModal .login-foot{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);text-align:center}
+#loginModal .login-back{font-size:.76rem;font-weight:800;color:var(--atmos-navy);cursor:pointer;text-decoration:none}
+#loginModal .pin-who{text-align:center;margin-bottom:20px}
+#loginModal .pin-who-label{font-size:.6rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+#loginModal .pin-who-name{font-size:1.05rem;font-weight:900;color:var(--atmos-navy);margin-top:5px}
+#loginModal .pin-who-meta{font-size:.7rem;color:var(--text-muted);margin-top:2px}
+#loginModal .pin-label{display:block;text-align:center;font-size:.72rem;font-weight:800;color:var(--atmos-navy);margin-bottom:12px}
+#loginModal .pin-boxes{display:flex;gap:11px;justify-content:center;margin-bottom:22px}
+#loginModal .pin-box{width:52px;height:58px;text-align:center;font-size:1.35rem;font-weight:900;color:var(--atmos-navy);background:#fff;border:2px solid var(--border);border-radius:var(--radius-md);padding:0!important}
+#loginModal .pin-box:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+#loginModal .pin-forgot{display:block;text-align:center;margin:14px 0 4px}
+#pinModal .modal-card{border-radius:var(--radius-lg)}
+#pinModal .btn-admin{background:var(--primary);color:#fff;border:none;border-radius:var(--radius-md);font-weight:900;padding:12px;font-family:inherit}
+</style>
 </head>
 <body>
 
@@ -576,62 +619,80 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 </div>
 
 <!-- LOGIN MODAL -->
-<div id="loginModal" class="modal">
-  <div class="modal-card">
-    <div style="text-align: center; margin-bottom: 20px;">
-      <div id="loginBrandLogoBox" class="brand-logo-box" style="font-size: 1.4rem; padding: 8px 16px; margin-bottom: 8px;">
-        FinTrack Business
+<div id="loginModal" class="modal login-modal">
+  <div class="modal-card login-card">
+    <div class="login-head">
+      <div id="loginBrandLogoBox" class="login-logo-box"><span class="login-logo-fallback">FT</span></div>
+      <div>
+        <h2 id="loginPlatformName" class="login-title">FinTrack Business</h2>
+        <p id="loginPlatformMotto" class="login-tagline">Business Management Platform</p>
       </div>
-      <h2 id="loginPlatformName" style="font-size: 1.1rem; font-weight: 900; color: var(--atmos-navy); text-transform: uppercase;">FinTrack Business</h2>
-      <p id="loginPlatformMotto" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Business Management Platform</p>
     </div>
 
-    <div style="display: flex; gap: 8px; margin-bottom: 16px; background: var(--bg); padding: 4px; border-radius: var(--radius-md);">
-      <button id="loginTabStaff" type="button" style="flex: 1; background: white; color: var(--atmos-navy); font-weight: 800; font-size: 0.8rem;" onclick="setLoginMode('Staff')">Staff Login</button>
-      <button id="loginTabAdmin" type="button" style="flex: 1; background: transparent; color: var(--text-muted); font-weight: 800; font-size: 0.8rem;" onclick="setLoginMode('Admin')">Admin Login</button>
+    <div class="login-tabs">
+      <button id="loginTabStaff" type="button" class="login-tab active" onclick="setLoginMode('Staff')">Staff Login</button>
+      <button id="loginTabAdmin" type="button" class="login-tab" onclick="setLoginMode('Admin')">Admin Login</button>
     </div>
-    
+
     <div id="loginCredView">
-      <div class="form-group" id="loginEmailWrap" style="display:none">
-        <label>Administrator Email</label>
-        <input type="email" id="loginEmailInput" placeholder="admin@business.com" autocomplete="off">
+      <div class="login-field" id="loginUserSelectWrap">
+        <label id="userCodeLabel">User ID</label>
+        <div class="login-input-wrap">
+          <i class="fa-solid fa-user"></i>
+          <input type="text" id="loginStaffId" placeholder="The ID or name your admin gave you" autocomplete="off">
+        </div>
       </div>
 
-      <div class="form-group" id="loginUserSelectWrap">
-        <label id="userCodeLabel">Select Account</label>
-        <select id="loginUserSelect"></select>
+      <div class="login-field" id="loginEmailWrap" style="display:none">
+        <label>Administrator Email or Name</label>
+        <div class="login-input-wrap">
+          <i class="fa-solid fa-envelope"></i>
+          <input type="text" id="loginEmailInput" placeholder="admin@business.com" autocomplete="off">
+        </div>
       </div>
 
-      <div class="form-group">
+      <div class="login-field">
         <label>Password</label>
-        <input type="password" id="loginPassword" placeholder="Enter Password" autocomplete="off" required>
+        <div class="login-input-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="off" required>
+          <i class="fa-solid fa-eye login-eye" id="loginPassToggle" onclick="togglePasswordVisibility('loginPassword','loginPassToggle')"></i>
+        </div>
       </div>
 
-      <label class="pin-remember" for="loginRememberDevice">
-        <input type="checkbox" id="loginRememberDevice" checked>
-        <span>Remember this device and let me sign in with a PIN next time</span>
-      </label>
-
-      <button class="btn-primary" onclick="performLogin()" style="margin-top: 8px;">Sign In to Portal</button>
-
-      <div id="forgotPasswordBtnContainer" style="margin-top: 12px; text-align: center; display: none;">
-        <a style="font-size: 0.75rem; color: var(--atmos-red); font-weight: 700; text-decoration: none; cursor: pointer;" onclick="openForgotPasswordModal()">Forgot Admin Password?</a>
+      <div class="login-row">
+        <label class="login-remember" for="loginRememberDevice">
+          <input type="checkbox" id="loginRememberDevice" checked>
+          <span>Remember me</span>
+        </label>
+        <span id="forgotPasswordBtnContainer" style="display:none"><a class="login-link" onclick="openForgotPasswordModal()">Forgot Password?</a></span>
       </div>
+
+      <button class="login-btn-primary" onclick="performLogin()">Access FinTrack <i class="fa-solid fa-arrow-right"></i></button>
+      <button class="login-btn-secondary" id="loginPinSwitchBtn" style="display:none" onclick="showPinLogin()"><i class="fa-solid fa-keyboard"></i> Enter FinPIN</button>
     </div>
 
     <div id="loginPinView" style="display:none">
-      <div style="text-align:center;margin-bottom:18px">
-        <div style="font-size:.68rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px">Quick PIN Login</div>
-        <div id="pinLoginName" style="font-size:1.05rem;font-weight:900;color:var(--atmos-navy);margin-top:4px"></div>
-        <div id="pinLoginMeta" style="font-size:.72rem;color:var(--text-muted)"></div>
+      <div class="pin-who">
+        <div class="pin-who-label">Signed in as</div>
+        <div id="pinLoginName" class="pin-who-name"></div>
+        <div id="pinLoginMeta" class="pin-who-meta"></div>
       </div>
-      <div class="form-group">
-        <label>Enter Your PIN</label>
-        <input type="password" id="pinLoginInput" inputmode="numeric" maxlength="4" pattern="[0-9]*" oninput="pinDigitsOnly(this)" placeholder="••••" style="text-align:center;letter-spacing:8px;font-size:1.1rem" autocomplete="off">
+      <label class="pin-label">Enter FinPIN</label>
+      <div class="pin-boxes">
+        <input class="pin-box" id="pinBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinBoxInput(this,1)" onkeydown="pinBoxKey(event,1)">
+        <input class="pin-box" id="pinBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinBoxInput(this,2)" onkeydown="pinBoxKey(event,2)">
+        <input class="pin-box" id="pinBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinBoxInput(this,3)" onkeydown="pinBoxKey(event,3)">
+        <input class="pin-box" id="pinBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinBoxInput(this,4)" onkeydown="pinBoxKey(event,4)">
       </div>
-      <button class="btn-primary" onclick="performPinLogin()" style="margin-top: 8px;">Unlock</button>
-      <button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.78rem;font-weight:700" onclick="showPasswordLogin()">Use password instead</button>
-      <button style="margin-top:4px;background:transparent;color:var(--atmos-red);width:100%;font-size:.72rem;font-weight:700" onclick="forgetPinDevice(true)">Forget this device</button>
+      <input type="hidden" id="pinLoginInput">
+      <button class="login-btn-primary" onclick="performPinLogin()">Unlock FinTrack <i class="fa-solid fa-lock-open"></i></button>
+      <a class="login-link pin-forgot" onclick="forgotPin()">Forgot FinPIN?</a>
+      <button class="login-btn-secondary" onclick="showPasswordLogin()"><i class="fa-solid fa-key"></i> Log in with Password</button>
+    </div>
+
+    <div class="login-foot">
+      <a class="login-back" onclick="showWelcomeScreen()"><i class="fa-solid fa-arrow-left"></i> Back to Welcome Page</a>
     </div>
   </div>
 </div>
@@ -4308,7 +4369,6 @@ const FIREBASE_CONFIG = {
   function showPasswordLogin() {
     var cv = document.getElementById('loginCredView'); if (cv) cv.style.display = 'block';
     var pv = document.getElementById('loginPinView'); if (pv) pv.style.display = 'none';
-    renderLoginDropdown();
   }
 
   function showPinLogin() {
@@ -4320,9 +4380,9 @@ const FIREBASE_CONFIG = {
     document.getElementById('loginPinView').style.display = 'block';
     document.getElementById('pinLoginName').innerText = user.name;
     document.getElementById('pinLoginMeta').innerText = user.role + '  \u2022  ' + ((appData.businessProfile && appData.businessProfile.shopName) || 'FinTrack Business');
-    document.getElementById('pinLoginInput').value = '';
-    pinAttempts = 0;
-    setTimeout(function() { var el = document.getElementById('pinLoginInput'); if (el) el.focus(); }, 150);
+    clearPinBoxes();
+    var b1 = document.getElementById('pinBox1');
+    if (b1) setTimeout(function () { b1.focus(); }, 60);
   }
 
   function performPinLogin() {
@@ -4340,6 +4400,7 @@ const FIREBASE_CONFIG = {
     if (!verifyPin(pin, user.pinHash, user.pinSalt)) {
       pinAttempts++;
       document.getElementById('pinLoginInput').value = '';
+      clearPinBoxes();
       if (pinAttempts >= PIN_MAX_ATTEMPTS) {
         clearPinDevice();
         showPasswordLogin();
@@ -4540,34 +4601,29 @@ const FIREBASE_CONFIG = {
 
   /* LOGIN & USER SWITCHING */  function setLoginMode(mode) {
     currentLoginMode = mode;
-    document.getElementById('loginTabStaff').style.background = mode === 'Staff' ? 'white' : 'transparent';
+    var ts = document.getElementById('loginTabStaff');
+    var ta = document.getElementById('loginTabAdmin');
+    if (ts) ts.className = 'login-tab' + (mode === 'Staff' ? ' active' : '');
+    if (ta) ta.className = 'login-tab' + (mode === 'Admin' ? ' active' : '');
     var emailWrap = document.getElementById('loginEmailWrap');
     var selectWrap = document.getElementById('loginUserSelectWrap');
     if (emailWrap) emailWrap.style.display = mode === 'Admin' ? 'block' : 'none';
     if (selectWrap) selectWrap.style.display = mode === 'Admin' ? 'none' : 'block';
-    document.getElementById('loginTabStaff').style.color = mode === 'Staff' ? 'var(--atmos-navy)' : 'var(--text-muted)';
-    document.getElementById('loginTabAdmin').style.background = mode === 'Admin' ? 'white' : 'transparent';
-    document.getElementById('loginTabAdmin').style.color = mode === 'Admin' ? 'var(--atmos-navy)' : 'var(--text-muted)';
-    document.getElementById('forgotPasswordBtnContainer').style.display = mode === 'Admin' ? 'block' : 'none';
-    renderLoginDropdown();
+    var fg = document.getElementById('forgotPasswordBtnContainer');
+    if (fg) fg.style.display = mode === 'Admin' ? 'block' : 'none';
   }
 
   function renderLoginDropdown() {
-    const select = document.getElementById('loginUserSelect');
-    select.innerHTML = '';
-    const filteredUsers = appData.users.filter(u => currentLoginMode === 'Admin' ? u.role === 'Admin' : u.role === 'Staff');
-    filteredUsers.forEach(u => {
-      const opt = document.createElement('option');
-      opt.value = u.name;
-      opt.innerText = u.name;
-      select.appendChild(opt);
-    });
+    /* Staff accounts are never listed publicly - each person types their own Staff ID. */
+    var select = document.getElementById('loginUserSelect');
+    if (select) select.innerHTML = '';
   }
 
   function completeLogin(user) {
     currentUser = user;
     document.getElementById('activeUserBadge').innerText = user.name + ' (' + user.role + ')';
     document.getElementById('loginModal').style.display = 'none';
+    offerPinSetupAfterLogin();
 
     // Show Admin Tab if Admin
     if (user.role === 'Admin') {
@@ -4613,10 +4669,10 @@ const FIREBASE_CONFIG = {
     if (currentLoginMode === 'Admin') {
       const emailInput = document.getElementById('loginEmailInput');
       const typedEmail = ((emailInput && emailInput.value) || '').trim().toLowerCase();
-      user = appData.users.find(u => u.role === 'Admin' && String(u.email || '').trim().toLowerCase() === typedEmail);
+      user = appData.users.find(u => u.role === 'Admin' && (String(u.email || '').trim().toLowerCase() === typedEmail || String(u.name || '').trim().toLowerCase() === typedEmail));
     } else {
-      const name = document.getElementById('loginUserSelect').value;
-      user = appData.users.find(u => u.name === name);
+      const typedId = ((document.getElementById('loginStaffId') || {}).value || '').trim().toLowerCase();
+      user = appData.users.find(u => u.role === 'Staff' && (String(u.id || '').trim().toLowerCase() === typedId || String(u.name || '').trim().toLowerCase() === typedId));
     }
 
     if (!user) {
@@ -7878,7 +7934,7 @@ var paCurrentBizId = null;
 
 /* ===== PLATFORM BRANDING (central — controlled only by the Main Platform Administrator) ===== */
 var DEFAULT_PLATFORM_BRANDING = {
-  logoDataUrl: '',
+  logoDataUrl: 'https://media.base44.com/images/public/6acf90c0138cd5df73588169/2881a5748_IMG_2552.jpg',
   name: 'FinTrack Business',
   motto: 'Business Management Platform',
   description: 'FinTrack Business is an integrated management and accounting application built for Akshaya Centers, CSCs, internet service centres and other digital service businesses. It brings your daily operations and your books together in one place.',
@@ -9381,7 +9437,7 @@ function welcomeGoLogin() {
   markWelcomeSeen();
   hideWelcomeScreen();
   document.getElementById('loginModal').style.display = 'flex';
-  renderLoginDropdown();
+  if (getPinDevice()) showPinLogin(); else showPasswordLogin();
 }
 function welcomeGoForgot() {
   markWelcomeSeen();
@@ -9568,6 +9624,58 @@ window.addEventListener('DOMContentLoaded', function() {
     adminTab.insertBefore(payBtnDiv, adminTab.firstChild);
   }
 });
+
+  /* ===== Redesigned login & PIN helpers ===== */
+  function togglePasswordVisibility(inputId, iconId) {
+    var inp = document.getElementById(inputId); if (!inp) return;
+    var showing = inp.type === 'text';
+    inp.type = showing ? 'password' : 'text';
+    var ic = document.getElementById(iconId);
+    if (ic) ic.className = (showing ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash') + ' login-eye';
+  }
+  function syncPinBoxes() {
+    var v = '';
+    for (var i = 1; i <= 4; i++) { var b = document.getElementById('pinBox' + i); v += b ? (b.value || '') : ''; }
+    var h = document.getElementById('pinLoginInput'); if (h) h.value = v;
+    return v;
+  }
+  function clearPinBoxes() {
+    for (var i = 1; i <= 4; i++) { var b = document.getElementById('pinBox' + i); if (b) b.value = ''; }
+    var h = document.getElementById('pinLoginInput'); if (h) h.value = '';
+  }
+  function pinBoxInput(el, idx) {
+    var d = String(el.value || '').replace(/[^0-9]/g, '').slice(-1);
+    el.value = d;
+    if (d && idx < 4) { var n = document.getElementById('pinBox' + (idx + 1)); if (n) n.focus(); }
+    if (syncPinBoxes().length === 4) { var b4 = document.getElementById('pinBox4'); if (b4) b4.blur(); performPinLogin(); }
+  }
+  function pinBoxKey(e, idx) {
+    if (e.key === 'Backspace' && !e.target.value && idx > 1) {
+      var p = document.getElementById('pinBox' + (idx - 1));
+      if (p) { p.value = ''; p.focus(); }
+      syncPinBoxes(); e.preventDefault();
+    } else if (e.key === 'Enter') { e.preventDefault(); performPinLogin(); }
+  }
+  function forgotPin() {
+    if (!confirm('Forgot your FinPIN? PIN sign-in will be turned off on this device. Sign in with your password, then set a new PIN.')) return;
+    clearPinDevice();
+    showPasswordLogin();
+  }
+  window.togglePasswordVisibility = togglePasswordVisibility;
+  window.pinBoxInput = pinBoxInput;
+  window.pinBoxKey = pinBoxKey;
+  window.forgotPin = forgotPin;
+
+  /* Offer the PIN dialog right after a normal sign-in. */
+  function offerPinSetupAfterLogin() {
+    try {
+      var chk = document.getElementById('loginRememberDevice');
+      if (chk && !chk.checked) return;
+      if (!currentUser || currentUser.pinHash) return;
+      setTimeout(function () { openPinModal(); }, 700);
+    } catch (e) {}
+  }
+  window.offerPinSetupAfterLogin = offerPinSetupAfterLogin;
 </script>
 </body>
 </html>
