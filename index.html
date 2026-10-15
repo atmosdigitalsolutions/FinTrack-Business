@@ -496,9 +496,11 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 #loginModal .pin-who-name{font-size:1.05rem;font-weight:900;color:var(--atmos-navy);margin-top:5px}
 #loginModal .pin-who-meta{font-size:.7rem;color:var(--text-muted);margin-top:2px}
 #loginModal .pin-label{display:block;text-align:center;font-size:.72rem;font-weight:800;color:var(--atmos-navy);margin-bottom:12px}
-#loginModal .pin-boxes{display:flex;gap:11px;justify-content:center;margin-bottom:22px}
-#loginModal .pin-box{width:52px;height:58px;text-align:center;font-size:1.35rem;font-weight:900;color:var(--atmos-navy);background:#fff;border:2px solid var(--border);border-radius:var(--radius-md);padding:0!important}
+#loginModal .pin-boxes{display:flex;gap:14px;justify-content:center;margin-bottom:22px}
+#loginModal .pin-box{width:54px;height:60px;flex:0 1 54px;text-align:center;font-size:1.4rem;font-weight:900;color:var(--atmos-navy);background:#fff;border:2px solid var(--border);border-radius:14px;box-shadow:0 1px 3px rgba(11,30,45,.06);padding:0!important;transition:border-color .15s,box-shadow .15s,background .15s;-webkit-tap-highlight-color:transparent}
 #loginModal .pin-box:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+#loginModal .pin-box.pin-filled{border-color:var(--primary);background:var(--primary-light)}
+@media (max-width:360px){#loginModal .pin-boxes{gap:9px}#loginModal .pin-box{width:46px;height:54px;flex:0 1 46px;font-size:1.25rem}}
 #loginModal .pin-forgot{display:block;text-align:center;margin:14px 0 4px}
 #pinModal .modal-card{border-radius:var(--radius-lg)}
 #pinModal .btn-admin{background:var(--primary);color:#fff;border:none;border-radius:var(--radius-md);font-weight:900;padding:12px;font-family:inherit}
@@ -4746,6 +4748,7 @@ const FIREBASE_CONFIG = {
     var navPin = document.getElementById('navPinBtn');
     if (navPin) navPin.style.display = 'inline-flex';
 
+    try { applyPlatformBranding(); } catch (e) {}
     logAttendance(user);
     populateServiceDropdown();
     refreshAllViews();
@@ -8064,6 +8067,7 @@ var platformData = {
 var platformAdminUser = null;
 var platformDbRef = null;
 var platformSyncActive = false;
+var platformFirstLoadDone = false;
 var currentPATab = 'paDashboardTab';
 var paGrowthChartInst = null, paSubChartInst = null, paActivityChartInst = null;
 var paCurrentPaymentId = null;
@@ -8275,6 +8279,21 @@ function savePlatformData() {
   }
 }
 
+/* Staff sign-in must work on a device where nobody (not even the business
+   administrator) has ever logged in. The account directory is a small public
+   name/role list that the sign-in screen reads before authentication; the
+   password itself is always verified by Firebase Authentication. */
+var guestDirectoryBizId = null;
+function ensureGuestAccountDirectory() {
+  if (currentUser || platformAdminUser) return;
+  if (!platformFirstLoadDone) return;
+  var bizId = null;
+  try { bizId = getActiveBusinessId(); } catch (e) { bizId = null; }
+  if (!bizId || bizId === guestDirectoryBizId) return;
+  guestDirectoryBizId = bizId;
+  try { setupAccountDirectory(); } catch (e) { console.error('Account directory load failed:', e); }
+}
+
 /* SETUP PLATFORM FIREBASE SYNC */
 function setupPlatformFirebaseSync() {
   if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) {
@@ -8295,7 +8314,9 @@ function setupPlatformFirebaseSync() {
         }, val);
       }
       platformSyncActive = true;
+      platformFirstLoadDone = true;
       updatePlatformAdminLoginUI();
+      ensureGuestAccountDirectory();
       if (platformAdminUser) renderPlatformAdminViews();
       try { renderBizSubscriptionCard(); checkSubscriptionLock(); } catch (e) {}
     }, function (err) {
@@ -8303,6 +8324,7 @@ function setupPlatformFirebaseSync() {
          administrator setup, otherwise a fresh install could never be set up. */
       console.error('Platform data read failed:', err);
       platformSyncActive = true;
+      platformFirstLoadDone = true;
       updatePlatformAdminLoginUI();
     });
     updatePlatformAdminLoginUI();
@@ -8312,7 +8334,9 @@ function setupPlatformFirebaseSync() {
 /* UPDATE PLATFORM ADMIN LOGIN UI */
 function updatePlatformAdminLoginUI() {
   var setupLink = document.getElementById('paSetupLinkContainer');
-  if (setupLink) { setupLink.style.display = platformData.credentials ? 'none' : 'block'; }
+  /* The one-time setup link only appears once the platform data has finished
+     loading and really has no administrator - never while loading. */
+  if (setupLink) { setupLink.style.display = (platformFirstLoadDone && !platformData.credentials && !platformData.setupCompleted) ? 'block' : 'none'; }
   var forgotLink = document.getElementById('paForgotLink');
   if (forgotLink) {
     forgotLink.style.display = platformData.credentials ? 'block' : 'none';
@@ -9265,6 +9289,7 @@ function savePlatformBranding() {
   platformData.branding.motto = motto;
   platformData.branding.description = desc;
   platformData.branding.trialDays = days;
+  if (!platformDbRef || !platformSyncActive) return alert('The platform database is not connected yet. Please wait a few seconds and try saving again.');
   savePlatformData();
   renderPlatformBrandingSettings();
   applyPlatformBranding();
@@ -9845,19 +9870,20 @@ window.addEventListener('DOMContentLoaded', function() {
     return v;
   }
   function clearPinBoxes() {
-    for (var i = 1; i <= 4; i++) { var b = document.getElementById('pinBox' + i); if (b) b.value = ''; }
+    for (var i = 1; i <= 4; i++) { var b = document.getElementById('pinBox' + i); if (b) { b.value = ''; b.classList.remove('pin-filled'); } }
     var h = document.getElementById('pinLoginInput'); if (h) h.value = '';
   }
   function pinBoxInput(el, idx) {
     var d = String(el.value || '').replace(/[^0-9]/g, '').slice(-1);
     el.value = d;
+    try { el.classList.toggle('pin-filled', !!d); } catch (e) {}
     if (d && idx < 4) { var n = document.getElementById('pinBox' + (idx + 1)); if (n) n.focus(); }
     if (syncPinBoxes().length === 4) { var b4 = document.getElementById('pinBox4'); if (b4) b4.blur(); performPinLogin(); }
   }
   function pinBoxKey(e, idx) {
     if (e.key === 'Backspace' && !e.target.value && idx > 1) {
       var p = document.getElementById('pinBox' + (idx - 1));
-      if (p) { p.value = ''; p.focus(); }
+      if (p) { p.value = ''; p.classList.remove('pin-filled'); p.focus(); }
       syncPinBoxes(); e.preventDefault();
     } else if (e.key === 'Enter') { e.preventDefault(); performPinLogin(); }
   }
