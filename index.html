@@ -558,7 +558,6 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         <button class="ws-btn ws-btn-primary" onclick="welcomeGoLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
         <button class="ws-btn ws-btn-green" onclick="welcomeGoRegister()"><i class="fa-solid fa-building-circle-check"></i> Register Your Business</button>
         <button class="ws-btn ws-btn-outline" onclick="welcomeGoForgot()"><i class="fa-solid fa-key"></i> Forgot Password</button>
-        <button class="ws-btn ws-btn-outline" onclick="openPlatformAdminLogin()"><i class="fa-solid fa-shield-halved"></i> Platform Admin Login</button>
       </div>
       <button class="ws-skip" onclick="welcomeGoLogin()">Skip introduction &amp; continue to login</button>
     </div>
@@ -628,7 +627,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 3. Your details go straight to platform support on WhatsApp.<br>
 4. The Main Platform Administrator verifies and restores full access.
 </div>
-<button class="btn-primary" onclick="openPaSubmitPaymentFromLock()" style="width:100%"><i class="fa-solid fa-qrcode"></i> Complete Payment</button>
+<div id="subLockPendingNote" style="display:none;background:var(--accent-amber-bg);border:1px solid var(--accent-amber);border-radius:var(--radius-md);padding:14px;margin-bottom:12px;text-align:center"><i class="fa-solid fa-hourglass-half" style="color:var(--accent-amber);font-size:1.4rem"></i><div style="font-weight:800;margin-top:6px;color:#92400e">Payment submitted — pending verification</div><div style="font-size:.75rem;color:#92400e;margin-top:4px">Full access will be restored automatically once the Main Platform Administrator verifies your payment. Please keep this screen open.</div></div><button class="btn-primary" id="subLockPayBtn" onclick="openPaSubmitPaymentFromLock()" style="width:100%"><i class="fa-solid fa-qrcode"></i> Complete Payment</button>
 <a href="https://wa.me/918089278115?text=Hi%2C%20I%20need%20help%20with%20my%20ATMOS%20subscription." target="_blank" style="display:block;margin-top:12px;font-size:.8rem;color:var(--text-muted);text-decoration:none;font-weight:700"><i class="fa-brands fa-whatsapp"></i> Contact support on WhatsApp</a>
 </div>
 </div>
@@ -719,7 +718,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 
       <div id="loginErrorMsg" class="login-error" style="display:none"><i class="fa-solid fa-circle-exclamation" style="margin-top:2px"></i><span id="loginErrorText"></span></div>
       <button class="login-btn-primary" onclick="performLogin()">Access FinTrack <i class="fa-solid fa-arrow-right"></i></button>
-      <button class="login-btn-secondary" id="loginPinSwitchBtn" onclick="showPinLogin()"><i class="fa-solid fa-keyboard"></i> Enter FinPIN</button>
+      <button class="login-btn-secondary" id="loginPinSwitchBtn" onclick="showPinLogin()"><i class="fa-solid fa-keyboard"></i> Enter FinPIN</button><a class="login-link" id="paLoginLink" style="display:none;text-align:center;margin-top:12px;font-size:.72rem;font-weight:700" onclick="openPlatformAdminLogin()"><i class="fa-solid fa-shield-halved"></i> Platform Admin Login</a>
     </div>
 
     <div id="loginPinView" style="display:none">
@@ -5008,7 +5007,7 @@ const FIREBASE_CONFIG = {
     function restoreBtn() { if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.label) submitBtn.innerHTML = submitBtn.dataset.label; } }
     var auth = firebaseAuth();
     if (!auth) { restoreBtn(); showLoginError('Secure sign-in is unavailable right now. Please try again.'); return; }
-    auth.signInWithEmailAndPassword(typedEmail, pass).then(function (cred) {
+    auth.signInWithEmailAndPassword(typedEmail, pass).catch(function (err) { var code = (err && err.code) ? err.code : ''; if (code === 'auth/user-not-found' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') { var known = false; Object.keys(platformData.businesses || {}).forEach(function (k) { var b = platformData.businesses[k]; if (b && b.adminEmail && String(b.adminEmail).trim().toLowerCase() === typedEmail) known = true; }); if (known) return auth.createUserWithEmailAndPassword(typedEmail, pass); } throw err; }).then(function (cred) {
       return waitForBusinessData().then(function () {
         var admin = appData.users.find(function (u) { return u.role === 'Admin' && String(u.email || '').trim().toLowerCase() === typedEmail; });
         if (!admin) {
@@ -5099,8 +5098,7 @@ const FIREBASE_CONFIG = {
           }
           directAdminSignIn(typedEmail, pass, submitBtn);
         });
-      } else {
-        directAdminSignIn(typedEmail, pass, submitBtn);
+      } else { setBtnBusy(); ensureAccountDirectoryOnce().then(function () { var admin = appData.users.find(u => u.role === 'Admin' && String(u.email || '').trim().toLowerCase() === typedEmail); if (admin) { completeFirebaseLogin(admin, pass, submitBtn); } else { directAdminSignIn(typedEmail, pass, submitBtn); } }).catch(function () { directAdminSignIn(typedEmail, pass, submitBtn); });
       }
     } else {
       const typedId = ((document.getElementById('loginStaffId') || {}).value || '').trim();
@@ -5202,11 +5200,11 @@ const FIREBASE_CONFIG = {
   function openForgotPasswordModal() {
     pendingAdminResetToken = '';
     var em = document.getElementById('adminResetEmailInput'); if (em) em.value = '';
-    var st = document.getElementById('adminResetStatus'); if (st) st.style.display = 'none';
+    var st = document.getElementById('adminResetStatus'); if (st) st.style.display = 'none'; var lm = document.getElementById('loginModal'); if (lm) lm.style.display = 'none';
     document.getElementById('forgotPasswordModal').style.display = 'flex';
   }
   function closeForgotPasswordModal() {
-    document.getElementById('forgotPasswordModal').style.display = 'none';
+    document.getElementById('forgotPasswordModal').style.display = 'none'; var lm = document.getElementById('loginModal'); if (lm) lm.style.display = 'flex';
   }
 
   function getAdminAccount() {
@@ -8466,7 +8464,7 @@ function compressLogoImage(file, callback) {
 function updateBusinessBrandingDisplays() {
   /* In platform-administrator mode every brand spot belongs to the platform -
      never to any individual business. */
-  if (document.body.classList.contains('pa-mode')) {
+  if (document.body.classList.contains('pa-mode') || platformAdminUser) {
     var paBrand = getPlatformBranding();
     var paDrawerLogo = document.getElementById('drawerBrandLogoBox');
     if (paDrawerLogo) {
@@ -8476,7 +8474,7 @@ function updateBusinessBrandingDisplays() {
     var paDrawerName = document.getElementById('drawerBizName');
     if (paDrawerName) paDrawerName.innerText = paBrand.name;
     var paDrawerMotto = document.getElementById('drawerBizMotto');
-    if (paDrawerMotto) { paDrawerMotto.innerText = paBrand.motto; paDrawerMotto.style.display = 'block'; }
+    if (paDrawerMotto) { paDrawerMotto.innerText = paBrand.motto; paDrawerMotto.style.display = 'block'; } var paNavTitle = document.getElementById('navBrandTitle'); if (paNavTitle) paNavTitle.innerText = paBrand.name; var paNavSub = document.getElementById('navBrandSubtitle'); if (paNavSub) paNavSub.innerText = paBrand.motto; var paNavBox = document.getElementById('navBrandLogoBox'); if (paNavBox) { if (paBrand.logoDataUrl) { paNavBox.classList.add('has-logo'); paNavBox.innerHTML = '<img src="' + paBrand.logoDataUrl + '" alt="Platform Logo" style="max-height:34px;max-width:130px;object-fit:contain">'; } else { paNavBox.classList.remove('has-logo'); paNavBox.innerText = paBrand.name; } } try { document.title = paBrand.name + (paBrand.motto ? ' - ' + paBrand.motto : ''); } catch (e) {}
     return;
   }
   var prof = getBusinessProfile();
@@ -8631,7 +8629,7 @@ function setupPlatformFirebaseSync() {
       updatePlatformAdminLoginUI();
       ensureGuestAccountDirectory();
       if (platformAdminUser) renderPlatformAdminViews();
-      try { renderBizSubscriptionCard(); checkSubscriptionLock(); } catch (e) {}
+      try { renderBizSubscriptionCard(); checkSubscriptionLock(); checkPaymentStatusPopup(); } catch (e) {}
     }, function (err) {
       /* A refused or failed read must still surface the one-time platform
          administrator setup, otherwise a fresh install could never be set up. */
@@ -8652,16 +8650,15 @@ function updatePlatformAdminLoginUI() {
      loading and really has no administrator - never while loading. */
   if (setupLink) { setupLink.style.display = (platformFirstLoadDone && !platformData.credentials && !platformData.setupCompleted) ? 'block' : 'none'; }
   var forgotLink = document.getElementById('paForgotLink');
-  if (forgotLink) {
-    forgotLink.style.display = platformData.credentials ? 'block' : 'none';
-  }
+  if (forgotLink) { forgotLink.style.display = platformData.credentials ? 'block' : 'none'; }
+  var paLoginLink = document.getElementById('paLoginLink'); if (paLoginLink) { paLoginLink.style.display = (platformFirstLoadDone && platformData.credentials) ? 'block' : 'none'; }
   /* Platform branding is central — refresh it whenever the platform data changes */
   applyPlatformBranding();
 }
 
 /* OPEN/CLOSE MODALS */
 function openPlatformAdminLogin() {
-  if (!platformData.setupCompleted) { openPaSetupModal(); return; }
+  if (!platformFirstLoadDone) { alert('Loading platform data. Please wait a moment and try again.'); return; } if (!platformData.setupCompleted) { openPaSetupModal(); return; }
   document.getElementById('paLoginModal').style.display = 'flex';
 }
 function closePaLoginModal() { document.getElementById('paLoginModal').style.display = 'none'; }
@@ -8941,11 +8938,7 @@ function renderPABusinesses() {
 function getBizSubscriptionStatus(b) {
   if (b.blocked) return 'blocked';
   if (!b.subscriptionStatus) return 'none';
-  if (b.subscriptionStatus === 'trial') {
-    var trialEnd = b.trialEndDate || 0;
-    if (trialEnd && Date.now() > trialEnd) return 'expired';
-    return 'trial';
-  }
+  if (b.subscriptionStatus === 'trial') { var trialDaysNow = getPlatformBranding().trialDays; var joinTs = b.joiningDate ? new Date(String(b.joiningDate).split('T')[0] + 'T00:00:00').getTime() : 0; var trialEnd = joinTs ? (joinTs + trialDaysNow * 86400000) : (b.trialEndDate || 0); if (trialEnd && Date.now() > trialEnd) return 'expired'; return 'trial'; }
   if (b.subscriptionStatus === 'active') {
     var expiry = b.subscriptionExpiry ? new Date(b.subscriptionExpiry).getTime() : 0;
     if (expiry && Date.now() > expiry) return 'expired';
@@ -10004,8 +9997,6 @@ function welcomeGoLogin() {
 function welcomeGoForgot() {
   markWelcomeSeen();
   hideWelcomeScreen();
-  document.getElementById('loginModal').style.display = 'flex';
-  renderLoginDropdown();
   openForgotPasswordModal();
 }
 function welcomeGoRegister() {
@@ -10280,8 +10271,7 @@ window.addEventListener('DOMContentLoaded', function() {
     var end = 0;
     if (b.subscriptionStatus === 'active' && b.subscriptionExpiry) {
       end = new Date(b.subscriptionExpiry).getTime(); st.status = 'active';
-    } else if (b.subscriptionStatus === 'trial' && b.trialEndDate) {
-      end = b.trialEndDate; st.status = 'trial';
+    } else if (b.subscriptionStatus === 'trial') { var trialDaysNow = getPlatformBranding().trialDays; var joinTs = b.joiningDate ? new Date(String(b.joiningDate).split('T')[0] + 'T00:00:00').getTime() : 0; end = joinTs ? (joinTs + trialDaysNow * DAY) : (b.trialEndDate || 0); st.status = 'trial';
     }
     st.plan = PLAN_LABELS[b.subscriptionPlan] || (st.status === 'trial' ? 'Free Trial' : '\u2014');
     st.pricing = (st.status === 'trial') ? 'Free Trial'
@@ -10393,17 +10383,16 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 
   function checkSubscriptionLock() {
-    var m = document.getElementById('subLockModal');
-    if (!m) return;
+    var m = document.getElementById('subLockModal'); if (!m) return;
     if (!currentUser || platformAdminUser) { m.style.display = 'none'; return; }
-    var st = getSubscriptionState();
-    if (!st.registered || !st.locked) { m.style.display = 'none'; return; }
-    var titleEl = document.getElementById('subLockTitle');
-    var msgEl = document.getElementById('subLockMsg');
-    if (titleEl) titleEl.innerText = st.status === 'blocked' ? 'Account Suspended' : 'Subscription Required';
-    if (msgEl) msgEl.innerText = st.status === 'blocked'
-      ? 'Your business account has been suspended by the platform administrator. Please contact support to restore access.'
-      : 'Your free trial and the 7-day grace period have ended. Adding, editing and deleting are paused until your subscription payment is verified. Complete your payment to restore full access.';
+    var st = getSubscriptionState(); if (!st.registered || !st.locked) { m.style.display = 'none'; return; }
+    var pending = hasPendingPayment();
+    var titleEl = document.getElementById('subLockTitle'); var msgEl = document.getElementById('subLockMsg');
+    var payBtn = document.getElementById('subLockPayBtn'); var pendNote = document.getElementById('subLockPendingNote');
+    if (titleEl) titleEl.innerText = st.status === 'blocked' ? 'Account Suspended' : (pending ? 'Payment Verification Pending' : 'Free Trial Ended');
+    if (msgEl) msgEl.innerText = st.status === 'blocked' ? 'Your business account has been suspended by the platform administrator. Please contact support to restore access.' : (pending ? 'Your payment has been submitted and is pending verification by the Main Platform Administrator. Full access will be restored automatically the moment it is verified.' : 'Your free trial has ended. Subscribe to Fintrack Business Premium to unlock complete features for your selected period. Complete your payment below to restore full access.');
+    if (payBtn) payBtn.style.display = (pending || st.status === 'blocked') ? 'none' : 'block';
+    if (pendNote) pendNote.style.display = pending ? 'block' : 'none';
     m.style.display = 'flex';
   }
 
@@ -10507,6 +10496,6 @@ window.addEventListener('DOMContentLoaded', function() {
     if (ts) ts.addEventListener('click', function () { setTimeout(syncForgot, 0); });
     syncForgot();
   });
-</script>
+</script><script src="fintrack-extras.js"></script>
 </body>
 </html>
