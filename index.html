@@ -2925,34 +2925,46 @@ body.ft-modal-open{overflow:hidden;height:100vh}
   <div class="modal-card" style="max-width:440px">
     <h3 id="pinModalTitle" style="font-size:1.1rem;font-weight:800;color:var(--atmos-navy);margin-bottom:6px">Set Up Login PIN</h3>
     <p id="pinModalSubtitle" style="font-size:.78rem;color:var(--text-muted);margin-bottom:16px">Choose a 4-digit PIN for quick sign-in on this device. It is stored as a one-way hash, never as readable text.</p>
-    <div class="form-group">
-      <label>Your Current Password</label>
-      <div class="pw-field"><input type="password" id="pinCurrentPass" placeholder="Enter your current account password" autocomplete="off"><i class="fa-solid fa-eye pw-eye" id="pinCurrentPassEye" onclick="togglePasswordVisibility('pinCurrentPass','pinCurrentPassEye')"></i></div>
+    <div id="pinStep1" class="pin-step">
+      <div class="form-group">
+        <label>Your Current Password</label>
+        <div class="pw-field"><input type="password" id="pinCurrentPass" placeholder="Enter your current account password" autocomplete="off"><i class="fa-solid fa-eye pw-eye" id="pinCurrentPassEye" onclick="togglePasswordVisibility('pinCurrentPass','pinCurrentPassEye')"></i></div>
+      </div>
+      <button style="width:100%" class="btn-admin" onclick="pinStepNext(2)"><i class="fa-solid fa-arrow-right"></i> Continue</button>
     </div>
-    <div class="form-group">
-      <label>New PIN (exactly 4 digits)</label>
-      <input type="hidden" id="pinNew">
-      <div class="pin-boxes" id="pinNewBoxes">
-        <input class="pin-box" id="pinNewBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',1)" onkeydown="pinSetupBoxKey(event,'pinNew',1)">
-        <input class="pin-box" id="pinNewBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',2)" onkeydown="pinSetupBoxKey(event,'pinNew',2)">
-        <input class="pin-box" id="pinNewBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',3)" onkeydown="pinSetupBoxKey(event,'pinNew',3)">
-        <input class="pin-box" id="pinNewBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',4)" onkeydown="pinSetupBoxKey(event,'pinNew',4)">
+    <div id="pinStep2" class="pin-step" style="display:none">
+      <div class="form-group">
+        <label>New PIN (exactly 4 digits)</label>
+        <input type="hidden" id="pinNew">
+        <div class="pin-boxes" id="pinNewBoxes">
+          <input class="pin-box" id="pinNewBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',1)" onkeydown="pinSetupBoxKey(event,'pinNew',1)">
+          <input class="pin-box" id="pinNewBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',2)" onkeydown="pinSetupBoxKey(event,'pinNew',2)">
+          <input class="pin-box" id="pinNewBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',3)" onkeydown="pinSetupBoxKey(event,'pinNew',3)">
+          <input class="pin-box" id="pinNewBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',4)" onkeydown="pinSetupBoxKey(event,'pinNew',4)">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button style="flex:1;background:var(--bg);color:var(--text-muted)" onclick="pinStepBack(1)"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <button style="flex:1" class="btn-admin" onclick="pinStepNext(3)"><i class="fa-solid fa-arrow-right"></i> Continue</button>
       </div>
     </div>
-    <div class="form-group">
-      <label>Confirm New PIN</label>
-      <input type="hidden" id="pinConfirm">
-      <div class="pin-boxes" id="pinConfirmBoxes">
-        <input class="pin-box" id="pinConfirmBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',1)" onkeydown="pinSetupBoxKey(event,'pinConfirm',1)">
-        <input class="pin-box" id="pinConfirmBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',2)" onkeydown="pinSetupBoxKey(event,'pinConfirm',2)">
-        <input class="pin-box" id="pinConfirmBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',3)" onkeydown="pinSetupBoxKey(event,'pinConfirm',3)">
-        <input class="pin-box" id="pinConfirmBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',4)" onkeydown="pinSetupBoxKey(event,'pinConfirm',4)">
+    <div id="pinStep3" class="pin-step" style="display:none">
+      <div class="form-group">
+        <label>Confirm New PIN</label>
+        <input type="hidden" id="pinConfirm">
+        <div class="pin-boxes" id="pinConfirmBoxes">
+          <input class="pin-box" id="pinConfirmBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',1)" onkeydown="pinSetupBoxKey(event,'pinConfirm',1)">
+          <input class="pin-box" id="pinConfirmBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',2)" onkeydown="pinSetupBoxKey(event,'pinConfirm',2)">
+          <input class="pin-box" id="pinConfirmBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',3)" onkeydown="pinSetupBoxKey(event,'pinConfirm',3)">
+          <input class="pin-box" id="pinConfirmBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',4)" onkeydown="pinSetupBoxKey(event,'pinConfirm',4)">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button style="flex:1;background:var(--bg);color:var(--text-muted)" onclick="pinStepBack(2)"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <button style="flex:1" class="btn-admin" onclick="saveLoginPin()"><i class="fa-solid fa-key"></i> Save PIN</button>
       </div>
     </div>
-    <div style="display: flex; gap: 10px; margin-top: 16px;">
-      <button style="flex: 1; background: var(--bg); color: var(--text-muted);" onclick="closePinModal()">Cancel</button>
-      <button style="flex: 1;" class="btn-admin" onclick="saveLoginPin()"><i class="fa-solid fa-key"></i> Save PIN</button>
-    </div>
+    <button style="margin-top:12px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closePinModal()">Cancel</button>
   </div>
 </div>
 
@@ -4670,12 +4682,16 @@ const FIREBASE_CONFIG = {
       return alert('Incorrect PIN. ' + (PIN_MAX_ATTEMPTS - pinAttempts) + ' attempt(s) left before PIN sign-in is turned off on this device.');
     }
     pinAttempts = 0;
-    var pinAuth = firebaseAuth();
-    if (!pinAuth || !pinAuth.currentUser) {
-      showPasswordLogin();
-      return alert('This device needs one password sign-in before the PIN can be used again. Please sign in with your password once and the PIN will work here as normal.');
-    }
-    completeLogin(user);
+    var pinBtn = document.querySelector('#loginPinView .login-btn-primary');
+    if (pinBtn) { pinBtn.disabled = true; pinBtn.dataset.label = pinBtn.innerHTML; pinBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Unlocking…'; }
+    waitForFirebaseAuth(5000).then(function(hasAuth) {
+      if (pinBtn) { pinBtn.disabled = false; if (pinBtn.dataset.label) pinBtn.innerHTML = pinBtn.dataset.label; }
+      if (!hasAuth) {
+        showPasswordLogin();
+        return alert('This device needs one password sign-in before the PIN can be used again. Please sign in with your password once and the PIN will work here as normal.');
+      }
+      completeLogin(user);
+    });
   }
 
   function offerPinSetup() {
@@ -4697,11 +4713,55 @@ const FIREBASE_CONFIG = {
     document.getElementById('pinNew').value = '';
     document.getElementById('pinConfirm').value = '';
     clearPinSetupBoxes();
+    pinStepShow(1);
     document.getElementById('pinModal').style.display = 'flex';
-    setTimeout(function(){ var b=document.getElementById('pinNewBox1'); if(b) b.focus(); }, 50);
+    setTimeout(function(){ var p=document.getElementById('pinCurrentPass'); if(p) p.focus(); }, 50);
   }
 
   function closePinModal() { document.getElementById('pinModal').style.display = 'none'; }
+
+  /* Step-by-step PIN setup wizard: password → enter PIN → confirm PIN */
+  function pinStepShow(n) {
+    [1,2,3].forEach(function(s){ var el=document.getElementById('pinStep'+s); if(el) el.style.display = (s===n)?'block':'none'; });
+  }
+  function pinStepNext(n) {
+    if (n===2) {
+      var pass = document.getElementById('pinCurrentPass').value||'';
+      if (!pass) return alert('Please enter your current account password to continue.');
+      pinStepShow(2);
+      setTimeout(function(){ var b=document.getElementById('pinNewBox1'); if(b) b.focus(); }, 50);
+    } else if (n===3) {
+      var pin = (document.getElementById('pinNew').value||'').trim();
+      if (!/^[0-9]{4}$/.test(pin)) return alert('Please enter a 4-digit PIN to continue.');
+      pinStepShow(3);
+      setTimeout(function(){ var b=document.getElementById('pinConfirmBox1'); if(b) b.focus(); }, 50);
+    }
+  }
+  function pinStepBack(n) {
+    pinStepShow(n);
+    if (n===1) { var p=document.getElementById('pinCurrentPass'); if(p) p.focus(); }
+    else if (n===2) { var b=document.getElementById('pinNewBox1'); if(b) b.focus(); }
+  }
+  /* Wait for Firebase to restore a persisted session before PIN login completes. */
+  function waitForFirebaseAuth(timeoutMs) {
+    timeoutMs = timeoutMs || 5000;
+    return new Promise(function(resolve) {
+      var auth = firebaseAuth();
+      if (!auth) { resolve(false); return; }
+      if (auth.currentUser) { resolve(true); return; }
+      var done = false;
+      var unsub = auth.onAuthStateChanged(function(fbUser) {
+        if (done) return;
+        done = true; try { if (typeof unsub === 'function') unsub(); } catch(e){}
+        resolve(!!fbUser);
+      });
+      setTimeout(function() {
+        if (done) return;
+        done = true; try { if (typeof unsub === 'function') unsub(); } catch(e){}
+        resolve(!!auth.currentUser);
+      }, timeoutMs);
+    });
+  }
 
   function saveLoginPin() {
     var u = currentUser;
@@ -8443,6 +8503,12 @@ function getPlatformBranding() {
   };
 }
 
+/* Human-readable line for the "trial activated" alerts. 0 days = no free trial. */
+function trialActivatedMessage() {
+  var d = getPlatformBranding().trialDays;
+  return d > 0 ? (d + '-day free trial activated.') : 'No free trial is configured for this platform. Subscribe to activate the account.';
+}
+
 /* Apply the centrally configured branding to the welcome and login screens */
 function applyPlatformBranding() {
   var br = getPlatformBranding();
@@ -8455,7 +8521,15 @@ function applyPlatformBranding() {
   var wsDesc = document.getElementById('wsDescription');
   if (wsDesc) wsDesc.innerText = br.description;
   var wsTrial = document.getElementById('wsTrialInfo');
-  if (wsTrial) wsTrial.innerText = 'Start Your ' + br.trialDays + '-Day Free Trial';
+  if (wsTrial) {
+    if (!platformFirstLoadDone) {
+      wsTrial.innerText = 'Loading…';
+    } else if (br.trialDays > 0) {
+      wsTrial.innerText = 'Start Your ' + br.trialDays + '-Day Free Trial';
+    } else {
+      wsTrial.innerText = 'Subscribe to get started';
+    }
+  }
   var loginBox = document.getElementById('loginBrandLogoBox');
   if (loginBox) {
     if (br.logoDataUrl) { loginBox.classList.add('has-logo'); loginBox.innerHTML = '<img src="' + br.logoDataUrl + '" alt="Platform Logo">'; }
@@ -9235,7 +9309,7 @@ function registerCurrentBusiness() {
   savePlatformData();
   alert(existed
     ? 'This business is already registered — its details have been updated.\nBusiness ID: ' + bizId
-    : 'Current business registered with platform!\nBusiness ID: ' + bizId + '\n' + getPlatformBranding().trialDays + '-day free trial activated.');
+    : 'Current business registered with platform!\nBusiness ID: ' + bizId + '\n' + trialActivatedMessage());
   renderPlatformAdminViews();
 }
 
@@ -9257,7 +9331,7 @@ function addNewBusiness() {
     trialEndDate: trialEnd, subscriptionExpiry: '', lastActivity: 0, isCurrentBusiness: false
   };
   savePlatformData();
-  alert('Business registered successfully!\nBusiness ID: ' + bizId + '\n' + getPlatformBranding().trialDays + '-day free trial activated.');
+  alert('Business registered successfully!\nBusiness ID: ' + bizId + '\n' + trialActivatedMessage());
   closePaAddBizModal();
   document.getElementById('paNewBizName').value = '';
   document.getElementById('paNewBizAdmin').value = '';
@@ -10275,7 +10349,7 @@ function submitBusinessRegistration() {
   document.getElementById('loginModal').style.display = 'flex';
   var sel = document.getElementById('loginUserSelect');
   if (sel) sel.value = admin;
-  alert('Business registered successfully!\n\nBusiness: ' + name + '\nBusiness ID: ' + bizId + '\nAdministrator: ' + admin + '\n\nYour ' + branding.trialDays + '-day free trial has started. You can now sign in.');
+  alert('Business registered successfully!\n\nBusiness: ' + name + '\nBusiness ID: ' + bizId + '\nAdministrator: ' + admin + '\n\nYour ' + (branding.trialDays > 0 ? branding.trialDays + '-day free trial has started. You can now sign in.' : 'No free trial is configured for this platform. Subscribe to activate your account.'));
 }
 
 /* ===== INITIALIZATION ===== */
@@ -10385,6 +10459,10 @@ window.addEventListener('DOMContentLoaded', function() {
   window.pinSetupBoxInput = pinSetupBoxInput;
   window.pinSetupBoxKey = pinSetupBoxKey;
   window.clearPinSetupBoxes = clearPinSetupBoxes;
+  window.pinStepShow = pinStepShow;
+  window.pinStepNext = pinStepNext;
+  window.pinStepBack = pinStepBack;
+  window.waitForFirebaseAuth = waitForFirebaseAuth;
 
   /* Offer the PIN dialog right after a normal sign-in. */
   function offerPinSetupAfterLogin() {
