@@ -504,6 +504,17 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 #loginModal .pin-forgot{display:block;text-align:center;margin:14px 0 4px}
 #pinModal .modal-card{border-radius:var(--radius-lg)}
 #pinModal .btn-admin{background:var(--primary);color:#fff;border:none;border-radius:var(--radius-md);font-weight:900;padding:12px;font-family:inherit}
+/* Shared box-style PIN entry (setup/change modal) */
+.pin-boxes{display:flex;gap:12px;justify-content:center;margin:6px 0 4px}
+.pin-box{width:52px;height:58px;flex:0 1 52px;text-align:center;font-size:1.4rem;font-weight:900;color:var(--atmos-navy);background:#fff;border:2px solid var(--border);border-radius:14px;box-shadow:0 1px 3px rgba(11,30,45,.06);padding:0!important;transition:border-color .15s,box-shadow .15s,background .15s;-webkit-tap-highlight-color:transparent}
+.pin-box:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+.pin-box.pin-filled{border-color:var(--primary);background:var(--primary-light)}
+@media (max-width:360px){.pin-boxes{gap:8px}.pin-box{width:44px;height:52px;flex:0 1 44px;font-size:1.25rem}}
+/* Lock the background while any modal overlay is open */
+body.ft-modal-open{overflow:hidden;height:100vh}
+.pw-field{position:relative;display:block}
+.pw-field input{padding-right:38px!important}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.85rem;cursor:pointer;user-select:none;z-index:2}
 
     /* ===== GUEST PORTAL: no business content before sign-in ===== */
     body.guest-mode:not(.pa-mode) nav,
@@ -552,7 +563,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         <div class="ws-feature"><i class="fa-solid fa-chart-pie"></i><span>Financial reports &amp; month closing</span></div>
         <div class="ws-feature"><i class="fa-solid fa-gauge-high"></i><span>Business performance tracking</span></div>
       </div>
-      <div class="ws-trial" id="wsTrialInfo">Start Your 14-Day Free Trial</div>
+      <div class="ws-trial" id="wsTrialInfo">Start Your Free Trial</div>
       <div class="ws-continue">Do you wish to continue?</div>
       <div class="ws-btns">
         <button class="ws-btn ws-btn-primary" onclick="welcomeGoLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
@@ -583,8 +594,8 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
       <div class="pa-modal-field"><label>Administrator Name</label><input type="text" id="bizRegAdmin" placeholder="Business administrator full name" required></div>
       <div class="pa-modal-field"><label>Mobile Number</label><input type="tel" id="bizRegMobile" placeholder="Enter the mobile number" required></div>
       <div class="pa-modal-field"><label>Email Address</label><input type="email" id="bizRegEmail" placeholder="Enter the email address" required></div>
-      <div class="pa-modal-field"><label>Password</label><input type="password" id="bizRegPass" placeholder="Create a password" required></div>
-      <div class="pa-modal-field"><label>Confirm Password</label><input type="password" id="bizRegPass2" placeholder="Re-enter password" required></div>
+      <div class="pa-modal-field"><label>Password</label><div class="pw-field"><input type="password" id="bizRegPass" placeholder="Create a password" required><i class="fa-solid fa-eye pw-eye" id="bizRegPassEye" onclick="togglePasswordVisibility('bizRegPass','bizRegPassEye')"></i></div></div>
+      <div class="pa-modal-field"><label>Confirm Password</label><div class="pw-field"><input type="password" id="bizRegPass2" placeholder="Re-enter password" required><i class="fa-solid fa-eye pw-eye" id="bizRegPass2Eye" onclick="togglePasswordVisibility('bizRegPass2','bizRegPass2Eye')"></i></div></div>
       <button class="btn-primary" onclick="bizRegNext()"><i class="fa-solid fa-arrow-right"></i> Continue to Business Profile</button>
       <button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closeBizRegisterModal()">Cancel</button>
     </div>
@@ -687,7 +698,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         <label id="userCodeLabel">Staff Mobile Number</label>
         <div class="login-input-wrap">
           <i class="fa-solid fa-user"></i>
-          <input type="text" id="loginStaffId" placeholder="Enter the staff mobile number" autocomplete="off" inputmode="numeric">
+          <input type="tel" id="loginStaffId" placeholder="Enter the staff mobile number" autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
         </div>
       </div>
 
@@ -756,8 +767,8 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 </div>
 <div class="pa-modal-field"><label>Administrator Full Name</label><input type="text" id="paSetupName" placeholder="Enter full name" required></div>
 <div class="pa-modal-field"><label>Email Address</label><input type="email" id="paSetupEmail" placeholder="Enter email address" required></div>
-<div class="pa-modal-field"><label>Password (min 8 characters)</label><input type="password" id="paSetupPassword" placeholder="Enter secure password" minlength="8" required></div>
-<div class="pa-modal-field"><label>Confirm Password</label><input type="password" id="paSetupConfirmPassword" placeholder="Re-enter password" required></div>
+<div class="pa-modal-field"><label>Password (min 8 characters)</label><div class="pw-field"><input type="password" id="paSetupPassword" placeholder="Enter secure password" minlength="8" required><i class="fa-solid fa-eye pw-eye" id="paSetupPasswordEye" onclick="togglePasswordVisibility('paSetupPassword','paSetupPasswordEye')"></i></div></div>
+<div class="pa-modal-field"><label>Confirm Password</label><div class="pw-field"><input type="password" id="paSetupConfirmPassword" placeholder="Re-enter password" required><i class="fa-solid fa-eye pw-eye" id="paSetupConfirmPasswordEye" onclick="togglePasswordVisibility('paSetupConfirmPassword','paSetupConfirmPasswordEye')"></i></div></div>
 <div class="pa-modal-field"><label>Security PIN (4 digits — for password reset)</label><input type="text" id="paSetupPin" placeholder="Enter a 4-digit PIN" maxlength="4" required></div>
 <button class="btn-admin" onclick="performPlatformAdminSetup()"><i class="fa-solid fa-shield-halved"></i> Create Platform Administrator</button>
 <button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closePaSetupModal()">Cancel</button>
@@ -772,7 +783,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 <h2 style="font-size:1.05rem;font-weight:900;color:var(--atmos-navy);text-transform:uppercase">Platform Admin Login</h2>
 </div>
 <div class="pa-modal-field"><label>Administrator Email</label><input type="email" id="paLoginName" placeholder="Enter email address" required></div>
-<div class="pa-modal-field"><label>Password</label><input type="password" id="paLoginPassword" placeholder="Enter password" required></div>
+<div class="pa-modal-field"><label>Password</label><div class="pw-field"><input type="password" id="paLoginPassword" placeholder="Enter password" required><i class="fa-solid fa-eye pw-eye" id="paLoginPasswordEye" onclick="togglePasswordVisibility('paLoginPassword','paLoginPasswordEye')"></i></div></div>
 <button class="btn-admin" onclick="performPlatformAdminLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Platform Portal</button>
 <div id="paForgotLink" style="margin-top:10px;text-align:center;display:none">
 <a style="font-size:.75rem;color:var(--atmos-red);font-weight:700;cursor:pointer" onclick="openPaForgotModal()">Forgot Password?</a>
@@ -781,13 +792,14 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 </div>
 </div>
 
-<!-- PA FORGOT PASSWORD MODAL -->
+<!-- PA FORGOT PASSWORD MODAL (email-link reset) -->
 <div id="paForgotModal" class="modal" style="display:none">
 <div class="modal-card" style="max-width:420px">
-<h3 style="font-size:1.05rem;font-weight:800;color:var(--atmos-navy);margin-bottom:12px">Platform Admin Password Reset</h3>
-<div class="pa-modal-field"><label>Security PIN</label><input type="text" id="paForgotPin" placeholder="Enter 4-digit PIN" maxlength="4"></div>
-<div class="pa-modal-field"><label>New Password</label><input type="password" id="paForgotNewPass" placeholder="Enter new password"></div>
-<button class="btn-admin" onclick="resetPaPassword()">Reset Password</button>
+<h3 style="font-size:1.05rem;font-weight:800;color:var(--atmos-navy);margin-bottom:6px">Platform Admin Password Reset</h3>
+<p style="font-size:.78rem;color:var(--text-muted);margin-bottom:14px">A secure, single-use reset link will be emailed to the platform administrator's registered email address.</p>
+<div class="pa-modal-field"><label>Administrator Email</label><input type="email" id="paResetEmailInput" placeholder="Enter the platform admin email" autocomplete="off"></div>
+<button class="btn-admin" id="paResetSendBtn" onclick="requestPaPasswordReset()"><i class="fa-solid fa-paper-plane"></i> Send Reset Link to Email</button>
+<p id="paResetStatus" style="display:none;font-size:.75rem;font-weight:700;margin-top:12px;line-height:1.45"></p>
 <button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closePaForgotModal()">Cancel</button>
 </div>
 </div>
@@ -816,11 +828,11 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
     <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:14px">Choose a new password for the business administrator account.</p>
     <div class="form-group">
       <label>New Password</label>
-      <input type="password" id="adminResetNewPass" placeholder="At least 6 characters">
+      <div class="pw-field"><input type="password" id="adminResetNewPass" placeholder="At least 6 characters"><i class="fa-solid fa-eye pw-eye" id="adminResetNewPassEye" onclick="togglePasswordVisibility('adminResetNewPass','adminResetNewPassEye')"></i></div>
     </div>
     <div class="form-group">
       <label>Confirm New Password</label>
-      <input type="password" id="adminResetNewPass2" placeholder="Re-enter new password">
+      <div class="pw-field"><input type="password" id="adminResetNewPass2" placeholder="Re-enter new password"><i class="fa-solid fa-eye pw-eye" id="adminResetNewPass2Eye" onclick="togglePasswordVisibility('adminResetNewPass2','adminResetNewPass2Eye')"></i></div>
     </div>
     <button class="btn-admin" onclick="completeAdminPasswordReset()"><i class="fa-solid fa-circle-check"></i> Save New Password</button>
     <button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closeAdminResetLinkModal()">Cancel</button>
@@ -2670,6 +2682,21 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 </div>
 <button class="btn-primary" onclick="saveIntroOffer()" style="width:auto;background:var(--accent-green)"><i class="fa-solid fa-floppy-disk"></i> Save Introductory Offer</button>
 </div>
+<div class="app-card" style="border-left:5px solid var(--atmos-navy)">
+<h3 style="font-size:1rem;font-weight:800;margin-bottom:12px"><i class="fa-solid fa-indian-rupee-sign" style="color:var(--atmos-navy)"></i> Subscription Plan Pricing</h3>
+<p style="font-size:.8rem;color:var(--text-muted);margin-bottom:14px">Set the subscription amount for each plan. Saved amounts apply to every business admin — new subscriptions and renewals will charge these amounts, and the payment QR code updates automatically.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+<div class="form-group"><label>Normal — 1 Month (₹)</label><input type="number" id="paPrice_normal_1month" min="1" step="1"></div>
+<div class="form-group"><label>Normal — 3 Months (₹)</label><input type="number" id="paPrice_normal_3months" min="1" step="1"></div>
+<div class="form-group"><label>Normal — 6 Months (₹)</label><input type="number" id="paPrice_normal_6months" min="1" step="1"></div>
+<div class="form-group"><label>Normal — 12 Months (₹)</label><input type="number" id="paPrice_normal_12months" min="1" step="1"></div>
+<div class="form-group"><label>Introductory — 1 Month (₹)</label><input type="number" id="paPrice_introductory_1month" min="1" step="1"></div>
+<div class="form-group"><label>Introductory — 3 Months (₹)</label><input type="number" id="paPrice_introductory_3months" min="1" step="1"></div>
+<div class="form-group"><label>Introductory — 6 Months (₹)</label><input type="number" id="paPrice_introductory_6months" min="1" step="1"></div>
+<div class="form-group"><label>Introductory — 12 Months (₹)</label><input type="number" id="paPrice_introductory_12months" min="1" step="1"></div>
+</div>
+<button class="btn-primary" onclick="savePlanPricing()" style="width:auto;margin-top:14px"><i class="fa-solid fa-floppy-disk"></i> Save Plan Pricing</button>
+</div>
 <div class="app-card" style="border-left:5px solid var(--atmos-red)">
 <h3 style="font-size:1rem;font-weight:800;margin-bottom:8px"><i class="fa-solid fa-trash-can" style="color:var(--atmos-red)"></i> Data Retention & Cleanup</h3>
 <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:12px">Automatic cleanup of eligible operational records and temporary files older than 730 days. Monthly financial summaries, income/expense totals, profit, balances, month-closing records, and subscription/payment histories are preserved indefinitely.</p>
@@ -2900,15 +2927,27 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
     <p id="pinModalSubtitle" style="font-size:.78rem;color:var(--text-muted);margin-bottom:16px">Choose a 4-digit PIN for quick sign-in on this device. It is stored as a one-way hash, never as readable text.</p>
     <div class="form-group">
       <label>Your Current Password</label>
-      <input type="password" id="pinCurrentPass" placeholder="Enter your current account password" autocomplete="off">
+      <div class="pw-field"><input type="password" id="pinCurrentPass" placeholder="Enter your current account password" autocomplete="off"><i class="fa-solid fa-eye pw-eye" id="pinCurrentPassEye" onclick="togglePasswordVisibility('pinCurrentPass','pinCurrentPassEye')"></i></div>
     </div>
     <div class="form-group">
       <label>New PIN (exactly 4 digits)</label>
-      <input type="password" id="pinNew" inputmode="numeric" maxlength="4" pattern="[0-9]*" oninput="pinDigitsOnly(this)" placeholder="••••" style="letter-spacing:6px;text-align:center" autocomplete="off">
+      <input type="hidden" id="pinNew">
+      <div class="pin-boxes" id="pinNewBoxes">
+        <input class="pin-box" id="pinNewBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',1)" onkeydown="pinSetupBoxKey(event,'pinNew',1)">
+        <input class="pin-box" id="pinNewBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',2)" onkeydown="pinSetupBoxKey(event,'pinNew',2)">
+        <input class="pin-box" id="pinNewBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',3)" onkeydown="pinSetupBoxKey(event,'pinNew',3)">
+        <input class="pin-box" id="pinNewBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',4)" onkeydown="pinSetupBoxKey(event,'pinNew',4)">
+      </div>
     </div>
     <div class="form-group">
       <label>Confirm New PIN</label>
-      <input type="password" id="pinConfirm" inputmode="numeric" maxlength="4" pattern="[0-9]*" oninput="pinDigitsOnly(this)" placeholder="••••" style="letter-spacing:6px;text-align:center" autocomplete="off">
+      <input type="hidden" id="pinConfirm">
+      <div class="pin-boxes" id="pinConfirmBoxes">
+        <input class="pin-box" id="pinConfirmBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',1)" onkeydown="pinSetupBoxKey(event,'pinConfirm',1)">
+        <input class="pin-box" id="pinConfirmBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',2)" onkeydown="pinSetupBoxKey(event,'pinConfirm',2)">
+        <input class="pin-box" id="pinConfirmBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',3)" onkeydown="pinSetupBoxKey(event,'pinConfirm',3)">
+        <input class="pin-box" id="pinConfirmBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',4)" onkeydown="pinSetupBoxKey(event,'pinConfirm',4)">
+      </div>
     </div>
     <div style="display: flex; gap: 10px; margin-top: 16px;">
       <button style="flex: 1; background: var(--bg); color: var(--text-muted);" onclick="closePinModal()">Cancel</button>
@@ -2928,11 +2967,11 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
     </div>
     <div class="form-group">
       <label>Mobile Number</label>
-      <input type="text" id="staffMobileInput" placeholder="Enter the mobile number">
+      <input type="tel" id="staffMobileInput" placeholder="Enter the mobile number" inputmode="numeric" pattern="[0-9]*" maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input type="text" id="staffPassInput" placeholder="Enter password" required>
+      <div class="pw-field"><input type="password" id="staffPassInput" placeholder="Enter password" required><i class="fa-solid fa-eye pw-eye" id="staffPassInputEye" onclick="togglePasswordVisibility('staffPassInput','staffPassInputEye')"></i></div>
     </div>
     <div style="display: flex; gap: 10px; margin-top: 16px;">
       <button style="flex: 1; background: var(--bg); color: var(--text-muted);" onclick="closeAddStaffModal()">Cancel</button>
@@ -4657,7 +4696,9 @@ const FIREBASE_CONFIG = {
     document.getElementById('pinCurrentPass').value = '';
     document.getElementById('pinNew').value = '';
     document.getElementById('pinConfirm').value = '';
+    clearPinSetupBoxes();
     document.getElementById('pinModal').style.display = 'flex';
+    setTimeout(function(){ var b=document.getElementById('pinNewBox1'); if(b) b.focus(); }, 50);
   }
 
   function closePinModal() { document.getElementById('pinModal').style.display = 'none'; }
@@ -4988,12 +5029,13 @@ const FIREBASE_CONFIG = {
       user.pass = '';
       currentUser = user;
       if (user.role === 'Admin') clearPendingAdminReset();
-      return afterFirebaseLogin(user).then(function () {
-        var remember = document.getElementById('loginRememberDevice');
-        if (remember && remember.checked) savePinDevice(user); else clearPinDevice();
-        completeLogin(user);
-        if (!user.pinHash) offerPinSetup();
-      });
+      var remember = document.getElementById('loginRememberDevice');
+      if (remember && remember.checked) savePinDevice(user); else clearPinDevice();
+      /* Show the dashboard instantly; cloud sync continues in the background and
+         refreshes the views once the business data arrives. */
+      completeLogin(user);
+      if (!user.pinHash) offerPinSetup();
+      afterFirebaseLogin(user).catch(function (e) { console.error('Background sync failed:', e); });
     }).catch(function (err) {
       restoreBtn();
       handleLoginError(err);
@@ -5028,12 +5070,11 @@ const FIREBASE_CONFIG = {
         admin.pass = '';
         currentUser = admin;
         clearPendingAdminReset();
-        return afterFirebaseLogin(admin).then(function () {
-          var remember = document.getElementById('loginRememberDevice');
-          if (remember && remember.checked) savePinDevice(admin); else clearPinDevice();
-          completeLogin(admin);
-          if (!admin.pinHash) offerPinSetup();
-        });
+        var remember = document.getElementById('loginRememberDevice');
+        if (remember && remember.checked) savePinDevice(admin); else clearPinDevice();
+        completeLogin(admin);
+        if (!admin.pinHash) offerPinSetup();
+        afterFirebaseLogin(admin).catch(function (e) { console.error('Background sync failed:', e); });
       });
     }).then(function () {
       restoreBtn();
@@ -5063,10 +5104,17 @@ const FIREBASE_CONFIG = {
       /* The Main Platform Administrator signs in here too. */
       const paCred = platformData.credentials;
       if (paCred && paCred.email && String(paCred.email).trim().toLowerCase() === typedEmail) {
-        if (paCred.password !== pass) { showLoginError('Incorrect password. Please check your password and try again.'); return; }
-        document.getElementById('loginPassword').value = '';
-        openPlatformAdminFirebaseSession(paCred, pass);
-        enterPlatformAdminMode();
+        setBtnBusy();
+        firebasePlatformAdminSignIn(pass).then(function () {
+          if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.label) submitBtn.innerHTML = submitBtn.dataset.label; }
+          document.getElementById('loginPassword').value = '';
+          enterPlatformAdminMode();
+        }).catch(function (err) {
+          if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.label) submitBtn.innerHTML = submitBtn.dataset.label; }
+          var code = (err && err.code) ? err.code : '';
+          if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') showLoginError('Incorrect password. Please check your password and try again. If you have forgotten it, use "Forgot Password?".');
+          else showLoginError('Invalid platform admin credentials.');
+        });
         return;
       }
 
@@ -5090,10 +5138,15 @@ const FIREBASE_CONFIG = {
           if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.label) submitBtn.innerHTML = submitBtn.dataset.label; }
           var pc = platformData.credentials;
           if (pc && pc.email && String(pc.email).trim().toLowerCase() === typedEmail) {
-            if (pc.password !== pass) { showLoginError('Incorrect password. Please check your password and try again.'); return; }
-            document.getElementById('loginPassword').value = '';
-            openPlatformAdminFirebaseSession(pc, pass);
-            enterPlatformAdminMode();
+            if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.label) submitBtn.innerHTML = submitBtn.dataset.label; }
+            firebasePlatformAdminSignIn(pass).then(function () {
+              document.getElementById('loginPassword').value = '';
+              enterPlatformAdminMode();
+            }).catch(function (err) {
+              var code = (err && err.code) ? err.code : '';
+              if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') showLoginError('Incorrect password. Please check your password and try again. If you have forgotten it, use "Forgot Password?".');
+              else showLoginError('Invalid platform admin credentials.');
+            });
             return;
           }
           directAdminSignIn(typedEmail, pass, submitBtn);
@@ -8531,6 +8584,22 @@ var PA_PLANS = {
   }
 };
 
+/* Resolve the active plan pricing. Falls back to the hardcoded defaults
+   when the platform admin has not saved any custom prices yet; once saved,
+   the stored amounts (shared across every admin via Firebase) take over. */
+function paPlans(){
+  var stored = platformData && platformData.planPricing;
+  if (!stored) return PA_PLANS;
+  var out = { normal: {}, introductory: {} };
+  ['normal','introductory'].forEach(function(t){
+    var s = stored[t] || {}, d = PA_PLANS[t] || {};
+    Object.keys(Object.assign({}, d, s)).forEach(function(k){
+      out[t][k] = Object.assign({}, d[k] || {}, s[k] || {});
+    });
+  });
+  return out;
+}
+
 /* FIREBASE RULES TEXT */
 var PA_FIREBASE_RULES = `{
   "rules": {
@@ -8664,8 +8733,13 @@ function openPlatformAdminLogin() {
 function closePaLoginModal() { document.getElementById('paLoginModal').style.display = 'none'; }
 function openPaSetupModal() { document.getElementById('paSetupModal').style.display = 'flex'; }
 function closePaSetupModal() { document.getElementById('paSetupModal').style.display = 'none'; }
-function openPaForgotModal() { closePaLoginModal(); document.getElementById('paForgotModal').style.display = 'flex'; }
-function closePaForgotModal() { document.getElementById('paForgotModal').style.display = 'none'; }
+function openPaForgotModal() {
+  closePaLoginModal();
+  var em = document.getElementById('paResetEmailInput'); if (em) em.value = '';
+  var st = document.getElementById('paResetStatus'); if (st) st.style.display = 'none';
+  document.getElementById('paForgotModal').style.display = 'flex';
+}
+function closePaForgotModal() { document.getElementById('paForgotModal').style.display = 'none'; var lm = document.getElementById('paLoginModal'); if (lm) lm.style.display = 'flex'; }
 function openAddBusinessModal() { document.getElementById('paAddBusinessModal').style.display = 'flex'; }
 function closePaAddBizModal() { document.getElementById('paAddBusinessModal').style.display = 'none'; }
 function closePaPaymentModal() { document.getElementById('paPaymentModal').style.display = 'none'; document.getElementById('paRejectReasonGroup').style.display='none'; }
@@ -8731,26 +8805,68 @@ function performPlatformAdminLogin() {
   if (!platformFirstLoadDone) return alert('Still loading platform data. Please wait a moment and try again.');
   var cred = platformData.credentials;
   if (!cred) return alert('No platform administrator configured. If you have not set one up yet, use the one-time setup option.');
-  var nameKey = name.toLowerCase();
-  var idMatches = !!(cred.email && String(cred.email).trim().toLowerCase() === nameKey);
-  if (idMatches && cred.password === password) {
-    openPlatformAdminFirebaseSession(cred, password);
+  var email = String(cred.email || '').trim().toLowerCase();
+  if (!email || String(name).trim().toLowerCase() !== email) { alert('Invalid platform admin credentials.'); return; }
+  var auth = firebaseAuth();
+  if (!auth) {
+    if (cred.password === password) { openPlatformAdminFirebaseSession(cred, password); enterPlatformAdminMode(); }
+    else alert('Invalid platform admin credentials.');
+    return;
+  }
+  var btn = document.querySelector('#paLoginModal button[onclick="performPlatformAdminLogin()"]');
+  if (btn) { btn.disabled = true; btn.dataset.label = btn.innerHTML; btn.innerHTML = 'Signing in...'; }
+  function restoreBtn() { if (btn) { btn.disabled = false; if (btn.dataset.label) btn.innerHTML = btn.dataset.label; } }
+  firebasePlatformAdminSignIn(password).then(function () {
+    restoreBtn();
     enterPlatformAdminMode();
-  } else { alert('Invalid platform admin credentials.'); }
+  }).catch(function (err) {
+    restoreBtn();
+    var code = (err && err.code) ? err.code : '';
+    if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') alert('Incorrect password. Please check your password and try again. If you have forgotten it, use "Forgot Password?".');
+    else if (code === 'auth/user-not-found') alert('Invalid platform admin credentials.');
+    else alert('Sign-in could not be completed. Please try again.');
+  });
 }
 
-/* RESET PA PASSWORD */
-function resetPaPassword() {
-  var pin = document.getElementById('paForgotPin').value.trim();
-  var newPass = document.getElementById('paForgotNewPass').value.trim();
-  if (!platformData.credentials) return alert('No platform admin configured.');
-  if (pin !== platformData.credentials.pin) return alert('Invalid security PIN.');
-  if (newPass.length < 8) return alert('Password must be at least 8 characters.');
-  platformData.credentials.password = newPass;
-  savePlatformData();
-  alert('Platform admin password updated successfully!');
-  closePaForgotModal();
-  openPlatformAdminLogin();
+/* Firebase-backed platform admin sign-in (email-link reset friendly). */
+function firebasePlatformAdminSignIn(password) {
+  var cred = platformData.credentials;
+  var email = String(cred.email || '').trim().toLowerCase();
+  var auth = firebaseAuth();
+  if (!auth) return Promise.reject(new Error('AUTH_UNAVAILABLE'));
+  return auth.signInWithEmailAndPassword(email, password).catch(function (err) {
+    var code = (err && err.code) ? err.code : '';
+    if (code === 'auth/user-not-found' && cred.password === password) {
+      return auth.createUserWithEmailAndPassword(email, password);
+    }
+    throw err;
+  });
+}
+
+/* PA password reset — sends a single-use reset link to the PA email. */
+function requestPaPasswordReset() {
+  var cred = platformData.credentials;
+  if (!cred || !cred.email) return alert('No platform administrator email is configured.');
+  var email = String(cred.email).trim().toLowerCase();
+  var typedEmail = (document.getElementById('paResetEmailInput').value || '').trim().toLowerCase();
+  if (typedEmail && typedEmail !== email) return alert('This email does not match the registered platform administrator email address.');
+  var statusEl = document.getElementById('paResetStatus');
+  var btn = document.getElementById('paResetSendBtn');
+  function finish(msg, ok) {
+    if (statusEl) { statusEl.style.display = 'block'; statusEl.style.color = ok ? 'var(--accent-green)' : 'var(--atmos-red)'; statusEl.innerText = msg; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Reset Link to Email'; }
+  }
+  var auth = firebaseAuth();
+  if (!auth || typeof auth.sendPasswordResetEmail !== 'function') return finish('Password reset by email is unavailable right now. Please try again later.', false);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...'; }
+  ensureFirebaseAccountWithEmail(email, 'TempReset_' + Date.now() + '!A1').then(function () {
+    return auth.sendPasswordResetEmail(email);
+  }).then(function () {
+    finish('A reset link has been sent to ' + email + '. Open it, set a new password, then sign in here with that new password.', true);
+  }).catch(function (err) {
+    console.error('PA reset email failed:', err);
+    finish('Could not send the reset link. Please check the address and try again.', false);
+  });
 }
 
 /* PLATFORM ADMIN LOGOUT */
@@ -9045,7 +9161,7 @@ function openBusinessProfile(bizId) {
   } else {
     html += '<div style="overflow-x:auto"><table><thead><tr><th>Plan</th><th>Amount</th><th>Txn ID</th><th>Status</th><th>Submitted</th><th>Verified</th><th>Reason</th></tr></thead><tbody>';
     payments.forEach(function(p) {
-      html += '<tr><td>'+(PA_PLANS[p.pricingType||'normal'][p.plan||'1month']||{}).name||p.plan+'</td><td>₹'+(p.amount||0).toFixed(2)+'</td><td style="font-family:monospace;font-size:.78rem">'+(p.txnId||'-')+'</td><td><span class="pa-badge pa-badge-'+(p.status==='approved'?'active':p.status==='pending'?'pending':'expired')+'">'+p.status+'</span></td><td style="font-size:.78rem">'+new Date(p.submittedAt||0).toLocaleDateString('en-IN')+'</td><td style="font-size:.78rem">'+(p.verifiedAt?new Date(p.verifiedAt).toLocaleDateString('en-IN'):'-')+'</td><td style="font-size:.78rem">'+(p.rejectionReason||'-')+'</td></tr>';
+      html += '<tr><td>'+(paPlans()[p.pricingType||'normal'][p.plan||'1month']||{}).name||p.plan+'</td><td>₹'+(p.amount||0).toFixed(2)+'</td><td style="font-family:monospace;font-size:.78rem">'+(p.txnId||'-')+'</td><td><span class="pa-badge pa-badge-'+(p.status==='approved'?'active':p.status==='pending'?'pending':'expired')+'">'+p.status+'</span></td><td style="font-size:.78rem">'+new Date(p.submittedAt||0).toLocaleDateString('en-IN')+'</td><td style="font-size:.78rem">'+(p.verifiedAt?new Date(p.verifiedAt).toLocaleDateString('en-IN'):'-')+'</td><td style="font-size:.78rem">'+(p.rejectionReason||'-')+'</td></tr>';
     });
     html += '</tbody></table></div>';
   }
@@ -9177,8 +9293,8 @@ function deleteBusiness(bizId) {
 function renderPASubscriptions() {
   /* render plan cards */
   var normalHtml = '', introHtml = '';
-  Object.keys(PA_PLANS.normal).forEach(function(k) {
-    var p = PA_PLANS.normal[k], ip = PA_PLANS.introductory[k];
+  Object.keys(paPlans().normal).forEach(function(k) {
+    var p = paPlans().normal[k], ip = paPlans().introductory[k];
     normalHtml += '<div style="background:var(--bg);padding:10px;border-radius:var(--radius-md);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center"><div><strong>'+p.name+'</strong></div><div style="font-weight:800;color:var(--atmos-navy)">₹'+p.price+'</div></div>';
     introHtml += '<div style="background:var(--accent-green-bg);padding:10px;border-radius:var(--radius-md);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center"><div><strong>'+ip.name+'</strong></div><div style="font-weight:800;color:var(--accent-green)">₹'+ip.price+'</div></div>';
   });
@@ -9205,7 +9321,7 @@ function renderPASubscriptions() {
     } else {
       pending.forEach(function(p) {
         var b = (platformData.businesses||{})[p.businessId] || {};
-        var planInfo = PA_PLANS[p.pricingType||'normal'][p.plan||'1month'] || {};
+        var planInfo = paPlans()[p.pricingType||'normal'][p.plan||'1month'] || {};
         var tr = document.createElement('tr');
         tr.innerHTML = '<td>'+(b.name||'-')+'</td><td>'+planInfo.name+' (₹'+(planInfo.price||p.amount||0)+')</td><td>₹'+(p.amount||0).toFixed(2)+'</td><td style="font-family:monospace;font-size:.78rem">'+(p.txnId||'-')+'</td><td>'+(p.screenshotUrl?'<a href="'+p.screenshotUrl+'" target="_blank" class="pa-link">View</a>':'<span style="color:var(--text-muted)">No screenshot</span>')+'</td><td style="font-size:.78rem">'+new Date(p.submittedAt||0).toLocaleDateString('en-IN')+'</td><td><button class="btn-primary" onclick="openPaymentDetail(\''+p.id+'\')" style="width:auto;padding:4px 10px;font-size:.78rem;background:var(--atmos-navy)">Review</button></td>';
         ptbody.appendChild(tr);
@@ -9223,7 +9339,7 @@ function renderPASubscriptions() {
     } else {
       allPayments.forEach(function(p) {
         var b = (platformData.businesses||{})[p.businessId] || {};
-        var planInfo = PA_PLANS[p.pricingType||'normal'][p.plan||'1month'] || {};
+        var planInfo = paPlans()[p.pricingType||'normal'][p.plan||'1month'] || {};
         var statusBadge = p.status === 'approved' ? 'pa-badge-active' : p.status === 'pending' ? 'pa-badge-pending' : 'pa-badge-expired';
         var tr = document.createElement('tr');
         tr.innerHTML = '<td>'+(b.name||'-')+'</td><td>'+planInfo.name+'</td><td>₹'+(p.amount||0).toFixed(2)+'</td><td style="font-family:monospace;font-size:.78rem">'+(p.txnId||'-')+'</td><td><span class="pa-badge '+statusBadge+'">'+p.status+'</span></td><td style="font-size:.78rem">'+new Date(p.submittedAt||0).toLocaleDateString('en-IN')+'</td><td style="font-size:.78rem">'+(p.verifiedAt?new Date(p.verifiedAt).toLocaleDateString('en-IN'):'-')+'</td><td style="font-size:.78rem">'+(p.rejectionReason||'-')+'</td>';
@@ -9239,7 +9355,7 @@ function openPaymentDetail(paymentId) {
   var p = (platformData.payments||{})[paymentId];
   if (!p) return;
   var b = (platformData.businesses||{})[p.businessId] || {};
-  var planInfo = PA_PLANS[p.pricingType||'normal'][p.plan||'1month'] || {};
+  var planInfo = paPlans()[p.pricingType||'normal'][p.plan||'1month'] || {};
   var html =
     '<div style="margin-bottom:14px">'+
     '<p style="font-size:.85rem;margin-bottom:6px"><strong>Business:</strong> '+(b.name||'-')+'</p>'+
@@ -9278,8 +9394,8 @@ function approvePayment() {
   if (!p) return;
   var b = (platformData.businesses||{})[p.businessId];
   if (!b) return alert('Business not found.');
-  if (!confirm('Approve this payment and activate/extend the subscription?\n\nPlan: '+(PA_PLANS[p.pricingType||'normal'][p.plan||'1month']||{}).name+'\nAmount: ₹'+(p.amount||0).toFixed(2)+'\n\nThis will set the subscription to Active and extend the expiry in calendar months (from the current expiry if it is still active).')) return;
-  var planInfo = PA_PLANS[p.pricingType||'normal'][p.plan||'1month'];
+  if (!confirm('Approve this payment and activate/extend the subscription?\n\nPlan: '+(paPlans()[p.pricingType||'normal'][p.plan||'1month']||{}).name+'\nAmount: ₹'+(p.amount||0).toFixed(2)+'\n\nThis will set the subscription to Active and extend the expiry in calendar months (from the current expiry if it is still active).')) return;
+  var planInfo = paPlans()[p.pricingType||'normal'][p.plan||'1month'];
   if (!planInfo) return alert('Invalid plan.');
   /* Calculate expiry: calendar months from today (IST). A renewal bought while
      the subscription is still active starts the day after the current expiry,
@@ -9622,6 +9738,14 @@ function renderPASettings() {
   if (document.getElementById('paIntroDeadline')) document.getElementById('paIntroDeadline').value = offer.deadline || '';
   if (document.getElementById('paIntroEligibility')) document.getElementById('paIntroEligibility').value = offer.eligibility || 'all';
   if (document.getElementById('paIntroCustomerLimit')) document.getElementById('paIntroCustomerLimit').value = offer.customerLimit || 0;
+  /* plan pricing inputs */
+  var pp = paPlans();
+  ['normal','introductory'].forEach(function(t){
+    Object.keys(PA_PLANS[t]).forEach(function(k){
+      var el = document.getElementById('paPrice_'+t+'_'+k);
+      if (el) el.value = (pp[t] && pp[t][k]) ? pp[t][k].price : '';
+    });
+  });
   /* firebase rules */
   var rulesEl = document.getElementById('paFirebaseRules');
   if (rulesEl) rulesEl.textContent = PA_FIREBASE_RULES;
@@ -9648,6 +9772,22 @@ function saveIntroOffer() {
   savePlatformData();
   alert('Introductory offer configuration saved!');
   renderPASettings();
+}
+
+function savePlanPricing() {
+  if (!platformData.planPricing) platformData.planPricing = { normal: {}, introductory: {} };
+  ['normal','introductory'].forEach(function(t){
+    if (!platformData.planPricing[t]) platformData.planPricing[t] = {};
+    Object.keys(PA_PLANS[t]).forEach(function(k){
+      var el = document.getElementById('paPrice_'+t+'_'+k);
+      var v = el ? parseInt(el.value, 10) : NaN;
+      if (!isFinite(v) || v < 1) v = PA_PLANS[t][k].price;
+      platformData.planPricing[t][k] = { name: PA_PLANS[t][k].name, durationMonths: PA_PLANS[t][k].durationMonths, price: v };
+    });
+  });
+  savePlatformData();
+  alert('Plan pricing saved! New subscriptions and renewals will now use the updated amounts.');
+  renderPASubscriptions();
 }
 
 function copyFirebaseRules() {
@@ -10177,7 +10317,10 @@ window.addEventListener('DOMContentLoaded', function() {
     var showing = inp.type === 'text';
     inp.type = showing ? 'password' : 'text';
     var ic = document.getElementById(iconId);
-    if (ic) ic.className = (showing ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash') + ' login-eye';
+    if (ic) {
+      var m = ic.className.match(/(login-eye|pw-eye)/);
+      ic.className = (showing ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash') + (m ? ' ' + m[1] : ' pw-eye');
+    }
   }
   function syncPinBoxes() {
     var v = '';
@@ -10208,10 +10351,40 @@ window.addEventListener('DOMContentLoaded', function() {
     clearPinDevice();
     showPasswordLogin();
   }
+  /* Box-style PIN entry for the setup/change modal (syncs to hidden fields). */
+  function syncSetupPinBoxes(prefix) {
+    var v = '';
+    for (var i = 1; i <= 4; i++) { var b = document.getElementById(prefix + 'Box' + i); v += b ? (b.value || '') : ''; }
+    var h = document.getElementById(prefix); if (h) h.value = v;
+    return v;
+  }
+  function clearPinSetupBoxes() {
+    ['pinNew','pinConfirm'].forEach(function (prefix) {
+      for (var i = 1; i <= 4; i++) { var b = document.getElementById(prefix + 'Box' + i); if (b) { b.value = ''; b.classList.remove('pin-filled'); } }
+      var h = document.getElementById(prefix); if (h) h.value = '';
+    });
+  }
+  function pinSetupBoxInput(el, prefix, idx) {
+    var d = String(el.value || '').replace(/[^0-9]/g, '').slice(-1);
+    el.value = d;
+    try { el.classList.toggle('pin-filled', !!d); } catch (e) {}
+    if (d && idx < 4) { var n = document.getElementById(prefix + 'Box' + (idx + 1)); if (n) n.focus(); }
+    syncSetupPinBoxes(prefix);
+  }
+  function pinSetupBoxKey(e, prefix, idx) {
+    if (e.key === 'Backspace' && !e.target.value && idx > 1) {
+      var p = document.getElementById(prefix + 'Box' + (idx - 1));
+      if (p) { p.value = ''; p.classList.remove('pin-filled'); p.focus(); }
+      syncSetupPinBoxes(prefix); e.preventDefault();
+    }
+  }
   window.togglePasswordVisibility = togglePasswordVisibility;
   window.pinBoxInput = pinBoxInput;
   window.pinBoxKey = pinBoxKey;
   window.forgotPin = forgotPin;
+  window.pinSetupBoxInput = pinSetupBoxInput;
+  window.pinSetupBoxKey = pinSetupBoxKey;
+  window.clearPinSetupBoxes = clearPinSetupBoxes;
 
   /* Offer the PIN dialog right after a normal sign-in. */
   function offerPinSetupAfterLogin() {
@@ -10325,7 +10498,7 @@ window.addEventListener('DOMContentLoaded', function() {
     var amtEl = document.getElementById('paPayAmount');
     if (!planEl || !amtEl) return;
     var pt = (ptEl && ptEl.value) ? ptEl.value : 'normal';
-    var def = (PA_PLANS[pt] || PA_PLANS.normal)[planEl.value];
+    var def = (paPlans()[pt] || paPlans().normal)[planEl.value];
     if (def) amtEl.value = def.price;
   }
 
