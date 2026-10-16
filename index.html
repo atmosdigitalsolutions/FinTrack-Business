@@ -684,18 +684,18 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 
     <div id="loginCredView">
       <div class="login-field" id="loginUserSelectWrap">
-        <label id="userCodeLabel">User ID</label>
+        <label id="userCodeLabel">Staff Mobile Number</label>
         <div class="login-input-wrap">
           <i class="fa-solid fa-user"></i>
-          <input type="text" id="loginStaffId" placeholder="The ID or name your admin gave you" autocomplete="off">
+          <input type="text" id="loginStaffId" placeholder="Enter the staff mobile number" autocomplete="off" inputmode="numeric">
         </div>
       </div>
 
       <div class="login-field" id="loginEmailWrap" style="display:none">
-        <label>Administrator Email</label>
+        <label>Email ID</label>
         <div class="login-input-wrap">
           <i class="fa-solid fa-envelope"></i>
-          <input type="text" id="loginEmailInput" placeholder="Email (or your old admin ID, one last time)" autocomplete="off">
+          <input type="text" id="loginEmailInput" placeholder="Enter the admin email ID" autocomplete="off">
         </div>
       </div>
 
@@ -716,13 +716,9 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         <span id="forgotPasswordBtnContainer" style="display:none"><a class="login-link" onclick="openForgotPasswordModal()">Forgot Password?</a></span>
       </div>
 
-      <div id="paSetupLinkContainer" style="display:none;text-align:center;margin:2px 0 10px">
-        <a class="login-link" onclick="openPaSetupModal()"><i class="fa-solid fa-shield-halved"></i> First-time Platform Administrator Setup</a>
-      </div>
-
       <div id="loginErrorMsg" class="login-error" style="display:none"><i class="fa-solid fa-circle-exclamation" style="margin-top:2px"></i><span id="loginErrorText"></span></div>
       <button class="login-btn-primary" onclick="performLogin()">Access FinTrack <i class="fa-solid fa-arrow-right"></i></button>
-      <button class="login-btn-secondary" id="loginPinSwitchBtn" style="display:none" onclick="showPinLogin()"><i class="fa-solid fa-keyboard"></i> Enter FinPIN</button>
+      <button class="login-btn-secondary" id="loginPinSwitchBtn" onclick="showPinLogin()"><i class="fa-solid fa-keyboard"></i> Enter FinPIN</button>
     </div>
 
     <div id="loginPinView" style="display:none">
@@ -3042,7 +3038,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 <div class="modal-card" style="max-width:560px">
 <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:16px">Payment Verification</h3>
 <div id="paPaymentDetail"></div>
-<div class="form-group" id="paRejectReasonGroup" style="display:none"><label>Rejection Reason</label><textarea id="paRejectReason" rows="2" placeholder="Enter reason for rejection"></textarea></div>
+<div class="form-group" id="paRejectReasonGroup" style="display:none"><label>Rejection Reason (the business admin will see this)</label><textarea id="paRejectReason" rows="2" placeholder="Type why this payment is rejected and what the business should do"></textarea></div>
 <div style="display:flex;gap:10px;margin-top:16px">
 <button style="flex:1;background:var(--bg);color:var(--text-muted)" onclick="closePaPaymentModal()">Close</button>
 <button style="flex:1" class="btn-danger" id="paRejectBtn" onclick="rejectPayment()">Reject</button>
@@ -3574,6 +3570,7 @@ const FIREBASE_CONFIG = {
     chain = chain.then(function () { startBusinessSync(); });
     chain = chain.then(function () { return migrateLegacyData(); })
                  .catch(function (e) { console.error('Data migration failed:', e); });
+    chain = chain.then(function () { setupLegacyBridgeListener(); });
     return chain;
   }
 
@@ -3796,32 +3793,158 @@ const FIREBASE_CONFIG = {
     }
   }
 
-  /* One-time import of existing production data from the previous version's node */
-  function migrateLegacyData() {
-    var alreadyDone = false;
-    try { alreadyDone = localStorage.getItem(BIZ_MIGRATION_KEY) === '1'; } catch (e) {}
-    if (alreadyDone) return Promise.resolve();
-    /* Never overwrite a business that already holds data - only seed an empty one. */
-    return businessDataRef().once('value').then(function (cur) {
-      var curVal = cur ? cur.val() : null;
-      var hasRealData = !!(curVal && Array.isArray(curVal.userAccounts) && curVal.userAccounts.length);
-      if (hasRealData) { markMigrationDone(); return null; }
-      return firebase.database().ref('atmos_hub_data_v12').once('value').then(function (snapshot) {
-        var legacy = snapshot.val();
-        if (!legacy) { markMigrationDone(); return null; }
-        appData = convertLegacyData(legacy);
-        applyMigrationState();
-        relinkCurrentUser();
-        dedupeEntryIds();
-        try { localStorage.setItem('ATMOS_HUB_DATA_2026', JSON.stringify(appData)); } catch (e) {}
-        refreshAllViews();
-        markMigrationDone();
-        return businessDataRef().set(convertToLegacyFormat());
+  /* LIVE BRIDGE to the previous version's node (atmos_hub_data_v12).
+     Attendance and entries recorded on devices still running the previous
+     file are merged into this business's data, so both copies always carry
+     the same records. This file only READS the legacy node - it never
+     writes to it, so the previous file keeps working untouched. */
+  var LEGACY_NODE = 'atmos_hub_data_v12';
+  var LEGACY_MERGE_KEY = 'ATMOS_LEGACY_MERGED_AT';
+  var legacyBridgeAttached = false;
+
+  function legacyMergedAt() {
+    try { return parseInt(localStorage.getItem(LEGACY_MERGE_KEY), 10) || 0; } catch (e) { return 0; }
+  }
+
+  function timeStrToMinutes(t) {
+    var m = /^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i.exec(String(t || '').trim());
+    if (!m) return -1;
+    var h = parseInt(m[1], 10), min = parseInt(m[2], 10);
+    var ap = (m[3] || '').toUpperCase();
+    if (ap === 'PM' && h < 12) h += 12;
+    if (ap === 'AM' && h === 12) h = 0;
+    return h * 60 + min;
+  }
+
+  /* Union merge: adds what this business's data is missing, never deletes.
+     Records already saved here always win, so nothing is overwritten. */
+  function mergeLegacySnapshot(legacy) {
+    if (!legacy) return false;
+    var incoming = convertLegacyData(legacy);
+    var changed = false;
+
+    function fingerprint(rec) {
+      return [rec.date || '', rec.time || '', rec.amount !== undefined ? rec.amount : (rec.total || ''), rec.desc || rec.customerName || rec.category || '', rec.staff || rec.direction || ''].join('|');
+    }
+    function hasRecord(target, rec) {
+      var key = (rec.id !== undefined && rec.id !== null && rec.id !== '') ? String(rec.id) : null;
+      var fp = fingerprint(rec);
+      return target.some(function (t) {
+        if (key && String(t.id) === key) return true;
+        return fingerprint(t) === fp;
       });
+    }
+    function union(target, extra) {
+      var added = false;
+      (extra || []).forEach(function (rec) {
+        if (!rec) return;
+        if (!hasRecord(target, rec)) { target.push(rec); added = true; }
+      });
+      if (added) {
+        changed = true;
+        target.sort(function (a, b) {
+          var d = String(b.date || '').localeCompare(String(a.date || ''));
+          if (d !== 0) return d;
+          return (parseFloat(b.timestamp) || 0) - (parseFloat(a.timestamp) || 0);
+        });
+      }
+    }
+
+    if (Array.isArray(incoming.users)) {
+      incoming.users.forEach(function (u) {
+        if (!u || !u.name) return;
+        var local = null;
+        (appData.users || []).forEach(function (t) { if (!local && u.id && String(t.id) === String(u.id)) local = t; });
+        if (!local) (appData.users || []).forEach(function (t) { if (!local && t.name === u.name && t.role === u.role) local = t; });
+        if (!local) { appData.users.push(u); changed = true; }
+        else {
+          ['mobile', 'email'].forEach(function (f) {
+            if (u[f] && !local[f]) { local[f] = u[f]; changed = true; }
+          });
+        }
+      });
+    }
+    if (Array.isArray(incoming.masterServices)) union(appData.masterServices, incoming.masterServices);
+    if (Array.isArray(incoming.serviceLog)) union(appData.serviceLog, incoming.serviceLog);
+    if (Array.isArray(incoming.expenseLog)) union(appData.expenseLog, incoming.expenseLog);
+    if (Array.isArray(incoming.transferLog)) union(appData.transferLog, incoming.transferLog);
+    if (Array.isArray(incoming.invoices)) union(appData.invoices, incoming.invoices);
+    if (Array.isArray(incoming.adminTransfers)) {
+      appData.adminTransfers = appData.adminTransfers || [];
+      union(appData.adminTransfers, incoming.adminTransfers);
+    }
+
+    /* Attendance: add missing days; when both sides have a day, keep the later activity */
+    var att = incoming.attendance || {};
+    Object.keys(att).forEach(function (m) {
+      Object.keys(att[m] || {}).forEach(function (uname) {
+        Object.keys(att[m][uname] || {}).forEach(function (d) {
+          var inc = att[m][uname][d];
+          if (!inc || !d) return;
+          if (!appData.attendance[m]) appData.attendance[m] = {};
+          if (!appData.attendance[m][uname]) appData.attendance[m][uname] = {};
+          var cur = appData.attendance[m][uname][d];
+          if (!cur) { appData.attendance[m][uname][d] = inc; changed = true; return; }
+          if (cur.adminOverride) return;
+          if (inc.adminOverride) { appData.attendance[m][uname][d] = inc; changed = true; return; }
+          if (timeStrToMinutes(inc.lastActive || inc.firstLogin) > timeStrToMinutes(cur.lastActive || cur.firstLogin)) {
+            appData.attendance[m][uname][d] = inc; changed = true;
+          }
+        });
+      });
+    });
+
+    /* Month-keyed collections: fill only what is missing */
+    ['openingBalances', 'monthlySalaries', 'historicalMonths', 'staffProfiles'].forEach(function (f) {
+      var inc = incoming[f];
+      if (!inc || typeof inc !== 'object') return;
+      var curObj = appData[f] || {};
+      Object.keys(inc).forEach(function (k) {
+        var c = curObj[k];
+        var empty = (c === undefined || c === null || (typeof c === 'object' && Object.keys(c).length === 0));
+        if (empty) { curObj[k] = inc[k]; changed = true; }
+      });
+      appData[f] = curObj;
+    });
+    if (Array.isArray(incoming.closedMonths)) {
+      var cm = appData.closedMonths || [];
+      incoming.closedMonths.forEach(function (m) { if (cm.indexOf(m) < 0) { cm.push(m); changed = true; } });
+      appData.closedMonths = cm;
+    }
+    return changed;
+  }
+
+  function mergeLegacyNow(legacy) {
+    var legacyUpdated = parseInt((legacy || {}).lastUpdated, 10) || 0;
+    if (legacyUpdated && legacyUpdated <= legacyMergedAt()) return Promise.resolve(false);
+    var changed = mergeLegacySnapshot(legacy);
+    try { localStorage.setItem(LEGACY_MERGE_KEY, String(legacyUpdated || Date.now())); } catch (e) {}
+    if (!changed) return Promise.resolve(false);
+    applyMigrationState();
+    relinkCurrentUser();
+    dedupeEntryIds();
+    try { localStorage.setItem('ATMOS_HUB_DATA_2026', JSON.stringify(appData)); } catch (e) {}
+    refreshAllViews();
+    return businessDataRef().set(convertToLegacyFormat()).then(function () { return true; });
+  }
+
+  function migrateLegacyData() {
+    return firebase.database().ref(LEGACY_NODE).once('value').then(function (snapshot) {
+      return mergeLegacyNow(snapshot.val());
     }).catch(function (err) {
       /* Under the locked-down rules the old node is unreadable - nothing to import. */
       console.error("Legacy data import skipped:", err);
     });
+  }
+
+  function setupLegacyBridgeListener() {
+    if (legacyBridgeAttached) return;
+    legacyBridgeAttached = true;
+    try {
+      firebase.database().ref(LEGACY_NODE).on('value', function (snapshot) {
+        mergeLegacyNow(snapshot.val()).catch(function (e) { console.error('Legacy bridge merge failed:', e); });
+      }, function () {});
+    } catch (e) { console.error('Legacy bridge unavailable:', e); }
   }
 
   function istTimeFromTimestamp(ts) {
@@ -4464,7 +4587,10 @@ const FIREBASE_CONFIG = {
 
   function showPinLogin() {
     var dev = getPinDevice();
-    if (!dev) return showPasswordLogin();
+    if (!dev) {
+      showPasswordLogin();
+      return alert('No login PIN is saved on this device yet. Sign in with your password once - then you can set a PIN and use "Enter FinPIN" here.');
+    }
     var user = findUserByNameRole(dev.name, dev.role);
     if (!user || !user.pinHash) { clearPinDevice(); return showPasswordLogin(); }
     document.getElementById('loginCredView').style.display = 'none';
@@ -4781,14 +4907,18 @@ const FIREBASE_CONFIG = {
         ? appData.users.find(u => u.role === 'Admin' && String(u.email || '').trim().toLowerCase() === typedEmail)
         : appData.users.find(u => u.role === 'Admin' && !String(u.email || '').trim() && (String(u.name || '').trim().toLowerCase() === typedEmail || String(u.id || '').trim().toLowerCase() === typedEmail));
     } else {
-      const typedId = ((document.getElementById('loginStaffId') || {}).value || '').trim().toLowerCase();
-      user = appData.users.find(u => u.role === 'Staff' && (String(u.id || '').trim().toLowerCase() === typedId || String(u.name || '').trim().toLowerCase() === typedId));
+      const typedId = ((document.getElementById('loginStaffId') || {}).value || '').trim();
+      var typedDigits = typedId.replace(/[^0-9]/g, '');
+      user = appData.users.find(u => u.role === 'Staff' && (
+        String(u.id || '').trim().toLowerCase() === typedId.toLowerCase() ||
+        String(u.name || '').trim().toLowerCase() === typedId.toLowerCase() ||
+        (!!typedDigits && String(u.mobile || '').replace(/[^0-9]/g, '') === typedDigits)));
     }
 
     if (!user) {
       showLoginError(currentLoginMode === 'Admin'
         ? 'No administrator account matches that email. Please check the spelling, or register your business if you have not done so yet.'
-        : 'No staff account matches that ID or name. Please check with your administrator.');
+        : 'No staff account matches that mobile number. Please check with your administrator.');
       return;
     }
 
@@ -8166,6 +8296,21 @@ function compressLogoImage(file, callback) {
 }
 
 function updateBusinessBrandingDisplays() {
+  /* In platform-administrator mode every brand spot belongs to the platform -
+     never to any individual business. */
+  if (document.body.classList.contains('pa-mode')) {
+    var paBrand = getPlatformBranding();
+    var paDrawerLogo = document.getElementById('drawerBrandLogoBox');
+    if (paDrawerLogo) {
+      if (paBrand.logoDataUrl) { paDrawerLogo.classList.add('has-logo'); paDrawerLogo.innerHTML = '<img src="' + paBrand.logoDataUrl + '" alt="Platform Logo" style="max-height:38px;max-width:120px;object-fit:contain">'; }
+      else { paDrawerLogo.classList.remove('has-logo'); paDrawerLogo.innerHTML = paBrand.name; }
+    }
+    var paDrawerName = document.getElementById('drawerBizName');
+    if (paDrawerName) paDrawerName.innerText = paBrand.name;
+    var paDrawerMotto = document.getElementById('drawerBizMotto');
+    if (paDrawerMotto) { paDrawerMotto.innerText = paBrand.motto; paDrawerMotto.style.display = 'block'; }
+    return;
+  }
   var prof = getBusinessProfile();
   var bizLogo = (typeof appData !== 'undefined' && appData && appData.logoDataUrl) || '';
   var drawerLogo = document.getElementById('drawerBrandLogoBox');
@@ -8409,6 +8554,7 @@ function enterPlatformAdminMode() {
   document.querySelectorAll('.pa-tab-btn').forEach(function(b) { b.style.display = 'inline-block'; });
   var badge = document.getElementById('activeUserBadge');
   if (badge) badge.innerText = platformAdminUser.name + ' (Platform Admin)';
+  try { applyPlatformBranding(); } catch (e) {}
   switchPATab('paDashboardTab');
   renderPlatformAdminViews();
 }
@@ -8949,7 +9095,13 @@ function openPaymentDetail(paymentId) {
   }
   var el = document.getElementById('paPaymentDetail');
   if (el) el.innerHTML = html;
-  document.getElementById('paRejectReasonGroup').style.display = 'none';
+  /* The rejection reason box is always visible - type the reason, then reject. */
+  var reasonGroup = document.getElementById('paRejectReasonGroup');
+  if (reasonGroup) {
+    reasonGroup.style.display = 'block';
+    var reasonInput = document.getElementById('paRejectReason');
+    if (reasonInput) reasonInput.value = '';
+  }
   document.getElementById('paRejectBtn').innerText = 'Reject';
   document.getElementById('paPaymentModal').style.display = 'flex';
 }
@@ -8961,11 +9113,18 @@ function approvePayment() {
   if (!p) return;
   var b = (platformData.businesses||{})[p.businessId];
   if (!b) return alert('Business not found.');
-  if (!confirm('Approve this payment and activate/extend the subscription?\n\nPlan: '+(PA_PLANS[p.pricingType||'normal'][p.plan||'1month']||{}).name+'\nAmount: ₹'+(p.amount||0).toFixed(2)+'\n\nThis will set the subscription to Active and calculate the expiry date based on calendar months from today.')) return;
+  if (!confirm('Approve this payment and activate/extend the subscription?\n\nPlan: '+(PA_PLANS[p.pricingType||'normal'][p.plan||'1month']||{}).name+'\nAmount: ₹'+(p.amount||0).toFixed(2)+'\n\nThis will set the subscription to Active and extend the expiry in calendar months (from the current expiry if it is still active).')) return;
   var planInfo = PA_PLANS[p.pricingType||'normal'][p.plan||'1month'];
   if (!planInfo) return alert('Invalid plan.');
-  /* Calculate expiry: calendar months from today (IST) */
+  /* Calculate expiry: calendar months from today (IST). A renewal bought while
+     the subscription is still active starts the day after the current expiry,
+     so the paid period is extended, never shortened. */
   var startDate = getISTDate();
+  var curExpiryDate = b.subscriptionExpiry ? new Date(b.subscriptionExpiry + 'T23:59:59') : null;
+  if ((b.subscriptionStatus === 'active' || b.subscriptionStatus === 'grace') && curExpiryDate && curExpiryDate.getTime() > startDate.getTime()) {
+    startDate = new Date(curExpiryDate.getTime() + 24 * 60 * 60 * 1000);
+    startDate.setHours(0, 0, 0, 0);
+  }
   var expiry = new Date(startDate);
   expiry.setMonth(expiry.getMonth() + planInfo.durationMonths);
   expiry.setDate(expiry.getDate() - 1); /* end of day before renewal */
@@ -8990,14 +9149,8 @@ function rejectPayment() {
   if (!paCurrentPaymentId) return;
   var p = (platformData.payments||{})[paCurrentPaymentId];
   if (!p) return;
-  var reasonGroup = document.getElementById('paRejectReasonGroup');
-  if (reasonGroup.style.display === 'none') {
-    reasonGroup.style.display = 'block';
-    document.getElementById('paRejectBtn').innerText = 'Confirm Rejection';
-    return;
-  }
   var reason = document.getElementById('paRejectReason').value.trim();
-  if (!reason) return alert('Please enter a rejection reason.');
+  if (!reason) return alert('Please enter the rejection reason - the business admin needs to know what to correct before paying again.');
   p.status = 'rejected';
   p.verifiedAt = Date.now();
   p.verifiedBy = platformAdminUser ? platformAdminUser.name : 'Platform Admin';
