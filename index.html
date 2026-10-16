@@ -558,6 +558,7 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
         <button class="ws-btn ws-btn-primary" onclick="welcomeGoLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
         <button class="ws-btn ws-btn-green" onclick="welcomeGoRegister()"><i class="fa-solid fa-building-circle-check"></i> Register Your Business</button>
         <button class="ws-btn ws-btn-outline" onclick="welcomeGoForgot()"><i class="fa-solid fa-key"></i> Forgot Password</button>
+        <button class="ws-btn ws-btn-outline" onclick="openPlatformAdminLogin()"><i class="fa-solid fa-shield-halved"></i> Platform Admin Login</button>
       </div>
       <button class="ws-skip" onclick="welcomeGoLogin()">Skip introduction &amp; continue to login</button>
     </div>
@@ -3505,6 +3506,10 @@ const FIREBASE_CONFIG = {
         /* the administrator's address is needed to send a recovery link from any
            device; no password or PIN is ever published here */
         if (u.role === 'Admin' && u.email) directory[accountKey(u)].email = u.email;
+        /* The staff mobile number is the sign-in ID, so the login screen
+           must be able to match it before anyone is signed in. No password
+           or PIN is ever published here. */
+        if (u.mobile) directory[accountKey(u)].mobile = String(u.mobile).trim();
       });
       return businessMetaRef().update({
         memberEmails: members,
@@ -3599,8 +3604,9 @@ const FIREBASE_CONFIG = {
             if (local.name !== entry.name || local.role !== entry.role) { local.name = entry.name; local.role = entry.role; changed = true; }
             if (entry.email && local.email !== entry.email) { local.email = entry.email; changed = true; }
             if (entry.gen && entry.gen > (local.authVersion || 1)) { local.authVersion = entry.gen; changed = true; }
+            if (entry.mobile && String(local.mobile || '') !== String(entry.mobile)) { local.mobile = String(entry.mobile); changed = true; }
           } else {
-            appData.users.push({ id: entry.accountId, name: entry.name, role: entry.role, pass: '', mobile: '', email: entry.email || '', authVersion: entry.gen || 1, pinHash: '', pinSalt: '' });
+            appData.users.push({ id: entry.accountId, name: entry.name, role: entry.role, pass: '', mobile: entry.mobile || '', email: entry.email || '', authVersion: entry.gen || 1, pinHash: '', pinSalt: '' });
             changed = true;
           }
         });
@@ -4883,57 +4889,99 @@ const FIREBASE_CONFIG = {
     maybePromptBusinessDetails(user);
   }
 
-  function performLogin() {
-    clearLoginError();
-    const pass = document.getElementById('loginPassword').value;
-    let user = null;
-    if (currentLoginMode === 'Admin') {
-      const emailInput = document.getElementById('loginEmailInput');
-      const typedEmail = ((emailInput && emailInput.value) || '').trim().toLowerCase();
-      /* The Main Platform Administrator signs in here too. */
-      const paCred = platformData.credentials;
-      if (paCred && paCred.email && String(paCred.email).trim().toLowerCase() === typedEmail) {
-        if (paCred.password !== pass) { showLoginError('Incorrect password. Please check your password and try again.'); return; }
-        document.getElementById('loginPassword').value = '';
-        openPlatformAdminFirebaseSession(paCred, pass);
-        enterPlatformAdminMode();
-        return;
-      }
-      /* One-time legacy sign-in: the old admin ID still works as long as no email
-         has been saved for the administrator yet. Once an email is set in business
-         details, only that email signs in. */
-      var looksLikeEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(typedEmail);
-      user = looksLikeEmail
-        ? appData.users.find(u => u.role === 'Admin' && String(u.email || '').trim().toLowerCase() === typedEmail)
-        : appData.users.find(u => u.role === 'Admin' && !String(u.email || '').trim() && (String(u.name || '').trim().toLowerCase() === typedEmail || String(u.id || '').trim().toLowerCase() === typedEmail));
+  /* Wait for this business's data to arrive from the cloud after a fresh
+     Firebase sign-in, so the account list is present before we look up the
+     signed-in person. Resolves with true when users are loaded. */
+  function waitForBusinessData(timeoutMs) {
+    timeoutMs = timeoutMs || 8000;
+    return new Promise(function (resolve) {
+      if (appData && appData.users && appData.users.length) { resolve(true); return; }
+      var elapsed = 0, tick = 200;
+      var timer = setInterval(function () {
+        elapsed += tick;
+        if ((appData && appData.users && appData.users.length) || elapsed >= timeoutMs) {
+          clearInterval(timer);
+          resolve(!!(appData && appData.users && appData.users.length));
+        }
+      }, tick);
+    });
+  }
+
+  /* Wait for the platform data node to finish loading (success or failure)
+     so the platform administrator is never mis-routed through the business
+     sign-in path. */
+  function waitForPlatformData(timeoutMs) {
+    timeoutMs = timeoutMs || 6000;
+    return new Promise(function (resolve) {
+      if (platformFirstLoadDone) { resolve(true); return; }
+      var elapsed = 0, tick = 200;
+      var timer = setInterval(function () {
+        elapsed += tick;
+        if (platformFirstLoadDone || elapsed >= timeoutMs) { clearInterval(timer); resolve(platformFirstLoadDone); }
+      }, tick);
+    });
+  }
+
+  /* One-time read of the public account directory, used by the staff sign-in
+     screen on a device where nobody has signed in before. No password or PIN
+     is ever read here - only names, roles, emails and mobile numbers. */
+  function ensureAccountDirectoryOnce() {
+    return new Promise(function (resolve, reject) {
+      try {
+        if (typeof firebase === 'undefined' || !firebase.database) { reject(new Error('NO_DB')); return; }
+        var ref = firebase.database().ref('businesses/' + getActiveBusinessId() + '/accounts');
+        ref.once('value').then(function (snap) {
+          var val = snap.val();
+          if (val) {
+            var changed = false;
+            Object.keys(val).forEach(function (k) {
+              var entry = val[k];
+              if (!entry || !entry.name) return;
+              var local = null;
+              (appData.users || []).forEach(function (u) { if (accountKey(u) === entry.accountId) local = u; });
+              if (local) {
+                if (!local.id) { local.id = entry.accountId; local.pass = ''; changed = true; }
+                if (entry.email && local.email !== entry.email) { local.email = entry.email; changed = true; }
+                if (entry.mobile && String(local.mobile || '') !== String(entry.mobile)) { local.mobile = String(entry.mobile); changed = true; }
+                if (entry.gen && entry.gen > (local.authVersion || 1)) { local.authVersion = entry.gen; changed = true; }
+              } else {
+                appData.users.push({ id: entry.accountId, name: entry.name, role: entry.role, pass: '', mobile: entry.mobile || '', email: entry.email || '', authVersion: entry.gen || 1, pinHash: '', pinSalt: '' });
+                changed = true;
+              }
+            });
+            if (changed) { try { localStorage.setItem('ATMOS_HUB_DATA_2026', JSON.stringify(appData)); } catch (e) {} }
+          }
+          resolve(true);
+        }).catch(function (e) { reject(e); });
+      } catch (e) { reject(e); }
+    });
+  }
+
+  function handleLoginError(err) {
+    var code = (err && err.code) ? err.code : '';
+    if (code === 'auth/user-not-found') {
+      showLoginError('This account is not registered for secure sign-in yet. Please use "Forgot Password?" to set a password, or ask platform support to reset it for you.');
+    } else if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') {
+      showLoginError('Incorrect password. Please check your password and try again. If you have forgotten it, use "Forgot Password?".');
+    } else if (code === 'auth/too-many-requests') {
+      showLoginError('Too many attempts. Please wait a minute and try again.');
+    } else if (code === 'auth/operation-not-allowed') {
+      showLoginError('Secure sign-in is not switched on for this project yet. Please enable Email/Password in Firebase Console, under Authentication and Sign-in method.');
+    } else if (code === 'auth/api-key-not-valid' || code === 'auth/invalid-api-key') {
+      showLoginError('The Firebase API key in this file is not valid, so secure sign-in cannot run.');
+    } else if (code === 'auth/network-request-failed' || code === 'AUTH_UNAVAILABLE') {
+      showLoginError('Could not reach the secure sign-in service. Please check your internet connection and try again.');
+    } else if (code === 'NO_LOCAL_CREDENTIAL') {
+      showLoginError('We could not verify this account. Please use "Forgot Password?" or ask platform support to reset it for you.');
     } else {
-      const typedId = ((document.getElementById('loginStaffId') || {}).value || '').trim();
-      var typedDigits = typedId.replace(/[^0-9]/g, '');
-      user = appData.users.find(u => u.role === 'Staff' && (
-        String(u.id || '').trim().toLowerCase() === typedId.toLowerCase() ||
-        String(u.name || '').trim().toLowerCase() === typedId.toLowerCase() ||
-        (!!typedDigits && String(u.mobile || '').replace(/[^0-9]/g, '') === typedDigits)));
+      showLoginError('Sign-in could not be completed. Please try again.');
     }
+  }
 
-    if (!user) {
-      showLoginError(currentLoginMode === 'Admin'
-        ? 'No administrator account matches that email. Please check the spelling, or register your business if you have not done so yet.'
-        : 'No staff account matches that mobile number. Please check with your administrator.');
-      return;
-    }
-
-    if (user.pass && user.pass !== pass && user.role !== 'Admin') {
-      showLoginError('Incorrect password. Please check your password and try again.');
-      return;
-    }
-
-    var submitBtn = document.querySelector('#loginModal button[onclick="performLogin()"]');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.dataset.label = submitBtn.innerHTML; submitBtn.innerHTML = 'Signing in...'; }
-    function restoreBtn() {
-      if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.label) submitBtn.innerHTML = submitBtn.dataset.label; }
-    }
-
-    firebaseSignIn(user, pass).then(function (uid) {
+  /* Finish sign-in for an account that was already found in the local list. */
+  function completeFirebaseLogin(user, pass, submitBtn) {
+    function restoreBtn() { if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.label) submitBtn.innerHTML = submitBtn.dataset.label; } }
+    return firebaseSignIn(user, pass).then(function (uid) {
       restoreBtn();
       document.getElementById('loginPassword').value = '';
       user.authUid = uid;
@@ -4949,25 +4997,145 @@ const FIREBASE_CONFIG = {
       });
     }).catch(function (err) {
       restoreBtn();
+      handleLoginError(err);
+    });
+  }
+
+  /* Fresh-browser administrator sign-in: the administrator's secure identity
+     lives under their own email address, so verify it directly with Firebase
+     Authentication, then wait for this business's data to load. */
+  function directAdminSignIn(typedEmail, pass, submitBtn) {
+    function restoreBtn() { if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.label) submitBtn.innerHTML = submitBtn.dataset.label; } }
+    var auth = firebaseAuth();
+    if (!auth) { restoreBtn(); showLoginError('Secure sign-in is unavailable right now. Please try again.'); return; }
+    auth.signInWithEmailAndPassword(typedEmail, pass).then(function (cred) {
+      return waitForBusinessData().then(function () {
+        var admin = appData.users.find(function (u) { return u.role === 'Admin' && String(u.email || '').trim().toLowerCase() === typedEmail; });
+        if (!admin) {
+          /* This typed email belongs to the Main Platform Administrator, not a
+             business admin - route them to the platform portal instead of
+             falling back onto an unrelated business admin account. */
+          var pc = platformData.credentials;
+          if (pc && pc.email && String(pc.email).trim().toLowerCase() === typedEmail) {
+            restoreBtn();
+            document.getElementById('loginPassword').value = '';
+            enterPlatformAdminMode();
+            return;
+          }
+          throw new Error('ADMIN_NOT_FOUND_AFTER_SYNC');
+        }
+        admin.authUid = cred.user.uid;
+        markAccountMigrated(admin, cred.user.uid);
+        admin.pass = '';
+        currentUser = admin;
+        clearPendingAdminReset();
+        return afterFirebaseLogin(admin).then(function () {
+          var remember = document.getElementById('loginRememberDevice');
+          if (remember && remember.checked) savePinDevice(admin); else clearPinDevice();
+          completeLogin(admin);
+          if (!admin.pinHash) offerPinSetup();
+        });
+      });
+    }).then(function () {
+      restoreBtn();
+      document.getElementById('loginPassword').value = '';
+    }).catch(function (err) {
+      restoreBtn();
       var code = (err && err.code) ? err.code : '';
-      if (code === 'auth/user-not-found') {
-        showLoginError('This account is not registered for secure sign-in yet. Please use "Forgot Password?" to set a password, or ask platform support to reset it for you.');
-      } else if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') {
-        showLoginError('Incorrect password. Please check your password and try again. If you have forgotten it, use "Forgot Password?".');
-      } else if (code === 'auth/too-many-requests') {
-        showLoginError('Too many attempts. Please wait a minute and try again.');
-      } else if (code === 'auth/operation-not-allowed') {
-        showLoginError('Secure sign-in is not switched on for this project yet. Please enable Email/Password in Firebase Console, under Authentication and Sign-in method.');
-      } else if (code === 'auth/api-key-not-valid' || code === 'auth/invalid-api-key') {
-        showLoginError('The Firebase API key in this file is not valid, so secure sign-in cannot run.');
-      } else if (code === 'auth/network-request-failed' || code === 'AUTH_UNAVAILABLE') {
-        showLoginError('Could not reach the secure sign-in service. Please check your internet connection and try again.');
-      } else if (code === 'NO_LOCAL_CREDENTIAL') {
-        showLoginError('We could not verify this account. Please use "Forgot Password?" or ask platform support to reset it for you.');
+      if (code === 'auth/user-not-found' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials' || code === 'auth/wrong-password') {
+        showLoginError('No administrator account matches that email, or the password is incorrect. Please check the spelling, or use "Forgot Password?" to reset it.');
       } else {
-        showLoginError('Sign-in could not be completed. Please try again.');
+        handleLoginError(err);
       }
     });
+  }
+
+  function performLogin() {
+    clearLoginError();
+    const pass = document.getElementById('loginPassword').value;
+    var submitBtn = document.querySelector('#loginModal button[onclick="performLogin()"]');
+    function setBtnBusy() { if (submitBtn) { submitBtn.disabled = true; submitBtn.dataset.label = submitBtn.innerHTML; submitBtn.innerHTML = 'Signing in...'; } }
+    let user = null;
+    if (currentLoginMode === 'Admin') {
+      const emailInput = document.getElementById('loginEmailInput');
+      const typedEmail = ((emailInput && emailInput.value) || '').trim().toLowerCase();
+      if (!typedEmail) { showLoginError('Please enter your administrator email address.'); return; }
+
+      /* The Main Platform Administrator signs in here too. */
+      const paCred = platformData.credentials;
+      if (paCred && paCred.email && String(paCred.email).trim().toLowerCase() === typedEmail) {
+        if (paCred.password !== pass) { showLoginError('Incorrect password. Please check your password and try again.'); return; }
+        document.getElementById('loginPassword').value = '';
+        openPlatformAdminFirebaseSession(paCred, pass);
+        enterPlatformAdminMode();
+        return;
+      }
+
+      /* One-time legacy sign-in: the old admin ID still works as long as no email
+         has been saved for the administrator yet. Once an email is set in business
+         details, only that email signs in. */
+      var looksLikeEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(typedEmail);
+      user = looksLikeEmail
+        ? appData.users.find(u => u.role === 'Admin' && String(u.email || '').trim().toLowerCase() === typedEmail)
+        : appData.users.find(u => u.role === 'Admin' && !String(u.email || '').trim() && (String(u.name || '').trim().toLowerCase() === typedEmail || String(u.id || '').trim().toLowerCase() === typedEmail));
+
+      if (user) {
+        if (user.pass && user.pass !== pass && user.role !== 'Admin') { showLoginError('Incorrect password. Please check your password and try again.'); return; }
+        setBtnBusy();
+        completeFirebaseLogin(user, pass, submitBtn);
+      } else if (!platformFirstLoadDone) {
+        /* Platform data still loading - wait so the platform administrator is
+           not mis-routed, then re-check and fall through to direct sign-in. */
+        setBtnBusy();
+        waitForPlatformData().then(function () {
+          if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.label) submitBtn.innerHTML = submitBtn.dataset.label; }
+          var pc = platformData.credentials;
+          if (pc && pc.email && String(pc.email).trim().toLowerCase() === typedEmail) {
+            if (pc.password !== pass) { showLoginError('Incorrect password. Please check your password and try again.'); return; }
+            document.getElementById('loginPassword').value = '';
+            openPlatformAdminFirebaseSession(pc, pass);
+            enterPlatformAdminMode();
+            return;
+          }
+          directAdminSignIn(typedEmail, pass, submitBtn);
+        });
+      } else {
+        directAdminSignIn(typedEmail, pass, submitBtn);
+      }
+    } else {
+      const typedId = ((document.getElementById('loginStaffId') || {}).value || '').trim();
+      if (!typedId) { showLoginError('Please enter your staff mobile number.'); return; }
+      var typedDigits = typedId.replace(/[^0-9]/g, '');
+      user = appData.users.find(u => u.role === 'Staff' && (
+        String(u.id || '').trim().toLowerCase() === typedId.toLowerCase() ||
+        String(u.name || '').trim().toLowerCase() === typedId.toLowerCase() ||
+        (!!typedDigits && String(u.mobile || '').replace(/[^0-9]/g, '') === typedDigits)));
+
+      if (user) {
+        if (user.pass && user.pass !== pass) { showLoginError('Incorrect password. Please check your password and try again.'); return; }
+        setBtnBusy();
+        completeFirebaseLogin(user, pass, submitBtn);
+      } else {
+        /* The staff account may not be loaded yet on a fresh device. Pull the
+           account directory from the cloud, then retry the match by mobile. */
+        setBtnBusy();
+        ensureAccountDirectoryOnce().then(function () {
+          var staff = appData.users.find(u => u.role === 'Staff' && (
+            String(u.id || '').trim().toLowerCase() === typedId.toLowerCase() ||
+            String(u.name || '').trim().toLowerCase() === typedId.toLowerCase() ||
+            (!!typedDigits && String(u.mobile || '').replace(/[^0-9]/g, '') === typedDigits)));
+          if (!staff) {
+            if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.label) submitBtn.innerHTML = submitBtn.dataset.label; }
+            showLoginError('No staff account matches that mobile number. Please check with your administrator.');
+            return;
+          }
+          completeFirebaseLogin(staff, pass, submitBtn);
+        }).catch(function () {
+          if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.label) submitBtn.innerHTML = submitBtn.dataset.label; }
+          showLoginError('No staff account matches that mobile number. Please check with your administrator.');
+        });
+      }
+    }
   }
 
   /* ATTENDANCE LOGGING WITH IST LOGIC */
@@ -8471,6 +8639,7 @@ function setupPlatformFirebaseSync() {
       platformSyncActive = true;
       platformFirstLoadDone = true;
       updatePlatformAdminLoginUI();
+      try { ensureGuestAccountDirectory(); } catch (e) {}
     });
     updatePlatformAdminLoginUI();
   } catch(e) { console.error('Platform Firebase init failed:', e); }
@@ -8562,12 +8731,15 @@ function enterPlatformAdminMode() {
 function performPlatformAdminLogin() {
   var name = document.getElementById('paLoginName').value.trim();
   var password = document.getElementById('paLoginPassword').value.trim();
+  if (!platformFirstLoadDone) return alert('Still loading platform data. Please wait a moment and try again.');
   var cred = platformData.credentials;
-  if (!cred) return alert('No platform administrator configured.');
+  if (!cred) return alert('No platform administrator configured. If you have not set one up yet, use the one-time setup option.');
   var nameKey = name.toLowerCase();
   var idMatches = !!(cred.email && String(cred.email).trim().toLowerCase() === nameKey);
-  if (idMatches && cred.password === password) { enterPlatformAdminMode(); }
-  else { alert('Invalid platform admin credentials.'); }
+  if (idMatches && cred.password === password) {
+    openPlatformAdminFirebaseSession(cred, password);
+    enterPlatformAdminMode();
+  } else { alert('Invalid platform admin credentials.'); }
 }
 
 /* RESET PA PASSWORD */
