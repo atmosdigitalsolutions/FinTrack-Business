@@ -32,7 +32,7 @@
       --accent-amber-bg: #fffbeb;
       --accent-purple: #7c3aed;
       --accent-purple-bg: #f5f3ff;
-      --bg: #f8fafc;
+      --bg: #F6F3ED;
       --card-bg: #ffffff;
       --text-main: #0f172a;
       --text-muted: #64748b;
@@ -55,7 +55,7 @@
     }
 
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
-    body { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); color: var(--text-main); min-height: 100vh; padding-bottom: 90px; }
+    body { background: linear-gradient(135deg, #F6F3ED 0%, #ECE6D6 100%); color: var(--text-main); min-height: 100vh; padding-bottom: 90px; }
     /* Disable text selection across the app to prevent content copying */
     body, * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-touch-callout: none; }
     input, textarea, select { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; }
@@ -462,7 +462,33 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 </style>
 <style id="loginRedesignStyles">
 /* Login + PIN screens: same layout/terminology as the reference, app's own colours */
-#loginModal.login-modal{background:rgba(11,30,45,0.85);backdrop-filter:blur(4px);padding:18px}
+#loginModal.login-modal{background:#F6F3ED;padding:18px}
+#loginModal .login-shell{display:flex;flex-direction:column-reverse;gap:18px;width:100%;max-width:960px;margin:auto;align-items:center}
+#loginModal .login-features{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px 20px;width:100%;max-width:520px;box-shadow:0 10px 30px -12px rgba(15,23,42,.18)}
+#loginModal .login-features .lf-head{font-size:.66rem;font-weight:900;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+#loginModal .login-features h3{font-size:1.05rem;font-weight:900;color:var(--atmos-navy);margin:0 0 14px;line-height:1.25}
+#loginModal .login-features ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#loginModal .login-features li{display:flex;gap:9px;align-items:flex-start;font-size:.8rem;font-weight:700;color:#334155;line-height:1.35}
+#loginModal .login-features li i{color:var(--primary);margin-top:2px;font-size:.9rem;flex-shrink:0}
+@media (min-width:880px){
+  #loginModal .login-shell{flex-direction:row;align-items:stretch;max-width:980px}
+  #loginModal .login-features{flex:1;max-width:none;display:flex;flex-direction:column;justify-content:center}
+  #loginModal .login-features ul{grid-template-columns:1fr}
+  #loginModal .login-card{max-width:400px}
+}
+@media (max-width:420px){
+  #loginModal .login-features{padding:16px 14px}
+  #loginModal .login-features ul{grid-template-columns:1fr}
+}
+@keyframes ftbSplashLoad{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
+#paLoginModal .pin-who{text-align:center;margin-bottom:18px}
+#paLoginModal .pin-who-label{font-size:.62rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+#paLoginModal .pin-who-name{font-size:1rem;font-weight:900;color:var(--atmos-navy)}
+#paLoginModal .pin-who-meta{font-size:.74rem;color:var(--text-muted);margin-top:2px}
+#paLoginModal .pin-label{display:block;font-size:.62rem;font-weight:800;color:var(--atmos-navy);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:center}
+#paLoginModal .pin-boxes{display:flex;gap:14px;justify-content:center;margin-bottom:22px}
+#paLoginModal .pin-box{width:48px;height:56px;text-align:center;font-size:1.6rem;font-weight:900;background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);outline:none;font-family:inherit}
+#paLoginModal .pin-box:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
 #loginModal .login-card{background:#fff;border-radius:var(--radius-lg);padding:26px 22px 20px;width:100%;max-width:400px;box-shadow:0 20px 25px -5px rgba(0,0,0,.2);max-height:94vh;overflow-y:auto}
 #loginModal .login-head{display:flex;align-items:center;gap:12px;margin-bottom:22px}
 #loginModal .login-logo-box{width:52px;height:52px;border-radius:var(--radius-md);background:var(--bg);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--border)}
@@ -679,6 +705,19 @@ body.ft-modal-open{overflow:hidden;height:100vh}
 
 <!-- LOGIN MODAL -->
 <div id="loginModal" class="modal login-modal">
+  <div class="login-shell">
+  <aside class="login-features">
+    <div class="lf-head">FinTrack Business</div>
+    <h3>Everything your business needs, in one place</h3>
+    <ul>
+      <li><i class="fa-solid fa-sack-dollar"></i><span>Business income &amp; expense tracking</span></li>
+      <li><i class="fa-solid fa-receipt"></i><span>Daily transaction recording</span></li>
+      <li><i class="fa-solid fa-users"></i><span>Staff &amp; HR management</span></li>
+      <li><i class="fa-solid fa-file-invoice"></i><span>Invoices &amp; billing</span></li>
+      <li><i class="fa-solid fa-chart-pie"></i><span>Financial reports &amp; month closing</span></li>
+      <li><i class="fa-solid fa-gauge-high"></i><span>Business performance tracking</span></li>
+    </ul>
+  </aside>
   <div class="modal-card login-card">
     <div class="login-head">
       <div id="loginBrandLogoBox" class="login-logo-box"><span class="login-logo-fallback">FT</span></div>
@@ -755,6 +794,7 @@ body.ft-modal-open{overflow:hidden;height:100vh}
       <a class="login-back" onclick="showWelcomeScreen()"><i class="fa-solid fa-arrow-left"></i> Back to Welcome Page</a>
     </div>
   </div>
+  </div>
 </div>
 
 <!-- PLATFORM ADMIN SETUP MODAL -->
@@ -782,13 +822,47 @@ body.ft-modal-open{overflow:hidden;height:100vh}
 <div class="brand-logo-box" id="paLoginLogoBox" style="font-size:1.3rem;padding:8px 16px;margin-bottom:8px">FinTrack Business</div>
 <h2 style="font-size:1.05rem;font-weight:900;color:var(--atmos-navy);text-transform:uppercase">Platform Admin Login</h2>
 </div>
+<div id="paLoginCredView">
 <div class="pa-modal-field"><label>Administrator Email</label><input type="email" id="paLoginName" placeholder="Enter email address" required></div>
 <div class="pa-modal-field"><label>Password</label><div class="pw-field"><input type="password" id="paLoginPassword" placeholder="Enter password" required><i class="fa-solid fa-eye pw-eye" id="paLoginPasswordEye" onclick="togglePasswordVisibility('paLoginPassword','paLoginPasswordEye')"></i></div></div>
 <button class="btn-admin" onclick="performPlatformAdminLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Platform Portal</button>
+<button id="paLoginPinSwitchBtn" onclick="showPaPinLogin()" style="display:none;margin-top:10px;width:100%;border:1px solid var(--border);background:var(--bg);color:var(--atmos-navy);font-weight:800;font-size:.82rem;padding:12px;border-radius:var(--radius-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><i class="fa-solid fa-keyboard"></i> Enter FinPIN</button>
 <div id="paForgotLink" style="margin-top:10px;text-align:center;display:none">
 <a style="font-size:.75rem;color:var(--atmos-red);font-weight:700;cursor:pointer" onclick="openPaForgotModal()">Forgot Password?</a>
 </div>
+</div>
+<div id="paLoginPinView" style="display:none">
+<div class="pin-who">
+<div class="pin-who-label">Signed in as</div>
+<div id="paPinLoginName" class="pin-who-name"></div>
+<div id="paPinLoginMeta" class="pin-who-meta"></div>
+</div>
+<label class="pin-label">Enter FinPIN</label>
+<div class="pin-boxes">
+<input class="pin-box" id="paPinBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="paPinBoxInput(this,1)" onkeydown="paPinBoxKey(event,1)">
+<input class="pin-box" id="paPinBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="paPinBoxInput(this,2)" onkeydown="paPinBoxKey(event,2)">
+<input class="pin-box" id="paPinBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="paPinBoxInput(this,3)" onkeydown="paPinBoxKey(event,3)">
+<input class="pin-box" id="paPinBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="paPinBoxInput(this,4)" onkeydown="paPinBoxKey(event,4)">
+</div>
+<input type="hidden" id="paPinLoginInput">
+<button onclick="performPaPinLogin()" style="width:100%;border:none;background:var(--grad-navy);color:#fff;font-weight:900;font-size:.88rem;padding:14px;border-radius:var(--radius-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">Unlock FinTrack <i class="fa-solid fa-lock-open"></i></button>
+<a onclick="forgotPaPin()" style="display:block;text-align:center;margin:10px 0;font-size:.78rem;font-weight:700;color:var(--primary);cursor:pointer">Forgot FinPIN?</a>
+<button onclick="showPaPasswordLogin()" style="width:100%;margin-top:6px;border:1px solid var(--border);background:var(--bg);color:var(--atmos-navy);font-weight:800;font-size:.82rem;padding:12px;border-radius:var(--radius-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><i class="fa-solid fa-key"></i> Log in with Password</button>
+</div>
 <button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closePaLoginModal()">Back to Business Login</button>
+</div>
+</div>
+
+<!-- PLATFORM ADMIN FINPIN SETUP MODAL -->
+<div id="paPinSetupModal" class="modal" style="display:none">
+<div class="modal-card" style="max-width:440px">
+<h3 style="font-size:1.1rem;font-weight:800;color:var(--atmos-navy);margin-bottom:6px">Set Up Platform Admin FinPIN</h3>
+<p style="font-size:.78rem;color:var(--text-muted);margin-bottom:16px">Signed in as <strong id="paPinSetupName">Platform Admin</strong>. Enter your current password to set a 4-digit PIN for quick sign-in on this device.</p>
+<div class="form-group"><label>Your Current Password</label><div class="pw-field"><input type="password" id="paPinSetupPass" placeholder="Enter current password"><i class="fa-solid fa-eye pw-eye" id="paPinSetupPassEye" onclick="togglePasswordVisibility('paPinSetupPass','paPinSetupPassEye')"></i></div></div>
+<div class="form-group"><label>New PIN (exactly 4 digits)</label><input type="password" id="paPinSetupNew" inputmode="numeric" maxlength="4" placeholder="••••" oninput="pinDigitsOnly(this)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-family:inherit;font-size:1.1rem;letter-spacing:8px"></div>
+<div class="form-group"><label>Confirm New PIN</label><input type="password" id="paPinSetupConfirm" inputmode="numeric" maxlength="4" placeholder="••••" oninput="pinDigitsOnly(this)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-family:inherit;font-size:1.1rem;letter-spacing:8px"></div>
+<button class="btn-admin" onclick="savePaLoginPin()"><i class="fa-solid fa-key"></i> Save PIN</button>
+<button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closePaPinSetupModal()">Cancel</button>
 </div>
 </div>
 
@@ -2536,6 +2610,15 @@ body.ft-modal-open{overflow:hidden;height:100vh}
 <!-- ===== PLATFORM ADMIN: SUBSCRIPTIONS ===== -->
 <div id="paSubscriptionsTab" class="pa-section tab-content">
 <div class="section-header admin-header"><i class="fa-solid fa-credit-card"></i> Subscriptions & Manual UPI Payments</div>
+<div class="app-card" style="border-left:5px solid var(--accent-green)">
+<h3 style="font-size:1rem;font-weight:900;color:var(--atmos-navy);margin-bottom:14px"><i class="fa-solid fa-indian-rupee-sign" style="color:var(--accent-green)"></i> Platform Revenue Summary</h3>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+<div style="background:var(--bg);padding:14px;border-radius:var(--radius-md);text-align:center"><div style="font-size:.7rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Total Subscriptions</div><div id="paLifetimeSubs" style="font-size:1.6rem;font-weight:900;color:var(--atmos-navy);margin-top:4px">0</div><div style="font-size:.68rem;color:var(--text-muted)">approved payments till now</div></div>
+<div style="background:var(--bg);padding:14px;border-radius:var(--radius-md);text-align:center"><div style="font-size:.7rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Total Profit</div><div id="paLifetimeRevenue" style="font-size:1.6rem;font-weight:900;color:var(--accent-green);margin-top:4px">₹0.00</div><div style="font-size:.68rem;color:var(--text-muted)">cumulative revenue (INR)</div></div>
+<div style="background:var(--bg);padding:14px;border-radius:var(--radius-md);text-align:center"><div style="font-size:.7rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Firebase Storage Used</div><div id="paStorageUsed" style="font-size:1.6rem;font-weight:900;color:var(--atmos-navy);margin-top:4px">0 KB</div><div style="font-size:.68rem;color:var(--text-muted)">across all businesses</div></div>
+</div>
+<p style="font-size:.74rem;color:var(--text-muted);margin-top:10px">Totals are cumulative and persist even if a business is deleted. Each approved renewal (month 1, month 2, …) is counted separately.</p>
+</div>
 <div class="app-card" style="border-left:5px solid var(--atmos-red)">
 <h3 style="font-size:1rem;font-weight:900;color:var(--atmos-navy);margin-bottom:8px"><i class="fa-solid fa-qrcode" style="color:var(--atmos-red)"></i> Platform Payment QR</h3>
 <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
@@ -3604,6 +3687,30 @@ const FIREBASE_CONFIG = {
           normalizeAttendanceData();
           var masterAfter = JSON.stringify(appData.masterServices.map(function (s) { return [s.id, s.name, s.price, s.deptFee || 0]; }));
           if (masterBefore !== masterAfter) populateServiceDropdown();
+        } else {
+          /* New business with no data yet: start from a clean template (zero
+             balances, no salaries, no inherited staff) using the name the
+             platform admin registered - never the existing business's data. */
+          var nbId = getActiveBusinessId();
+          if (nbId && nbId !== DEFAULT_BUSINESS_ID) {
+            var reg = (platformData.businesses || {})[nbId] || {};
+            appData = {
+              users: [{ id: 'ADM-001', name: reg.adminName || 'Admin', role: 'Admin', pass: '', mobile: reg.adminContact || '', email: reg.adminEmail || '', authVersion: 1, pinHash: '', pinSalt: '' }],
+              masterServices: DEFAULT_SERVICES.map(function (s) { return Object.assign({}, s); }),
+              serviceLog: [], expenseLog: [], transferLog: [], invoices: [],
+              attendance: {}, closedMonths: {}, openingBalances: {}, monthlySalaries: {},
+              staffDailyEditCount: {}, staffMilestoneAchieved: {}, staffProfiles: {},
+              adminTransfers: [], historicalMonths: {},
+              logoDataUrl: '', attendanceExtrasVisibleForStaff: true, staffBalanceEditAccess: true,
+              attendanceRules: { reportingTime: '09:25', graceMinutes: 0, noonCutoff: '12:00', timezone: 'Asia/Kolkata', halfDayDeductionPct: 50 },
+              attendanceAuditLog: [],
+              businessProfile: { shopName: reg.name || '', motto: '', category: reg.category || '', customCategory: '' }
+            };
+            try { localStorage.setItem('ATMOS_HUB_DATA_2026', JSON.stringify(appData)); } catch (e) {}
+            try { firebaseDbRef.set(convertToLegacyFormat()); } catch (e) {}
+            try { updateShopLogoDisplays(); } catch (e) {}
+            try { refreshAllViews(); } catch (e) {}
+          }
         }
         isFirebaseSyncActive = true;
       }, function (err) {
@@ -4639,6 +4746,7 @@ const FIREBASE_CONFIG = {
   function showPasswordLogin() {
     var cv = document.getElementById('loginCredView'); if (cv) cv.style.display = 'block';
     var pv = document.getElementById('loginPinView'); if (pv) pv.style.display = 'none';
+    try { updatePinSwitchButton(); } catch (e) {}
   }
 
   function showPinLogin() {
@@ -4646,6 +4754,13 @@ const FIREBASE_CONFIG = {
     if (!dev) {
       showPasswordLogin();
       return alert('No login PIN is saved on this device yet. Sign in with your password once - then you can set a PIN and use "Enter FinPIN" here.');
+    }
+    /* Role-aware: only show the PIN entry when the saved device user matches the
+       currently selected login tab (Staff tab = staff PIN, Admin tab = admin PIN).
+       Either admin or staff works at a time on a device. */
+    if (dev.role !== currentLoginMode) {
+      showPasswordLogin();
+      return alert('No FinPIN is saved for ' + currentLoginMode + ' sign-in on this device. Enter your ' + (currentLoginMode === 'Admin' ? 'email and password' : 'staff mobile number and password') + ', or switch to the ' + dev.role + ' tab to use its PIN.');
     }
     var user = findUserByNameRole(dev.name, dev.role);
     if (!user || !user.pinHash) { clearPinDevice(); return showPasswordLogin(); }
@@ -4657,6 +4772,21 @@ const FIREBASE_CONFIG = {
     var b1 = document.getElementById('pinBox1');
     if (b1) setTimeout(function () { b1.focus(); }, 60);
   }
+
+  /* Show or hide the "Enter FinPIN" button based on whether a PIN is saved for
+     the currently selected login mode. Either admin or staff works at a time. */
+  function updatePinSwitchButton() {
+    var btn = document.getElementById('loginPinSwitchBtn');
+    if (!btn) return;
+    var dev = getPinDevice();
+    var show = false;
+    if (dev && dev.role === currentLoginMode) {
+      var user = findUserByNameRole(dev.name, dev.role);
+      if (user && user.pinHash) show = true;
+    }
+    btn.style.display = show ? 'flex' : 'none';
+  }
+  window.updatePinSwitchButton = updatePinSwitchButton;
 
   function performPinLogin() {
     var dev = getPinDevice();
@@ -4934,6 +5064,9 @@ const FIREBASE_CONFIG = {
     if (selectWrap) selectWrap.style.display = mode === 'Admin' ? 'none' : 'block';
     var fg = document.getElementById('forgotPasswordBtnContainer');
     if (fg) fg.style.display = mode === 'Admin' ? 'block' : 'none';
+    /* Switching tabs resets to password view: the saved PIN belongs to one role
+       only, so the FinPIN button is re-evaluated for the newly selected mode. */
+    showPasswordLogin();
   }
 
   function renderLoginDropdown() {
@@ -4948,6 +5081,7 @@ const FIREBASE_CONFIG = {
     currentUser = user;
     document.getElementById('activeUserBadge').innerText = user.name + ' (' + user.role + ')';
     document.getElementById('loginModal').style.display = 'none';
+    ftbShowWelcomeSplash();
     offerPinSetupAfterLogin();
 
     // Show Admin Tab if Admin
@@ -7899,10 +8033,22 @@ const FIREBASE_CONFIG = {
       var passChanged = acct.pass !== pass;
       acct.name = name;
       acct.mobile = mobile;
-      if (passChanged && acct.authUid) applyPasswordChange(acct, pass);
-      else acct.pass = pass;
+      if (passChanged) {
+        /* Re-provision the secure identity so the staff can sign in from any
+           device with the new password, whether or not one existed before. */
+        acct.pass = pass;
+        applyPasswordChange(acct, pass).then(function () { saveData(); }).catch(function () { saveData(); });
+      } else {
+        acct.pass = pass;
+      }
     } else {
-      appData.users.push({ name, role: 'Staff', pass, mobile });
+      /* Stable internal id so the staff's sign-in address never changes when
+         other staff are added or deleted around them. */
+      var newStaff = { id: 'STF-' + Date.now().toString(36).toUpperCase(), name: name, role: 'Staff', pass: pass, mobile: mobile, authVersion: 1, pinHash: '', pinSalt: '' };
+      appData.users.push(newStaff);
+      /* Provision a Firebase Auth identity immediately so the staff can sign in
+         from their own device - not only on the admin's device. */
+      applyPasswordChange(newStaff, pass).then(function () { saveData(); }).catch(function () { saveData(); });
     }
 
     saveData();
@@ -8471,6 +8617,7 @@ var platformData = {
   cleanupLogs: {},
   presence: {},
   dataUsage: {},
+  lifetimeStats: { totalSubscriptions: 0, totalRevenue: 0 },
   branding: { logoDataUrl: '', name: 'FinTrack Business', motto: 'Business Management Platform', description: '', trialDays: 14 }
 };
 var platformAdminUser = null;
@@ -8764,6 +8911,7 @@ function setupPlatformFirebaseSync() {
           notifications: {}, limits: { maxBusinesses: 100, maxUsers: 5000, maxStaffPerBusiness: 20, storageWarningThresholdMB: 500, autoBlock: false },
           introductoryOffer: { active: false, deadline: '', eligibility: 'all', customerLimit: 0, usedCount: 0 },
           cleanupLogs: {}, presence: {}, dataUsage: {},
+          lifetimeStats: { totalSubscriptions: 0, totalRevenue: 0 },
           branding: { logoDataUrl: '', name: 'FinTrack Business', motto: 'Business Management Platform', description: '', trialDays: 14 }
         }, val);
       }
@@ -8803,6 +8951,13 @@ function updatePlatformAdminLoginUI() {
 function openPlatformAdminLogin() {
   if (!platformFirstLoadDone) { alert('Loading platform data. Please wait a moment and try again.'); return; } if (!platformData.setupCompleted) { openPaSetupModal(); return; }
   document.getElementById('paLoginModal').style.display = 'flex';
+  /* If a Platform Admin FinPIN is saved on this device, go straight to PIN entry. */
+  try {
+    updatePaPinSwitchButton();
+    var dev = getPaPinDevice();
+    var cred = platformData.credentials || {};
+    if (dev && cred.pinHash) showPaPinLogin(); else showPaPasswordLogin();
+  } catch (e) {}
 }
 function closePaLoginModal() { document.getElementById('paLoginModal').style.display = 'none'; }
 function openPaSetupModal() { document.getElementById('paSetupModal').style.display = 'flex'; }
@@ -8869,6 +9024,8 @@ function enterPlatformAdminMode() {
   var badge = document.getElementById('activeUserBadge');
   if (badge) badge.innerText = platformAdminUser.name + ' (Platform Admin)';
   try { applyPlatformBranding(); } catch (e) {}
+  ftbShowWelcomeSplash();
+  offerPaPinSetup();
   switchPATab('paDashboardTab');
   renderPlatformAdminViews();
 }
@@ -8883,7 +9040,7 @@ function performPlatformAdminLogin() {
   if (!email || String(name).trim().toLowerCase() !== email) { alert('Invalid platform admin credentials.'); return; }
   var auth = firebaseAuth();
   if (!auth) {
-    if (cred.password === password) { openPlatformAdminFirebaseSession(cred, password); enterPlatformAdminMode(); }
+    if (cred.password === password) { savePaPinDevice(); openPlatformAdminFirebaseSession(cred, password); enterPlatformAdminMode(); }
     else alert('Invalid platform admin credentials.');
     return;
   }
@@ -8892,6 +9049,7 @@ function performPlatformAdminLogin() {
   function restoreBtn() { if (btn) { btn.disabled = false; if (btn.dataset.label) btn.innerHTML = btn.dataset.label; } }
   firebasePlatformAdminSignIn(password).then(function () {
     restoreBtn();
+    savePaPinDevice();
     enterPlatformAdminMode();
   }).catch(function (err) {
     restoreBtn();
@@ -8952,6 +9110,132 @@ function paLogout() {
   document.querySelectorAll('.tab-btn:not(.pa-tab-btn)').forEach(function(b) { b.style.display = ''; });
   document.getElementById('loginModal').style.display = 'flex';
   document.getElementById('activeUserBadge').innerText = 'Guest';
+  try { updatePinSwitchButton(); } catch (e) {}
+}
+
+/* ===== PLATFORM ADMIN FINPIN (device-based, same pattern as the business PIN) ===== */
+var PA_PIN_DEVICE_KEY = 'FTB_PA_PIN_DEVICE_V1';
+function getPaPinDevice() {
+  try { var raw = localStorage.getItem(PA_PIN_DEVICE_KEY); if (!raw) return null; var d = JSON.parse(raw); if (!d || !d.name) return null; return d; } catch (e) { return null; }
+}
+function savePaPinDevice() {
+  try {
+    var cred = platformData.credentials || {};
+    localStorage.setItem(PA_PIN_DEVICE_KEY, JSON.stringify({ name: cred.name || 'Platform Admin', email: cred.email || '', savedAt: Date.now() }));
+  } catch (e) {}
+}
+function clearPaPinDevice() { try { localStorage.removeItem(PA_PIN_DEVICE_KEY); } catch (e) {} }
+
+function updatePaPinSwitchButton() {
+  var btn = document.getElementById('paLoginPinSwitchBtn');
+  if (!btn) return;
+  var dev = getPaPinDevice();
+  var cred = platformData.credentials || {};
+  btn.style.display = (dev && cred.pinHash) ? 'flex' : 'none';
+}
+
+function showPaPasswordLogin() {
+  var cv = document.getElementById('paLoginCredView'); if (cv) cv.style.display = 'block';
+  var pv = document.getElementById('paLoginPinView'); if (pv) pv.style.display = 'none';
+}
+
+function syncPaPinBoxes() {
+  var v = '';
+  for (var i = 1; i <= 4; i++) { var b = document.getElementById('paPinBox' + i); v += b ? (b.value || '') : ''; }
+  var h = document.getElementById('paPinLoginInput'); if (h) h.value = v;
+  return v;
+}
+function clearPaPinBoxes() {
+  for (var i = 1; i <= 4; i++) { var b = document.getElementById('paPinBox' + i); if (b) { b.value = ''; b.classList.remove('pin-filled'); } }
+  var h = document.getElementById('paPinLoginInput'); if (h) h.value = '';
+}
+function paPinBoxInput(el, idx) {
+  var d = String(el.value || '').replace(/[^0-9]/g, '').slice(-1);
+  el.value = d;
+  try { el.classList.toggle('pin-filled', !!d); } catch (e) {}
+  if (d && idx < 4) { var n = document.getElementById('paPinBox' + (idx + 1)); if (n) n.focus(); }
+  if (syncPaPinBoxes().length === 4) { var b4 = document.getElementById('paPinBox4'); if (b4) b4.blur(); performPaPinLogin(); }
+}
+function paPinBoxKey(e, idx) {
+  if (e.key === 'Backspace' && !e.target.value && idx > 1) {
+    var p = document.getElementById('paPinBox' + (idx - 1));
+    if (p) { p.value = ''; p.classList.remove('pin-filled'); p.focus(); }
+    syncPaPinBoxes(); e.preventDefault();
+  } else if (e.key === 'Enter') { e.preventDefault(); performPaPinLogin(); }
+}
+
+function showPaPinLogin() {
+  var dev = getPaPinDevice();
+  var cred = platformData.credentials || {};
+  if (!dev || !cred.pinHash) { clearPaPinDevice(); return showPaPasswordLogin(); }
+  document.getElementById('paLoginCredView').style.display = 'none';
+  document.getElementById('paLoginPinView').style.display = 'block';
+  document.getElementById('paPinLoginName').innerText = cred.name || 'Platform Admin';
+  document.getElementById('paPinLoginMeta').innerText = 'Platform Admin  \u2022  FinTrack Business';
+  clearPaPinBoxes();
+  var b = document.getElementById('paPinBox1'); if (b) setTimeout(function () { b.focus(); }, 60);
+}
+
+function performPaPinLogin() {
+  var dev = getPaPinDevice();
+  var cred = platformData.credentials || {};
+  if (!dev || !cred.pinHash) { clearPaPinDevice(); return showPaPasswordLogin(); }
+  var pin = (document.getElementById('paPinLoginInput').value || '').trim();
+  if (!/^[0-9]{4}$/.test(pin)) return alert('Please enter your 4-digit PIN.');
+  if (!verifyPin(pin, cred.pinHash, cred.pinSalt)) {
+    clearPaPinBoxes();
+    return alert('Incorrect PIN. Please try again, or use "Log in with Password".');
+  }
+  var btn = document.querySelector('#paLoginPinView button[onclick="performPaPinLogin()"]');
+  if (btn) { btn.disabled = true; btn.dataset.label = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Unlocking\u2026'; }
+  function restoreBtn() { if (btn) { btn.disabled = false; if (btn.dataset.label) btn.innerHTML = btn.dataset.label; } }
+  openPlatformAdminFirebaseSession(cred, cred.password || '');
+  restoreBtn();
+  enterPlatformAdminMode();
+}
+
+function offerPaPinSetup() {
+  var cred = platformData.credentials;
+  if (!cred || cred.pinHash || !platformAdminUser) return;
+  setTimeout(function () {
+    if (!platformAdminUser || !platformData.credentials || platformData.credentials.pinHash) return;
+    if (confirm('Set up a 4-digit FinPIN for quicker Platform Admin sign-in on this device?\n\nYou can also set it later from the Platform Admin settings.')) {
+      openPaPinSetupModal();
+    }
+  }, 700);
+}
+
+function openPaPinSetupModal() {
+  var cred = platformData.credentials || {};
+  var nm = document.getElementById('paPinSetupName'); if (nm) nm.innerText = cred.name || 'Platform Admin';
+  ['paPinSetupPass','paPinSetupNew','paPinSetupConfirm'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('paPinSetupModal').style.display = 'flex';
+}
+function closePaPinSetupModal() { document.getElementById('paPinSetupModal').style.display = 'none'; }
+
+function savePaLoginPin() {
+  var cred = platformData.credentials;
+  if (!cred) return alert('No platform administrator is configured.');
+  var pass = document.getElementById('paPinSetupPass').value || '';
+  var pin = (document.getElementById('paPinSetupNew').value || '').trim();
+  var pin2 = (document.getElementById('paPinSetupConfirm').value || '').trim();
+  if (!pass) return alert('Please enter your current password to confirm.');
+  if (cred.password !== pass) return alert('Your current password is incorrect. The PIN was not saved.');
+  if (!/^[0-9]{4}$/.test(pin)) return alert('PIN must be exactly 4 digits (numbers only).');
+  if (pin !== pin2) return alert('The two PIN entries do not match.');
+  cred.pinSalt = makePinSalt();
+  cred.pinHash = hashPin(pin, cred.pinSalt);
+  cred.pinUpdatedAt = Date.now();
+  savePlatformData();
+  savePaPinDevice();
+  closePaPinSetupModal();
+  alert('Platform Admin FinPIN saved. You can now sign in with your PIN on this device.');
+}
+
+function forgotPaPin() {
+  if (!confirm('Forgot your FinPIN? PIN sign-in will be turned off on this device. Sign in with your password, then set a new PIN from the Platform Admin settings.')) return;
+  clearPaPinDevice();
+  showPaPasswordLogin();
 }
 
 /* SWITCH PA TAB */
@@ -9235,7 +9519,7 @@ function openBusinessProfile(bizId) {
   } else {
     html += '<div style="overflow-x:auto"><table><thead><tr><th>Plan</th><th>Amount</th><th>Txn ID</th><th>Status</th><th>Submitted</th><th>Verified</th><th>Reason</th></tr></thead><tbody>';
     payments.forEach(function(p) {
-      html += '<tr><td>'+(paPlans()[p.pricingType||'normal'][p.plan||'1month']||{}).name||p.plan+'</td><td>₹'+(p.amount||0).toFixed(2)+'</td><td style="font-family:monospace;font-size:.78rem">'+(p.txnId||'-')+'</td><td><span class="pa-badge pa-badge-'+(p.status==='approved'?'active':p.status==='pending'?'pending':'expired')+'">'+p.status+'</span></td><td style="font-size:.78rem">'+new Date(p.submittedAt||0).toLocaleDateString('en-IN')+'</td><td style="font-size:.78rem">'+(p.verifiedAt?new Date(p.verifiedAt).toLocaleDateString('en-IN'):'-')+'</td><td style="font-size:.78rem">'+(p.rejectionReason||'-')+'</td></tr>';
+      html += '<tr><td>'+((paPlans()[p.pricingType||'normal'][p.plan||'1month']||{}).name||p.plan)+'</td><td>₹'+(p.amount||0).toFixed(2)+'</td><td style="font-family:monospace;font-size:.78rem">'+(p.txnId||'-')+'</td><td><span class="pa-badge pa-badge-'+(p.status==='approved'?'active':p.status==='pending'?'pending':'expired')+'">'+(p.status||'-')+'</span></td><td style="font-size:.78rem">'+new Date(p.submittedAt||0).toLocaleDateString('en-IN')+'</td><td style="font-size:.78rem">'+(p.verifiedAt?new Date(p.verifiedAt).toLocaleDateString('en-IN'):'-')+'</td><td style="font-size:.78rem">'+(p.rejectionReason||'-')+'</td></tr>';
     });
     html += '</tbody></table></div>';
   }
@@ -9365,6 +9649,19 @@ function deleteBusiness(bizId) {
 
 /* ===== SUBSCRIPTIONS ===== */
 function renderPASubscriptions() {
+  /* lifetime revenue + subscription totals (persist across business deletions) */
+  var ls = platformData.lifetimeStats || { totalSubscriptions: 0, totalRevenue: 0 };
+  var lsEl = document.getElementById('paLifetimeSubs'); if (lsEl) lsEl.innerText = ls.totalSubscriptions || 0;
+  var lrEl = document.getElementById('paLifetimeRevenue'); if (lrEl) lrEl.innerText = '₹' + (ls.totalRevenue || 0).toFixed(2);
+  var stEl = document.getElementById('paStorageUsed');
+  if (stEl) {
+    var totalKB = 0;
+    Object.keys(platformData.businesses || {}).forEach(function (k) {
+      var u = calculateBizDataUsage(Object.assign({ id: k }, platformData.businesses[k]));
+      totalKB += (u.currentKB || 0);
+    });
+    stEl.innerText = totalKB >= 1024 ? (totalKB / 1024).toFixed(2) + ' MB' : totalKB.toFixed(1) + ' KB';
+  }
   /* render plan cards */
   var normalHtml = '', introHtml = '';
   Object.keys(paPlans().normal).forEach(function(k) {
@@ -9488,6 +9785,11 @@ function approvePayment() {
   p.verifiedAt = Date.now();
   p.verifiedBy = platformAdminUser ? platformAdminUser.name : 'Platform Admin';
   p.rejectionReason = '';
+  /* Lifetime totals: every approved payment is counted once and kept forever,
+     even if the business is later deleted. Each renewal month counts again. */
+  if (!platformData.lifetimeStats) platformData.lifetimeStats = { totalSubscriptions: 0, totalRevenue: 0 };
+  platformData.lifetimeStats.totalSubscriptions = (platformData.lifetimeStats.totalSubscriptions || 0) + 1;
+  platformData.lifetimeStats.totalRevenue = (platformData.lifetimeStats.totalRevenue || 0) + (p.amount || 0);
   b.subscriptionStatus = 'active';
   b.subscriptionPlan = p.plan;
   b.subscriptionPricingType = p.pricingType;
@@ -10199,6 +10501,26 @@ function hideWelcomeScreen() {
   var el = document.getElementById('welcomeScreen');
   if (el) el.style.display = 'none';
 }
+/* Welcome splash: a ~1s polished overlay shown the moment any login completes,
+   masking the brief Firebase data load. No delay or blank screen behind it. */
+function ftbShowWelcomeSplash() {
+  var existing = document.getElementById('ftbWelcomeSplash'); if (existing) existing.remove();
+  var logo = '';
+  try { logo = (getPlatformBranding && getPlatformBranding().logoDataUrl) || ''; } catch (e) {}
+  if (!logo) logo = 'https://media.base44.com/images/public/6ad20c8082d97b3bd37417ae/266afcba3_IMG_2552.jpg';
+  var splash = document.createElement('div');
+  splash.id = 'ftbWelcomeSplash';
+  splash.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#F6F3ED;opacity:0;transition:opacity .35s ease;pointer-events:none;';
+  splash.innerHTML = '<div style="text-align:center;padding:24px;">' +
+    '<img src="' + logo + '" alt="FinTrack Business" style="width:88px;height:88px;object-fit:contain;border-radius:20px;margin:0 auto 20px;display:block;box-shadow:0 8px 24px rgba(15,23,42,.12);">' +
+    '<div style="font-size:22px;font-weight:800;letter-spacing:.3px;color:#0B1E2D;">Welcome to FinTrack Business</div>' +
+    '<div style="margin:20px auto 0;width:120px;height:3px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;width:40%;background:#2563eb;border-radius:2px;animation:ftbSplashLoad 1s ease-in-out infinite;"></div></div>' +
+    '</div>';
+  document.body.appendChild(splash);
+  requestAnimationFrame(function () { splash.style.opacity = '1'; });
+  setTimeout(function () { splash.style.opacity = '0'; setTimeout(function () { if (splash.parentNode) splash.remove(); }, 400); }, 1100);
+}
+window.ftbShowWelcomeSplash = ftbShowWelcomeSplash;
 function markWelcomeSeen() {
   try { localStorage.setItem('ATMOS_WELCOME_SEEN', '1'); } catch (e) {}
 }
@@ -10206,7 +10528,9 @@ function welcomeGoLogin() {
   markWelcomeSeen();
   hideWelcomeScreen();
   document.getElementById('loginModal').style.display = 'flex';
-  if (getPinDevice()) showPinLogin(); else showPasswordLogin();
+  var dev = getPinDevice();
+  if (dev) { setLoginMode(dev.role); showPinLogin(); }
+  else { showPasswordLogin(); }
 }
 function welcomeGoForgot() {
   markWelcomeSeen();
@@ -10463,6 +10787,16 @@ window.addEventListener('DOMContentLoaded', function() {
   window.pinStepNext = pinStepNext;
   window.pinStepBack = pinStepBack;
   window.waitForFirebaseAuth = waitForFirebaseAuth;
+  window.showPaPinLogin = showPaPinLogin;
+  window.showPaPasswordLogin = showPaPasswordLogin;
+  window.performPaPinLogin = performPaPinLogin;
+  window.forgotPaPin = forgotPaPin;
+  window.paPinBoxInput = paPinBoxInput;
+  window.paPinBoxKey = paPinBoxKey;
+  window.savePaLoginPin = savePaLoginPin;
+  window.openPaPinSetupModal = openPaPinSetupModal;
+  window.closePaPinSetupModal = closePaPinSetupModal;
+  window.updatePaPinSwitchButton = updatePaPinSwitchButton;
 
   /* Offer the PIN dialog right after a normal sign-in. */
   function offerPinSetupAfterLogin() {
