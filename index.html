@@ -1812,18 +1812,14 @@ body.ft-modal-open{overflow:hidden;height:100vh}
     <div class="section-header admin-header"><i class="fa-solid fa-user-shield"></i> Administration & Controls
     </div>
 
-    <div class="app-card" style="border-left:5px solid var(--primary);margin-bottom:24px">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-        <div>
-          <h3 style="font-size:1.05rem;font-weight:900;color:var(--atmos-navy);margin-bottom:4px"><i class="fa-solid fa-building" style="color:var(--primary)"></i> Business Profile Details</h3>
+undefined
           <p style="font-size:.8rem;color:var(--text-muted)">Keep your business name, logo, motto, category and contact details up to date.</p>
         </div>
         <button class="btn-primary" onclick="openBizDetailsModal()" style="width:auto"><i class="fa-solid fa-pen-to-square"></i> Update Business Details</button>
       </div>
     </div>
 
-    <!-- HR MONTHLY MANAGEMENT FINANCIAL OVERVIEW (ADMIN SECTION) -->
-    <div class="app-card" style="border-left: 5px solid var(--accent-green); margin-bottom: 24px;">
+undefined
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
         <div>
           <h3 style="font-size: 1.05rem; font-weight: 900; color: var(--atmos-navy);">
@@ -1856,10 +1852,9 @@ body.ft-modal-open{overflow:hidden;height:100vh}
       </div>
     </div>
 
-    <!-- HISTORICAL MONTHLY FINANCIAL DATA ENTRY (ADMIN ONLY) -->
-    <div class="app-card" style="border-left: 5px solid var(--accent-amber); margin-bottom: 24px;">
+undefined
       <h3 style="font-size: 1.05rem; font-weight: 900; color: var(--atmos-navy); margin-bottom: 6px;">
-        <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-amber); margin-right: 6px;"></i> Historical Monthly Financial Data Entry
+        undefined
       </h3>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
         <form onsubmit="saveHistoricalMonth(event)" style="display: grid; grid-template-columns: 1fr; gap: 4px;">
@@ -1888,8 +1883,7 @@ body.ft-modal-open{overflow:hidden;height:100vh}
       </div>
     </div>
 
-    <!-- SUB-TAB NAVIGATION FOR ADMIN CONTROL -->
-    <div style="display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto;">
+undefined
       <button class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 0.8rem;" onclick="showAdminSection('monthClosingSection')">Month Closing</button>
       <button class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: var(--accent-purple);" onclick="showAdminSection('staffSalarySection')">Staff Salary & Incentive</button>
       <button class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: var(--accent-green);" onclick="showAdminSection('openingBalSection')">Opening Balances</button>
@@ -2232,8 +2226,7 @@ body.ft-modal-open{overflow:hidden;height:100vh}
 
         <!-- MASTER CATALOG TABLE -->
         <div class="app-card">
-          <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 16px;">Master Service Catalog</h3>
-          <div style="overflow-x: auto;">
+undefined
             <table>
               <thead>
                 <tr><th>Category</th><th>Service Name</th><th>Price</th><th>Actions</th></tr>
@@ -2245,10 +2238,7 @@ body.ft-modal-open{overflow:hidden;height:100vh}
 
       </div>
 
-      <!-- FIREBASE REALTIME CLOUD SYNC CONFIGURATION -->
-      <div class="app-card" style="border-left: 5px solid var(--primary); margin-bottom: 24px;">
-        <h3 style="font-size: 1.05rem; font-weight: 900; color: var(--atmos-navy); margin-bottom: 6px;">
-          <i class="fa-solid fa-cloud-arrow-up" style="color: var(--primary); margin-right: 6px;"></i> Firebase Realtime Cloud Database Live Sync
+undefined
         </h3>
         
         <div class="form-group">
@@ -2258,12 +2248,9 @@ body.ft-modal-open{overflow:hidden;height:100vh}
         <button class="btn-primary" onclick="saveFirebaseSettings()" style="width: auto;"><i class="fa-solid fa-plug"></i> Connect & Sync Cloud Database</button>
       </div>
 
-      <!-- SHOP LOGO MANAGEMENT (ADMIN ONLY) -->
-      <div class="app-card" style="border-left: 5px solid var(--atmos-red); margin-bottom: 24px;">
+undefined
         <h3 style="font-size: 1.05rem; font-weight: 900; color: var(--atmos-navy); margin-bottom: 6px;">
-          <i class="fa-solid fa-image" style="color: var(--atmos-red); margin-right: 6px;"></i> Shop Logo Management
-        </h3>
-        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+undefined
           <div id="shopLogoPreviewBox" style="width: 130px; height: 130px; border: 2px dashed var(--border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; background: var(--bg); overflow: hidden;">
             <span id="shopLogoPlaceholder" style="color: var(--text-muted); font-size: 0.75rem; font-weight: 700;">No Logo</span>
             <img id="shopLogoPreviewImg" src="" alt="Logo" style="display: none; width: 100%; height: 100%; object-fit: contain;">
@@ -2278,9 +2265,7 @@ body.ft-modal-open{overflow:hidden;height:100vh}
         </div>
       </div>
 
-      <!-- PASSWORD RESET EMAIL DELIVERY (ADMIN CONTROLS) -->
-      <div class="app-card" style="border-left: 5px solid var(--accent-green); margin-bottom: 24px;">
-        <div id="pinEmailBlock" style="padding-top:0">
+undefined
           <div class="sec-label" style="margin-bottom:8px"><i class="fa-solid fa-envelope-circle-check"></i> Password Reset Email Delivery</div>
           <p style="font-size:.75rem;color:var(--text-muted);margin-bottom:12px">The admin password-reset link is emailed to the registered administrator address. This app runs entirely in the browser with no server and does not use Firebase Authentication accounts for these logins, so a free EmailJS account is required to deliver the email.</p>
           <div class="form-group"><label>Service ID</label><input type="text" id="pinEmailService" placeholder="Enter the EmailJS service ID"></div>
@@ -2294,10 +2279,7 @@ body.ft-modal-open{overflow:hidden;height:100vh}
         </div>
       </div>
 
-      <!-- STAFF CREDENTIAL MANAGEMENT -->
-      <div class="app-card" style="margin-bottom: 24px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h3 style="font-size: 1.05rem; font-weight: 800;">Staff Credential Management</h3>
+undefined
           <button class="btn-primary" onclick="openAddStaffModal()" style="width: auto;"><i class="fa-solid fa-user-plus"></i> Add New Staff</button>
         </div>
         <div style="overflow-x: auto;">
@@ -4540,31 +4522,12 @@ const FIREBASE_CONFIG = {
     var cv = document.getElementById('loginCredView'); if (cv) cv.style.display = 'block';
   }
 
-  function renderLoginPinSettings() {
-    var u = currentUser;
-    var cfg = (appData.resetEmailConfig || {});
-    var s = document.getElementById('pinEmailService'); if (s) s.value = cfg.serviceId || '';
-    var t = document.getElementById('pinEmailTemplate'); if (t) t.value = cfg.templateId || '';
-    var k = document.getElementById('pinEmailPublicKey'); if (k) k.value = cfg.publicKey || '';
-    var block = document.getElementById('pinEmailBlock');
-    if (block) block.style.display = (u && u.role === 'Admin') ? 'block' : 'none';
-  }
+undefined
 
   /* ---- Password reset email delivery ---- */
-  function getResetEmailConfig() {
-    var c = appData.resetEmailConfig || {};
-    return { serviceId: (c.serviceId || '').trim(), templateId: (c.templateId || '').trim(), publicKey: (c.publicKey || '').trim() };
-  }
+undefined
 
-  function saveResetEmailConfig() {
-    appData.resetEmailConfig = {
-      serviceId: (document.getElementById('pinEmailService').value || '').trim(),
-      templateId: (document.getElementById('pinEmailTemplate').value || '').trim(),
-      publicKey: (document.getElementById('pinEmailPublicKey').value || '').trim()
-    };
-    saveData();
-    alert('Password reset email settings saved.');
-  }
+undefined
 
   function sendResetEmail(toEmail, adminName, resetLink, expiryMinutes) {
     var cfg = getResetEmailConfig();
@@ -4798,14 +4761,7 @@ const FIREBASE_CONFIG = {
           if (b && ((b.adminUid && b.adminUid === cred.user.uid) || (b.adminEmail && String(b.adminEmail).trim().toLowerCase() === typedEmail))) resolvedBiz = k;
         });
         var prep = Promise.resolve();
-        if (resolvedBiz) {
-          try { localStorage.setItem(BIZ_ID_KEY, resolvedBiz); } catch (e) {}
-          if (!platformData.businesses[resolvedBiz].adminUid || platformData.businesses[resolvedBiz].adminUid !== cred.user.uid) {
-            platformData.businesses[resolvedBiz].adminUid = cred.user.uid;
-            prep = savePlatformData();
-          }
-          isFirebaseSyncActive = false; if (firebaseDbRef) { try { firebaseDbRef.off(); } catch (e) {} firebaseDbRef = null; }
-        }
+undefined
         return prep.then(function () {
           if (resolvedBiz) startBusinessSync();
           return waitForBusinessData().then(function () {
@@ -6801,14 +6757,13 @@ const FIREBASE_CONFIG = {
   /* ---------------------------------------------------
      7. ADMIN CONTROLS & MONTH CLOSING
   --------------------------------------------------- */
-  function showAdminSection(secId) {
+undefined
     ['monthClosingSection', 'staffSalarySection', 'openingBalSection', 'staffReportSection', 'analyticsSection', 'attendanceMgmtSection'].forEach(id => {
       document.getElementById(id).style.display = id === secId ? 'block' : 'none';
     });
   }
 
-  function renderAdminTab() {
-    updateShopLogoDisplays();
+undefined
     checkMonthClosingStatus();
     renderStaffSalaryTable();
     loadAdminOpeningBalancesForPicker();
@@ -9060,8 +9015,7 @@ function upsertCurrentBusinessRecord() {
   rec.adminEmail = admin ? (admin.email || '') : ((existing && existing.adminEmail) || '');
   rec.staffCount = appData.users.filter(function(u) { return u.role === 'Staff'; }).length;
   rec.lastActivity = Date.now();
-  rec.isCurrentBusiness = true;
-  if (!bizId) {
+undefined
     bizId = 'BIZ-' + Date.now().toString(36).toUpperCase();
     platformData.businesses[bizId] = rec;
   }
