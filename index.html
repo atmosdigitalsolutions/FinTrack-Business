@@ -294,7 +294,7 @@
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11,30,45,0.85); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
     .modal-card { background: white; padding: 28px; border-radius: var(--radius-lg); width: 90%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
     /* Auth screens must fully hide the private dashboard behind them. */
-    #bizRegisterModal, #paLoginModal, #paSetupModal, #paForgotModal, #paPinSetupModal, #forgotPasswordModal, #adminResetLinkModal { background: #F6F3ED !important; backdrop-filter: none; }
+    #bizRegisterModal, #paLoginModal, #paSetupModal, #paForgotModal, #forgotPasswordModal, #adminResetLinkModal { background: #F6F3ED !important; backdrop-filter: none; }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
@@ -530,8 +530,6 @@ body:not(.pa-mode) .side-drawer .drawer-menu-item[data-pa="1"]{display:none!impo
 #loginModal .pin-box.pin-filled{border-color:var(--primary);background:var(--primary-light)}
 @media (max-width:360px){#loginModal .pin-boxes{gap:9px}#loginModal .pin-box{width:46px;height:54px;flex:0 1 46px;font-size:1.25rem}}
 #loginModal .pin-forgot{display:block;text-align:center;margin:14px 0 4px}
-#pinModal .modal-card{border-radius:var(--radius-lg)}
-#pinModal .btn-admin{background:var(--primary);color:#fff;border:none;border-radius:var(--radius-md);font-weight:900;padding:12px;font-family:inherit}
 /* Shared box-style PIN entry (setup/change modal) */
 .pin-boxes{display:flex;gap:12px;justify-content:center;margin:6px 0 4px}
 .pin-box{width:52px;height:58px;flex:0 1 52px;text-align:center;font-size:1.4rem;font-weight:900;color:var(--atmos-navy);background:#fff;border:2px solid var(--border);border-radius:14px;box-shadow:0 1px 3px rgba(11,30,45,.06);padding:0!important;transition:border-color .15s,box-shadow .15s,background .15s;-webkit-tap-highlight-color:transparent}
@@ -771,27 +769,7 @@ body.ft-modal-open{overflow:hidden;height:100vh}
       </div>
 
       <div id="loginErrorMsg" class="login-error" style="display:none"><i class="fa-solid fa-circle-exclamation" style="margin-top:2px"></i><span id="loginErrorText"></span></div>
-      <button class="login-btn-primary" onclick="performLogin()">Access FinTrack <i class="fa-solid fa-arrow-right"></i></button>
-      <button class="login-btn-secondary" id="loginPinSwitchBtn" onclick="showPinLogin()"><i class="fa-solid fa-keyboard"></i> Enter FinPIN</button><a class="login-link" id="paLoginLink" style="display:none;text-align:center;margin-top:12px;font-size:.72rem;font-weight:700" onclick="openPlatformAdminLogin()"><i class="fa-solid fa-shield-halved"></i> Platform Admin Login</a>
-    </div>
-
-    <div id="loginPinView" style="display:none">
-      <div class="pin-who">
-        <div class="pin-who-label">Signed in as</div>
-        <div id="pinLoginName" class="pin-who-name"></div>
-        <div id="pinLoginMeta" class="pin-who-meta"></div>
-      </div>
-      <label class="pin-label">Enter FinPIN</label>
-      <div class="pin-boxes">
-        <input class="pin-box" id="pinBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinBoxInput(this,1)" onkeydown="pinBoxKey(event,1)">
-        <input class="pin-box" id="pinBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinBoxInput(this,2)" onkeydown="pinBoxKey(event,2)">
-        <input class="pin-box" id="pinBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinBoxInput(this,3)" onkeydown="pinBoxKey(event,3)">
-        <input class="pin-box" id="pinBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinBoxInput(this,4)" onkeydown="pinBoxKey(event,4)">
-      </div>
-      <input type="hidden" id="pinLoginInput">
-      <button class="login-btn-primary" onclick="performPinLogin()">Unlock FinTrack <i class="fa-solid fa-lock-open"></i></button>
-      <a class="login-link pin-forgot" onclick="forgotPin()">Forgot FinPIN?</a>
-      <button class="login-btn-secondary" onclick="showPasswordLogin()"><i class="fa-solid fa-key"></i> Log in with Password</button>
+      <button class="login-btn-primary" onclick="performLogin()">Access FinTrack <i class="fa-solid fa-arrow-right"></i></button><a class="login-link" id="paLoginLink" style="display:none;text-align:center;margin-top:12px;font-size:.72rem;font-weight:700" onclick="openPlatformAdminLogin()"><i class="fa-solid fa-shield-halved"></i> Platform Admin Login</a>
     </div>
 
     <div class="login-foot">
@@ -830,45 +808,14 @@ body.ft-modal-open{overflow:hidden;height:100vh}
 <div class="pa-modal-field"><label>Administrator Email</label><input type="email" id="paLoginName" placeholder="Enter email address" required></div>
 <div class="pa-modal-field"><label>Password</label><div class="pw-field"><input type="password" id="paLoginPassword" placeholder="Enter password" required><i class="fa-solid fa-eye pw-eye" id="paLoginPasswordEye" onclick="togglePasswordVisibility('paLoginPassword','paLoginPasswordEye')"></i></div></div>
 <button class="btn-admin" onclick="performPlatformAdminLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Platform Portal</button>
-<button id="paLoginPinSwitchBtn" onclick="showPaPinLogin()" style="display:none;margin-top:10px;width:100%;border:1px solid var(--border);background:var(--bg);color:var(--atmos-navy);font-weight:800;font-size:.82rem;padding:12px;border-radius:var(--radius-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><i class="fa-solid fa-keyboard"></i> Enter FinPIN</button>
 <div id="paForgotLink" style="margin-top:10px;text-align:center;display:none">
 <a style="font-size:.75rem;color:var(--atmos-red);font-weight:700;cursor:pointer" onclick="openPaForgotModal()">Forgot Password?</a>
 </div>
-</div>
-<div id="paLoginPinView" style="display:none">
-<div class="pin-who">
-<div class="pin-who-label">Signed in as</div>
-<div id="paPinLoginName" class="pin-who-name"></div>
-<div id="paPinLoginMeta" class="pin-who-meta"></div>
-</div>
-<label class="pin-label">Enter FinPIN</label>
-<div class="pin-boxes">
-<input class="pin-box" id="paPinBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="paPinBoxInput(this,1)" onkeydown="paPinBoxKey(event,1)">
-<input class="pin-box" id="paPinBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="paPinBoxInput(this,2)" onkeydown="paPinBoxKey(event,2)">
-<input class="pin-box" id="paPinBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="paPinBoxInput(this,3)" onkeydown="paPinBoxKey(event,3)">
-<input class="pin-box" id="paPinBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="paPinBoxInput(this,4)" onkeydown="paPinBoxKey(event,4)">
-</div>
-<input type="hidden" id="paPinLoginInput">
-<button onclick="performPaPinLogin()" style="width:100%;border:none;background:var(--grad-navy);color:#fff;font-weight:900;font-size:.88rem;padding:14px;border-radius:var(--radius-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">Unlock FinTrack <i class="fa-solid fa-lock-open"></i></button>
-<a onclick="forgotPaPin()" style="display:block;text-align:center;margin:10px 0;font-size:.78rem;font-weight:700;color:var(--primary);cursor:pointer">Forgot FinPIN?</a>
-<button onclick="showPaPasswordLogin()" style="width:100%;margin-top:6px;border:1px solid var(--border);background:var(--bg);color:var(--atmos-navy);font-weight:800;font-size:.82rem;padding:12px;border-radius:var(--radius-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><i class="fa-solid fa-key"></i> Log in with Password</button>
 </div>
 <button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closePaLoginModal()">Back to Business Login</button>
 </div>
 </div>
 
-<!-- PLATFORM ADMIN FINPIN SETUP MODAL -->
-<div id="paPinSetupModal" class="modal" style="display:none">
-<div class="modal-card" style="max-width:440px">
-<h3 style="font-size:1.1rem;font-weight:800;color:var(--atmos-navy);margin-bottom:6px">Set Up Platform Admin FinPIN</h3>
-<p style="font-size:.78rem;color:var(--text-muted);margin-bottom:16px">Signed in as <strong id="paPinSetupName">Platform Admin</strong>. Enter your current password to set a 4-digit PIN for quick sign-in on this device.</p>
-<div class="form-group"><label>Your Current Password</label><div class="pw-field"><input type="password" id="paPinSetupPass" placeholder="Enter current password"><i class="fa-solid fa-eye pw-eye" id="paPinSetupPassEye" onclick="togglePasswordVisibility('paPinSetupPass','paPinSetupPassEye')"></i></div></div>
-<div class="form-group"><label>New PIN (exactly 4 digits)</label><input type="password" id="paPinSetupNew" inputmode="numeric" maxlength="4" placeholder="••••" oninput="pinDigitsOnly(this)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-family:inherit;font-size:1.1rem;letter-spacing:8px"></div>
-<div class="form-group"><label>Confirm New PIN</label><input type="password" id="paPinSetupConfirm" inputmode="numeric" maxlength="4" placeholder="••••" oninput="pinDigitsOnly(this)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-family:inherit;font-size:1.1rem;letter-spacing:8px"></div>
-<button class="btn-admin" onclick="savePaLoginPin()"><i class="fa-solid fa-key"></i> Save PIN</button>
-<button style="margin-top:10px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closePaPinSetupModal()">Cancel</button>
-</div>
-</div>
 
 <!-- PA FORGOT PASSWORD MODAL (email-link reset) -->
 <div id="paForgotModal" class="modal" style="display:none">
@@ -967,7 +914,6 @@ body.ft-modal-open{overflow:hidden;height:100vh}
   <div class="nav-actions">
     <span id="cloudSyncStatusBadge" class="sync-badge sync-local"><i class="fa-solid fa-wifi"></i> Local Sync</span>
     <span id="activeUserBadge" class="user-pill">Guest</span>
-    <button class="nav-icon-btn pin-nav-btn" id="navPinBtn" onclick="openPinModal()" title="Login PIN" style="display:none"><i class="fa-solid fa-key"></i></button>
     <button class="nav-icon-btn" onclick="location.reload()" title="Sign Out"><i class="fa-solid fa-power-off"></i></button>
   </div>
 </nav>
@@ -2332,48 +2278,9 @@ body.ft-modal-open{overflow:hidden;height:100vh}
         </div>
       </div>
 
-      <!-- LOGIN PIN & SECURITY (ADMIN CONTROLS) -->
+      <!-- PASSWORD RESET EMAIL DELIVERY (ADMIN CONTROLS) -->
       <div class="app-card" style="border-left: 5px solid var(--accent-green); margin-bottom: 24px;">
-        <h3 style="font-size: 1.05rem; font-weight: 900; color: var(--atmos-navy); margin-bottom: 6px;">
-          <i class="fa-solid fa-key" style="color: var(--accent-green); margin-right: 6px;"></i> Login PIN &amp; Security
-        </h3>
-        <p style="font-size: .8rem; color: var(--text-muted); margin-bottom: 10px;">Set a 4-digit PIN for quick sign-in on this device. Your PIN is stored as a one-way hash — never as readable text — and normal password sign-in always remains available.</p>
-
-        <div class="sec-row">
-          <div>
-            <div class="sec-label">Login PIN Status</div>
-            <div class="sec-hint" id="pinAdminHint">Checking…</div>
-          </div>
-          <span id="pinAdminBadge" class="pin-status-badge pin-unset">—</span>
-        </div>
-
-        <div class="sec-row">
-          <div>
-            <div class="sec-label">Set or Change PIN</div>
-            <div class="sec-hint">Your current account password is required to set or change the PIN.</div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn-primary" style="width:auto" onclick="openPinModal()"><i class="fa-solid fa-key"></i> Set / Change PIN</button>
-            <button class="btn-danger" style="width:auto" id="pinRemoveBtn" onclick="removeLoginPin()"><i class="fa-solid fa-trash"></i> Remove PIN</button>
-          </div>
-        </div>
-
-        <div class="sec-row">
-          <div>
-            <div class="sec-label">Remembered Device</div>
-            <div class="sec-hint" id="pinDeviceHint">Checking…</div>
-          </div>
-          <button class="btn-danger" style="width:auto" onclick="forgetPinDevice(true)"><i class="fa-solid fa-eraser"></i> Forget Device</button>
-        </div>
-
-        <div class="sec-row">
-          <div>
-            <div class="sec-label">Staff PINs</div>
-            <div class="sec-hint">Each staff member sets their own PIN on their device after their first sign-in. You can clear a staff member's PIN from the Staff Credential Management table below.</div>
-          </div>
-        </div>
-
-        <div id="pinEmailBlock" style="border-top:1px solid var(--border); margin-top:6px; padding-top:14px">
+        <div id="pinEmailBlock" style="padding-top:0">
           <div class="sec-label" style="margin-bottom:8px"><i class="fa-solid fa-envelope-circle-check"></i> Password Reset Email Delivery</div>
           <p style="font-size:.75rem;color:var(--text-muted);margin-bottom:12px">The admin password-reset link is emailed to the registered administrator address. This app runs entirely in the browser with no server and does not use Firebase Authentication accounts for these logins, so a free EmailJS account is required to deliver the email.</p>
           <div class="form-group"><label>Service ID</label><input type="text" id="pinEmailService" placeholder="Enter the EmailJS service ID"></div>
@@ -2399,7 +2306,6 @@ body.ft-modal-open{overflow:hidden;height:100vh}
               <tr>
                 <th>Staff Name</th>
                 <th>Role</th>
-                <th>Login PIN</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -3009,52 +2915,6 @@ body.ft-modal-open{overflow:hidden;height:100vh}
 </div>
 
 <!-- LOGIN PIN SETUP / CHANGE MODAL -->
-<div id="pinModal" class="modal" style="display:none">
-  <div class="modal-card" style="max-width:440px">
-    <h3 id="pinModalTitle" style="font-size:1.1rem;font-weight:800;color:var(--atmos-navy);margin-bottom:6px">Set Up Login PIN</h3>
-    <p id="pinModalSubtitle" style="font-size:.78rem;color:var(--text-muted);margin-bottom:16px">Choose a 4-digit PIN for quick sign-in on this device. It is stored as a one-way hash, never as readable text.</p>
-    <div id="pinStep1" class="pin-step">
-      <div class="form-group">
-        <label>Your Current Password</label>
-        <div class="pw-field"><input type="password" id="pinCurrentPass" placeholder="Enter your current account password" autocomplete="off"><i class="fa-solid fa-eye pw-eye" id="pinCurrentPassEye" onclick="togglePasswordVisibility('pinCurrentPass','pinCurrentPassEye')"></i></div>
-      </div>
-      <button style="width:100%" class="btn-admin" onclick="pinStepNext(2)"><i class="fa-solid fa-arrow-right"></i> Continue</button>
-    </div>
-    <div id="pinStep2" class="pin-step" style="display:none">
-      <div class="form-group">
-        <label>New PIN (exactly 4 digits)</label>
-        <input type="hidden" id="pinNew">
-        <div class="pin-boxes" id="pinNewBoxes">
-          <input class="pin-box" id="pinNewBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',1)" onkeydown="pinSetupBoxKey(event,'pinNew',1)">
-          <input class="pin-box" id="pinNewBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',2)" onkeydown="pinSetupBoxKey(event,'pinNew',2)">
-          <input class="pin-box" id="pinNewBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',3)" onkeydown="pinSetupBoxKey(event,'pinNew',3)">
-          <input class="pin-box" id="pinNewBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinNew',4)" onkeydown="pinSetupBoxKey(event,'pinNew',4)">
-        </div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <button style="flex:1;background:var(--bg);color:var(--text-muted)" onclick="pinStepBack(1)"><i class="fa-solid fa-arrow-left"></i> Back</button>
-        <button style="flex:1" class="btn-admin" onclick="pinStepNext(3)"><i class="fa-solid fa-arrow-right"></i> Continue</button>
-      </div>
-    </div>
-    <div id="pinStep3" class="pin-step" style="display:none">
-      <div class="form-group">
-        <label>Confirm New PIN</label>
-        <input type="hidden" id="pinConfirm">
-        <div class="pin-boxes" id="pinConfirmBoxes">
-          <input class="pin-box" id="pinConfirmBox1" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',1)" onkeydown="pinSetupBoxKey(event,'pinConfirm',1)">
-          <input class="pin-box" id="pinConfirmBox2" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',2)" onkeydown="pinSetupBoxKey(event,'pinConfirm',2)">
-          <input class="pin-box" id="pinConfirmBox3" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',3)" onkeydown="pinSetupBoxKey(event,'pinConfirm',3)">
-          <input class="pin-box" id="pinConfirmBox4" type="password" inputmode="numeric" maxlength="1" autocomplete="off" oninput="pinSetupBoxInput(this,'pinConfirm',4)" onkeydown="pinSetupBoxKey(event,'pinConfirm',4)">
-        </div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <button style="flex:1;background:var(--bg);color:var(--text-muted)" onclick="pinStepBack(2)"><i class="fa-solid fa-arrow-left"></i> Back</button>
-        <button style="flex:1" class="btn-admin" onclick="saveLoginPin()"><i class="fa-solid fa-key"></i> Save PIN</button>
-      </div>
-    </div>
-    <button style="margin-top:12px;background:transparent;color:var(--text-muted);width:100%;font-size:.8rem" onclick="closePinModal()">Cancel</button>
-  </div>
-</div>
 
 <!-- ADD/EDIT STAFF CREDENTIAL MODAL -->
 <div id="addStaffModal" class="modal" style="display: none;">
@@ -4676,335 +4536,18 @@ const FIREBASE_CONFIG = {
     return out;
   }
 
-  var PIN_HASH_ROUNDS = 400;
-
-  function makePinSalt() {
-    var a = new Uint8Array(16);
-    if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(a);
-    else for (var i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256);
-    return Array.prototype.map.call(a, function(b) { return ('0' + b.toString(16)).slice(-2); }).join('');
-  }
-
-  function hashPin(pin, salt) {
-    var h = sha256Hex(String(salt) + '::' + String(pin));
-    for (var i = 0; i < PIN_HASH_ROUNDS; i++) h = sha256Hex(h + '::' + salt);
-    return h;
-  }
-
-  function verifyPin(pin, hash, salt) {
-    if (!hash || !salt) return false;
-    return hashPin(pin, salt) === hash;
-  }
-
-  function escPin(v) {
-    return String(v === undefined || v === null ? '' : v)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  /* PIN fields accept digits 0-9 only, and never more than 4 characters */
-  function pinDigitsOnly(el) {
-    if (!el) return;
-    var cleaned = String(el.value || '').replace(/[^0-9]/g, '').slice(0, 4);
-    if (cleaned !== el.value) el.value = cleaned;
-  }
-
-  /* ---- Remembered device (local to this browser; stores an account reference only) ---- */
-  var PIN_DEVICE_KEY = 'FTB_PIN_DEVICE_V1';
-  var PIN_MAX_ATTEMPTS = 5;
-  var pinAttempts = 0;
-
-  function pinDeviceBusinessKey() {
-    var custom = '';
-    try { custom = localStorage.getItem('ATMOS_FIREBASE_URL') || ''; } catch (e) {}
-    var url = custom || ((typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.databaseURL) || '');
-    return String(url).toLowerCase();
-  }
-
-  function getPinDevice() {
-    try {
-      var raw = localStorage.getItem(PIN_DEVICE_KEY);
-      if (!raw) return null;
-      var d = JSON.parse(raw);
-      if (!d || !d.name) return null;
-      if (d.businessKey !== pinDeviceBusinessKey()) return null;
-      return d;
-    } catch (e) { return null; }
-  }
-
-  function savePinDevice(user) {
-    try {
-      localStorage.setItem(PIN_DEVICE_KEY, JSON.stringify({
-        name: user.name,
-        role: user.role,
-        businessKey: pinDeviceBusinessKey(),
-        savedAt: Date.now()
-      }));
-    } catch (e) { /* storage unavailable - PIN sign-in simply stays off here */ }
-  }
-
-  function clearPinDevice() {
-    try { localStorage.removeItem(PIN_DEVICE_KEY); } catch (e) {}
-  }
-
-  function findUserByNameRole(name, role) {
-    return (appData.users || []).find(function(u) { return u.name === name && u.role === role; }) || null;
-  }
-
-  /* ---- Login screen state ---- */
   function showPasswordLogin() {
     var cv = document.getElementById('loginCredView'); if (cv) cv.style.display = 'block';
-    var pv = document.getElementById('loginPinView'); if (pv) pv.style.display = 'none';
-    try { updatePinSwitchButton(); } catch (e) {}
   }
 
-  function showPinLogin() {
-    var dev = getPinDevice();
-    if (!dev) {
-      showPasswordLogin();
-      return alert('No login PIN is saved on this device yet. Sign in with your password once - then you can set a PIN and use "Enter FinPIN" here.');
-    }
-    /* Role-aware: only show the PIN entry when the saved device user matches the
-       currently selected login tab (Staff tab = staff PIN, Admin tab = admin PIN).
-       Either admin or staff works at a time on a device. */
-    if (dev.role !== currentLoginMode) {
-      showPasswordLogin();
-      return alert('No FinPIN is saved for ' + currentLoginMode + ' sign-in on this device. Enter your ' + (currentLoginMode === 'Admin' ? 'email and password' : 'staff mobile number and password') + ', or switch to the ' + dev.role + ' tab to use its PIN.');
-    }
-    var user = findUserByNameRole(dev.name, dev.role);
-    if (!user || !user.pinHash) { clearPinDevice(); return showPasswordLogin(); }
-    document.getElementById('loginCredView').style.display = 'none';
-    document.getElementById('loginPinView').style.display = 'block';
-    document.getElementById('pinLoginName').innerText = user.name;
-    document.getElementById('pinLoginMeta').innerText = user.role + '  \u2022  ' + ((appData.businessProfile && appData.businessProfile.shopName) || 'FinTrack Business');
-    clearPinBoxes();
-    var b1 = document.getElementById('pinBox1');
-    if (b1) setTimeout(function () { b1.focus(); }, 60);
-  }
-
-  /* Show or hide the "Enter FinPIN" button based on whether a PIN is saved for
-     the currently selected login mode. Either admin or staff works at a time. */
-  function updatePinSwitchButton() {
-    var btn = document.getElementById('loginPinSwitchBtn');
-    if (!btn) return;
-    var dev = getPinDevice();
-    var show = false;
-    if (dev && dev.role === currentLoginMode) {
-      var user = findUserByNameRole(dev.name, dev.role);
-      if (user && user.pinHash) show = true;
-    }
-    btn.style.display = show ? 'flex' : 'none';
-  }
-  window.updatePinSwitchButton = updatePinSwitchButton;
-
-  function performPinLogin() {
-    var dev = getPinDevice();
-    if (!dev) return showPasswordLogin();
-    var user = findUserByNameRole(dev.name, dev.role);
-    if (!user || !user.pinHash) {
-      clearPinDevice();
-      showPasswordLogin();
-      return alert('PIN sign-in is no longer available for this account. Please sign in with your password.');
-    }
-    var pin = (document.getElementById('pinLoginInput').value || '').trim();
-    if (!/^[0-9]{4}$/.test(pin)) return alert('Please enter your 4-digit PIN (numbers only).');
-
-    if (!verifyPin(pin, user.pinHash, user.pinSalt)) {
-      pinAttempts++;
-      document.getElementById('pinLoginInput').value = '';
-      clearPinBoxes();
-      if (pinAttempts >= PIN_MAX_ATTEMPTS) {
-        clearPinDevice();
-        showPasswordLogin();
-        return alert('Too many incorrect PIN attempts. PIN sign-in has been turned off on this device. Please sign in with your password - your account is not locked.');
-      }
-      return alert('Incorrect PIN. ' + (PIN_MAX_ATTEMPTS - pinAttempts) + ' attempt(s) left before PIN sign-in is turned off on this device.');
-    }
-    pinAttempts = 0;
-    var pinBtn = document.querySelector('#loginPinView .login-btn-primary');
-    if (pinBtn) { pinBtn.disabled = true; pinBtn.dataset.label = pinBtn.innerHTML; pinBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Unlocking…'; }
-    waitForFirebaseAuth(5000).then(function(hasAuth) {
-      if (pinBtn) { pinBtn.disabled = false; if (pinBtn.dataset.label) pinBtn.innerHTML = pinBtn.dataset.label; }
-      if (!hasAuth) {
-        showPasswordLogin();
-        return alert('This device needs one password sign-in before the PIN can be used again. Please sign in with your password once and the PIN will work here as normal.');
-      }
-      completeLogin(user);
-    });
-  }
-
-  function offerPinSetup() {
-    setTimeout(function() {
-      if (!currentUser || currentUser.pinHash) return;
-      if (confirm('Set up a 4-digit login PIN for quicker sign-in on this device?\n\nYou can also set or change it any time from Admin Controls \u2192 Login PIN & Security.')) {
-        openPinModal();
-      }
-    }, 500);
-  }
-
-  /* ---- PIN setup / change (current password always required) ---- */
-  function openPinModal() {
-    var u = currentUser;
-    if (!u) return alert('Please sign in first.');
-    document.getElementById('pinModalTitle').innerText = u.pinHash ? 'Change Login PIN' : 'Set Up Login PIN';
-    document.getElementById('pinModalSubtitle').innerText = 'Signed in as ' + u.name + ' (' + u.role + '). Your current password is required to ' + (u.pinHash ? 'change' : 'set') + ' the PIN.';
-    document.getElementById('pinCurrentPass').value = '';
-    document.getElementById('pinNew').value = '';
-    document.getElementById('pinConfirm').value = '';
-    clearPinSetupBoxes();
-    pinStepShow(1);
-    document.getElementById('pinModal').style.display = 'flex';
-    setTimeout(function(){ var p=document.getElementById('pinCurrentPass'); if(p) p.focus(); }, 50);
-  }
-
-  function closePinModal() { document.getElementById('pinModal').style.display = 'none'; }
-
-  /* Step-by-step PIN setup wizard: password → enter PIN → confirm PIN */
-  function pinStepShow(n) {
-    [1,2,3].forEach(function(s){ var el=document.getElementById('pinStep'+s); if(el) el.style.display = (s===n)?'block':'none'; });
-  }
-  function pinStepNext(n) {
-    if (n===2) {
-      var pass = document.getElementById('pinCurrentPass').value||'';
-      if (!pass) return alert('Please enter your current account password to continue.');
-      pinStepShow(2);
-      setTimeout(function(){ var b=document.getElementById('pinNewBox1'); if(b) b.focus(); }, 50);
-    } else if (n===3) {
-      var pin = (document.getElementById('pinNew').value||'').trim();
-      if (!/^[0-9]{4}$/.test(pin)) return alert('Please enter a 4-digit PIN to continue.');
-      pinStepShow(3);
-      setTimeout(function(){ var b=document.getElementById('pinConfirmBox1'); if(b) b.focus(); }, 50);
-    }
-  }
-  function pinStepBack(n) {
-    pinStepShow(n);
-    if (n===1) { var p=document.getElementById('pinCurrentPass'); if(p) p.focus(); }
-    else if (n===2) { var b=document.getElementById('pinNewBox1'); if(b) b.focus(); }
-  }
-  /* Wait for Firebase to restore a persisted session before PIN login completes. */
-  function waitForFirebaseAuth(timeoutMs) {
-    timeoutMs = timeoutMs || 5000;
-    return new Promise(function(resolve) {
-      var auth = firebaseAuth();
-      if (!auth) { resolve(false); return; }
-      if (auth.currentUser) { resolve(true); return; }
-      var done = false;
-      var unsub = auth.onAuthStateChanged(function(fbUser) {
-        if (done) return;
-        done = true; try { if (typeof unsub === 'function') unsub(); } catch(e){}
-        resolve(!!fbUser);
-      });
-      setTimeout(function() {
-        if (done) return;
-        done = true; try { if (typeof unsub === 'function') unsub(); } catch(e){}
-        resolve(!!auth.currentUser);
-      }, timeoutMs);
-    });
-  }
-
-  function saveLoginPin() {
-    var u = currentUser;
-    if (!u) return;
-    var pass = document.getElementById('pinCurrentPass').value || '';
-    var pin = (document.getElementById('pinNew').value || '').trim();
-    var pin2 = (document.getElementById('pinConfirm').value || '').trim();
-
-    if (!pass) return alert('Please enter your current account password to confirm this change.');
-    if (!/^[0-9]{4}$/.test(pin)) return alert('Your PIN must be exactly 4 digits (numbers only).');
-    if (pin !== pin2) return alert('The two PIN entries do not match. Please re-enter them.');
-
-    verifyAccountPassword(pass).then(function (okPass) {
-      if (!okPass) return alert('Your current password is incorrect. The PIN was not changed.');
-      u.pinSalt = makePinSalt();
-      u.pinHash = hashPin(pin, u.pinSalt);
-      u.pinUpdatedAt = Date.now();
-      saveData();
-      savePinDevice(u);
-      closePinModal();
-      renderLoginPinSettings();
-      renderStaffPasswordTable();
-      alert('PIN saved. You can now sign in with your PIN on this device. Your password login still works as before.');
-    });
-  }
-
-  function removeLoginPin() {
-    var u = currentUser;
-    if (!u) return;
-    if (!u.pinHash) return alert('No PIN is set for this account.');
-    var pass = prompt('Enter your current password to remove the login PIN:');
-    if (pass === null) return;
-    verifyAccountPassword(pass).then(function (okPass) {
-      if (!okPass) return alert('Your current password is incorrect. The PIN was not removed.');
-      delete u.pinHash; delete u.pinSalt; delete u.pinUpdatedAt;
-      var dev = getPinDevice();
-      if (dev && dev.name === u.name && dev.role === u.role) clearPinDevice();
-      saveData();
-      renderLoginPinSettings();
-      renderStaffPasswordTable();
-      alert('Your login PIN has been removed and PIN sign-in is turned off on this device.');
-    });
-  }
-
-  function forgetPinDevice(fromLogin) {
-    if (fromLogin === true && !confirm('Forget this device? PIN sign-in will be turned off here. Your PIN stays saved on your account for other devices.')) return;
-    clearPinDevice();
-    if (fromLogin === true) showPasswordLogin();
-    renderLoginPinSettings();
-    alert('This device has been forgotten. PIN sign-in is now off here.');
-  }
-
-  function clearStaffPin(idx) {
-    var u = appData.users[idx];
-    if (!u) return;
-    if (!confirm('Clear the saved login PIN for ' + u.name + '? They can set a new one after signing in with their password.')) return;
-    delete u.pinHash; delete u.pinSalt; delete u.pinUpdatedAt;
-    var dev = getPinDevice();
-    if (dev && dev.name === u.name && dev.role === u.role) clearPinDevice();
-    saveData();
-    renderStaffPasswordTable();
-    renderLoginPinSettings();
-    alert('The login PIN for ' + u.name + ' has been cleared.');
-  }
-
-  /* ---- Settings card: Login PIN & Security ---- */
   function renderLoginPinSettings() {
-    var hint = document.getElementById('pinAdminHint');
-    if (!hint) return;
-    var badge = document.getElementById('pinAdminBadge');
-    var removeBtn = document.getElementById('pinRemoveBtn');
-    var devHint = document.getElementById('pinDeviceHint');
     var u = currentUser;
-
-    if (!u) {
-      hint.innerText = 'Sign in as an administrator to manage the login PIN.';
-      badge.className = 'pin-status-badge pin-unset';
-      badge.innerText = 'SIGNED OUT';
-      if (removeBtn) removeBtn.style.display = 'none';
-      if (devHint) devHint.innerText = 'Not signed in.';
-      return;
-    }
-    if (u.pinHash) {
-      hint.innerText = 'A PIN is active for ' + u.name + '. It can be used on a device you have chosen to remember.';
-      badge.className = 'pin-status-badge pin-set';
-      badge.innerText = 'PIN SET';
-      if (removeBtn) removeBtn.style.display = 'inline-block';
-    } else {
-      hint.innerText = 'No PIN is set for ' + u.name + ' yet.';
-      badge.className = 'pin-status-badge pin-unset';
-      badge.innerText = 'NOT SET';
-      if (removeBtn) removeBtn.style.display = 'none';
-    }
-    var dev = getPinDevice();
-    if (devHint) {
-      devHint.innerText = (dev && dev.name === u.name && dev.role === u.role)
-        ? 'This device is remembered for ' + u.name + '. PIN sign-in is enabled here.'
-        : 'This device is not remembered for your account. Tick "Remember this device" on the login screen to enable PIN sign-in here.';
-    }
     var cfg = (appData.resetEmailConfig || {});
     var s = document.getElementById('pinEmailService'); if (s) s.value = cfg.serviceId || '';
     var t = document.getElementById('pinEmailTemplate'); if (t) t.value = cfg.templateId || '';
     var k = document.getElementById('pinEmailPublicKey'); if (k) k.value = cfg.publicKey || '';
     var block = document.getElementById('pinEmailBlock');
-    if (block) block.style.display = (u.role === 'Admin') ? 'block' : 'none';
+    if (block) block.style.display = (u && u.role === 'Admin') ? 'block' : 'none';
   }
 
   /* ---- Password reset email delivery ---- */
@@ -5072,8 +4615,7 @@ const FIREBASE_CONFIG = {
     if (selectWrap) selectWrap.style.display = mode === 'Admin' ? 'none' : 'block';
     var fg = document.getElementById('forgotPasswordBtnContainer');
     if (fg) fg.style.display = mode === 'Admin' ? 'block' : 'none';
-    /* Switching tabs resets to password view: the saved PIN belongs to one role
-       only, so the FinPIN button is re-evaluated for the newly selected mode. */
+    /* Switching tabs resets to the password view. */
     showPasswordLogin();
   }
 
@@ -5090,7 +4632,6 @@ const FIREBASE_CONFIG = {
     document.getElementById('activeUserBadge').innerText = user.name + ' (' + user.role + ')';
     document.getElementById('loginModal').style.display = 'none';
     ftbShowWelcomeSplash();
-    offerPinSetupAfterLogin();
 
     // Show Admin Tab if Admin
     if (user.role === 'Admin') {
@@ -5118,9 +4659,6 @@ const FIREBASE_CONFIG = {
       if (mvBannerEl2) mvBannerEl2.style.display = 'none';
     }
 
-    /* The Login PIN shortcut is available to admin and staff alike */
-    var navPin = document.getElementById('navPinBtn');
-    if (navPin) navPin.style.display = 'inline-flex';
 
     try { applyPlatformBranding(); } catch (e) {}
     logAttendance(user);
@@ -5232,11 +4770,9 @@ const FIREBASE_CONFIG = {
       currentUser = user;
       if (user.role === 'Admin') clearPendingAdminReset();
       var remember = document.getElementById('loginRememberDevice');
-      if (remember && remember.checked) savePinDevice(user); else clearPinDevice();
       /* Show the dashboard instantly; cloud sync continues in the background and
          refreshes the views once the business data arrives. */
       completeLogin(user);
-      if (!user.pinHash) offerPinSetup();
       afterFirebaseLogin(user).catch(function (e) { console.error('Background sync failed:', e); });
     }).catch(function (err) {
       restoreBtn();
@@ -5293,9 +4829,7 @@ const FIREBASE_CONFIG = {
         currentUser = admin;
         clearPendingAdminReset();
         var remember = document.getElementById('loginRememberDevice');
-        if (remember && remember.checked) savePinDevice(admin); else clearPinDevice();
         completeLogin(admin);
-        if (!admin.pinHash) offerPinSetup();
         afterFirebaseLogin(admin).catch(function (e) { console.error('Background sync failed:', e); });
           });
         });
@@ -8042,16 +7576,11 @@ const FIREBASE_CONFIG = {
 
     appData.users.forEach((u, idx) => {
       const tr = document.createElement('tr');
-      const pinCell = u.pinHash
-        ? '<span class="pin-status-badge pin-set"><i class="fa-solid fa-lock"></i> PIN SET</span>'
-        : '<span class="pin-status-badge pin-unset">NOT SET</span>';
-      const clearBtn = u.pinHash ? '<button onclick="clearStaffPin(' + idx + ')" style="background:none; color:var(--accent-amber);"><i class="fa-solid fa-key"></i> Clear PIN</button>' : '';
       const delBtn = u.role !== 'Admin' ? '<button onclick="deleteStaffUser(' + idx + ')" style="background:none; color:var(--accent-rose);"><i class="fa-solid fa-trash"></i> Delete</button>' : '';
 
-      tr.innerHTML = '<td><strong>' + escPin(u.name) + '</strong></td>'
+      tr.innerHTML = '<td><strong>' + (u.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</strong></td>'
         + '<td><span class="badge ' + (u.role === 'Admin' ? 'badge-closed' : 'badge-open') + '">' + u.role + '</span></td>'
-        + '<td>' + pinCell + '</td>'
-        + '<td><button onclick="openAddStaffModal(' + idx + ')" style="background:none; color:var(--primary);"><i class="fa-solid fa-pen"></i> Edit</button> ' + clearBtn + ' ' + delBtn + '</td>';
+        + '<td><button onclick="openAddStaffModal(' + idx + ')" style="background:none; color:var(--primary);"><i class="fa-solid fa-pen"></i> Edit</button> ' + delBtn + '</td>';
       tbody.appendChild(tr);
     });
   }
@@ -9012,13 +8541,6 @@ function updatePlatformAdminLoginUI() {
 function openPlatformAdminLogin() {
   if (!platformFirstLoadDone) { alert('Loading platform data. Please wait a moment and try again.'); return; } if (!platformData.setupCompleted) { openPaSetupModal(); return; }
   document.getElementById('paLoginModal').style.display = 'flex';
-  /* If a Platform Admin FinPIN is saved on this device, go straight to PIN entry. */
-  try {
-    updatePaPinSwitchButton();
-    var dev = getPaPinDevice();
-    var cred = platformData.credentials || {};
-    if (dev && cred.pinHash) showPaPinLogin(); else showPaPasswordLogin();
-  } catch (e) {}
 }
 function closePaLoginModal() { document.getElementById('paLoginModal').style.display = 'none'; }
 function openPaSetupModal() { document.getElementById('paSetupModal').style.display = 'flex'; }
@@ -9064,8 +8586,22 @@ function openPlatformAdminFirebaseSession(cred, pass) {
     var auth = firebaseAuth();
     if (!auth || !cred || !cred.email) return;
     var email = String(cred.email).trim().toLowerCase();
-    auth.signInWithEmailAndPassword(email, pass).catch(function () {
-      return auth.createUserWithEmailAndPassword(email, pass).catch(function () {});
+    auth.signInWithEmailAndPassword(email, pass).then(function (userCred) {
+      if (userCred && userCred.user && userCred.user.uid) {
+        if (!platformData.credentials.uid || platformData.credentials.uid !== userCred.user.uid) {
+          platformData.credentials.uid = userCred.user.uid;
+          try { savePlatformData(); } catch (e) {}
+        }
+      }
+    }).catch(function () {
+      return auth.createUserWithEmailAndPassword(email, pass).then(function (userCred) {
+        if (userCred && userCred.user && userCred.user.uid) {
+          if (!platformData.credentials.uid || platformData.credentials.uid !== userCred.user.uid) {
+            platformData.credentials.uid = userCred.user.uid;
+            try { savePlatformData(); } catch (e) {}
+          }
+        }
+      }).catch(function () {});
     });
   } catch (e) {}
 }
@@ -9086,7 +8622,6 @@ function enterPlatformAdminMode() {
   if (badge) badge.innerText = platformAdminUser.name + ' (Platform Admin)';
   try { applyPlatformBranding(); } catch (e) {}
   ftbShowWelcomeSplash();
-  offerPaPinSetup();
   switchPATab('paDashboardTab');
   renderPlatformAdminViews();
 }
@@ -9101,7 +8636,7 @@ function performPlatformAdminLogin() {
   if (!email || String(name).trim().toLowerCase() !== email) { alert('Invalid platform admin credentials.'); return; }
   var auth = firebaseAuth();
   if (!auth) {
-    if (cred.password === password) { savePaPinDevice(); openPlatformAdminFirebaseSession(cred, password); enterPlatformAdminMode(); }
+    if (cred.password === password) { openPlatformAdminFirebaseSession(cred, password); enterPlatformAdminMode(); }
     else alert('Invalid platform admin credentials.');
     return;
   }
@@ -9110,7 +8645,6 @@ function performPlatformAdminLogin() {
   function restoreBtn() { if (btn) { btn.disabled = false; if (btn.dataset.label) btn.innerHTML = btn.dataset.label; } }
   firebasePlatformAdminSignIn(password).then(function () {
     restoreBtn();
-    savePaPinDevice();
     enterPlatformAdminMode();
   }).catch(function (err) {
     restoreBtn();
@@ -9133,6 +8667,14 @@ function firebasePlatformAdminSignIn(password) {
       return auth.createUserWithEmailAndPassword(email, password);
     }
     throw err;
+  }).then(function (userCred) {
+    if (userCred && userCred.user && userCred.user.uid) {
+      if (!platformData.credentials.uid || platformData.credentials.uid !== userCred.user.uid) {
+        platformData.credentials.uid = userCred.user.uid;
+        try { savePlatformData(); } catch (e) {}
+      }
+    }
+    return userCred;
   });
 }
 
@@ -9171,132 +8713,6 @@ function paLogout() {
   document.querySelectorAll('.tab-btn:not(.pa-tab-btn)').forEach(function(b) { b.style.display = ''; });
   document.getElementById('loginModal').style.display = 'flex';
   document.getElementById('activeUserBadge').innerText = 'Guest';
-  try { updatePinSwitchButton(); } catch (e) {}
-}
-
-/* ===== PLATFORM ADMIN FINPIN (device-based, same pattern as the business PIN) ===== */
-var PA_PIN_DEVICE_KEY = 'FTB_PA_PIN_DEVICE_V1';
-function getPaPinDevice() {
-  try { var raw = localStorage.getItem(PA_PIN_DEVICE_KEY); if (!raw) return null; var d = JSON.parse(raw); if (!d || !d.name) return null; return d; } catch (e) { return null; }
-}
-function savePaPinDevice() {
-  try {
-    var cred = platformData.credentials || {};
-    localStorage.setItem(PA_PIN_DEVICE_KEY, JSON.stringify({ name: cred.name || 'Platform Admin', email: cred.email || '', savedAt: Date.now() }));
-  } catch (e) {}
-}
-function clearPaPinDevice() { try { localStorage.removeItem(PA_PIN_DEVICE_KEY); } catch (e) {} }
-
-function updatePaPinSwitchButton() {
-  var btn = document.getElementById('paLoginPinSwitchBtn');
-  if (!btn) return;
-  var dev = getPaPinDevice();
-  var cred = platformData.credentials || {};
-  btn.style.display = (dev && cred.pinHash) ? 'flex' : 'none';
-}
-
-function showPaPasswordLogin() {
-  var cv = document.getElementById('paLoginCredView'); if (cv) cv.style.display = 'block';
-  var pv = document.getElementById('paLoginPinView'); if (pv) pv.style.display = 'none';
-}
-
-function syncPaPinBoxes() {
-  var v = '';
-  for (var i = 1; i <= 4; i++) { var b = document.getElementById('paPinBox' + i); v += b ? (b.value || '') : ''; }
-  var h = document.getElementById('paPinLoginInput'); if (h) h.value = v;
-  return v;
-}
-function clearPaPinBoxes() {
-  for (var i = 1; i <= 4; i++) { var b = document.getElementById('paPinBox' + i); if (b) { b.value = ''; b.classList.remove('pin-filled'); } }
-  var h = document.getElementById('paPinLoginInput'); if (h) h.value = '';
-}
-function paPinBoxInput(el, idx) {
-  var d = String(el.value || '').replace(/[^0-9]/g, '').slice(-1);
-  el.value = d;
-  try { el.classList.toggle('pin-filled', !!d); } catch (e) {}
-  if (d && idx < 4) { var n = document.getElementById('paPinBox' + (idx + 1)); if (n) n.focus(); }
-  if (syncPaPinBoxes().length === 4) { var b4 = document.getElementById('paPinBox4'); if (b4) b4.blur(); performPaPinLogin(); }
-}
-function paPinBoxKey(e, idx) {
-  if (e.key === 'Backspace' && !e.target.value && idx > 1) {
-    var p = document.getElementById('paPinBox' + (idx - 1));
-    if (p) { p.value = ''; p.classList.remove('pin-filled'); p.focus(); }
-    syncPaPinBoxes(); e.preventDefault();
-  } else if (e.key === 'Enter') { e.preventDefault(); performPaPinLogin(); }
-}
-
-function showPaPinLogin() {
-  var dev = getPaPinDevice();
-  var cred = platformData.credentials || {};
-  if (!dev || !cred.pinHash) { clearPaPinDevice(); return showPaPasswordLogin(); }
-  document.getElementById('paLoginCredView').style.display = 'none';
-  document.getElementById('paLoginPinView').style.display = 'block';
-  document.getElementById('paPinLoginName').innerText = cred.name || 'Platform Admin';
-  document.getElementById('paPinLoginMeta').innerText = 'Platform Admin  \u2022  FinTrack Business';
-  clearPaPinBoxes();
-  var b = document.getElementById('paPinBox1'); if (b) setTimeout(function () { b.focus(); }, 60);
-}
-
-function performPaPinLogin() {
-  var dev = getPaPinDevice();
-  var cred = platformData.credentials || {};
-  if (!dev || !cred.pinHash) { clearPaPinDevice(); return showPaPasswordLogin(); }
-  var pin = (document.getElementById('paPinLoginInput').value || '').trim();
-  if (!/^[0-9]{4}$/.test(pin)) return alert('Please enter your 4-digit PIN.');
-  if (!verifyPin(pin, cred.pinHash, cred.pinSalt)) {
-    clearPaPinBoxes();
-    return alert('Incorrect PIN. Please try again, or use "Log in with Password".');
-  }
-  var btn = document.querySelector('#paLoginPinView button[onclick="performPaPinLogin()"]');
-  if (btn) { btn.disabled = true; btn.dataset.label = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Unlocking\u2026'; }
-  function restoreBtn() { if (btn) { btn.disabled = false; if (btn.dataset.label) btn.innerHTML = btn.dataset.label; } }
-  openPlatformAdminFirebaseSession(cred, cred.password || '');
-  restoreBtn();
-  enterPlatformAdminMode();
-}
-
-function offerPaPinSetup() {
-  var cred = platformData.credentials;
-  if (!cred || cred.pinHash || !platformAdminUser) return;
-  setTimeout(function () {
-    if (!platformAdminUser || !platformData.credentials || platformData.credentials.pinHash) return;
-    if (confirm('Set up a 4-digit FinPIN for quicker Platform Admin sign-in on this device?\n\nYou can also set it later from the Platform Admin settings.')) {
-      openPaPinSetupModal();
-    }
-  }, 700);
-}
-
-function openPaPinSetupModal() {
-  var cred = platformData.credentials || {};
-  var nm = document.getElementById('paPinSetupName'); if (nm) nm.innerText = cred.name || 'Platform Admin';
-  ['paPinSetupPass','paPinSetupNew','paPinSetupConfirm'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
-  document.getElementById('paPinSetupModal').style.display = 'flex';
-}
-function closePaPinSetupModal() { document.getElementById('paPinSetupModal').style.display = 'none'; }
-
-function savePaLoginPin() {
-  var cred = platformData.credentials;
-  if (!cred) return alert('No platform administrator is configured.');
-  var pass = document.getElementById('paPinSetupPass').value || '';
-  var pin = (document.getElementById('paPinSetupNew').value || '').trim();
-  var pin2 = (document.getElementById('paPinSetupConfirm').value || '').trim();
-  if (!pass) return alert('Please enter your current password to confirm.');
-  if (cred.password !== pass) return alert('Your current password is incorrect. The PIN was not saved.');
-  if (!/^[0-9]{4}$/.test(pin)) return alert('PIN must be exactly 4 digits (numbers only).');
-  if (pin !== pin2) return alert('The two PIN entries do not match.');
-  cred.pinSalt = makePinSalt();
-  cred.pinHash = hashPin(pin, cred.pinSalt);
-  cred.pinUpdatedAt = Date.now();
-  savePlatformData();
-  savePaPinDevice();
-  closePaPinSetupModal();
-  alert('Platform Admin FinPIN saved. You can now sign in with your PIN on this device.');
-}
-
-function forgotPaPin() {
-  if (!confirm('Forgot your FinPIN? PIN sign-in will be turned off on this device. Sign in with your password, then set a new PIN from the Platform Admin settings.')) return;
-  clearPaPinDevice();
-  showPaPasswordLogin();
 }
 
 /* SWITCH PA TAB */
@@ -10600,9 +10016,7 @@ function welcomeGoLogin() {
   markWelcomeSeen();
   hideWelcomeScreen();
   document.getElementById('loginModal').style.display = 'flex';
-  var dev = getPinDevice();
-  if (dev) { setLoginMode(dev.role); showPinLogin(); }
-  else { showPasswordLogin(); }
+  showPasswordLogin();
 }
 function welcomeGoForgot() {
   markWelcomeSeen();
@@ -10837,19 +10251,9 @@ window.addEventListener('DOMContentLoaded', function() {
   applyPlatformBranding();
   var handledResetLink = handleAdminResetLinkFromUrl();
   if (!handledResetLink) {
-    var pinDev = getPinDevice();
-    var pinUser = pinDev ? findUserByNameRole(pinDev.name, pinDev.role) : null;
-    if (pinUser && pinUser.pinHash) {
-      markWelcomeSeen();
-      hideWelcomeScreen();
-      document.getElementById('loginModal').style.display = 'flex';
-      setLoginMode(pinUser.role);
-      showPinLogin();
-    } else {
-      var seenWelcome = false;
-      try { seenWelcome = localStorage.getItem('ATMOS_WELCOME_SEEN') === '1'; } catch (e) { seenWelcome = false; }
-      ensureGuestPortal();
-    }
+    var seenWelcome = false;
+    try { seenWelcome = localStorage.getItem('ATMOS_WELCOME_SEEN') === '1'; } catch (e) { seenWelcome = false; }
+    ensureGuestPortal();
   }
 
   /* Platform subscription card + trial / grace lock (business side) */
@@ -10870,94 +10274,8 @@ window.addEventListener('DOMContentLoaded', function() {
       ic.className = (showing ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash') + (m ? ' ' + m[1] : ' pw-eye');
     }
   }
-  function syncPinBoxes() {
-    var v = '';
-    for (var i = 1; i <= 4; i++) { var b = document.getElementById('pinBox' + i); v += b ? (b.value || '') : ''; }
-    var h = document.getElementById('pinLoginInput'); if (h) h.value = v;
-    return v;
-  }
-  function clearPinBoxes() {
-    for (var i = 1; i <= 4; i++) { var b = document.getElementById('pinBox' + i); if (b) { b.value = ''; b.classList.remove('pin-filled'); } }
-    var h = document.getElementById('pinLoginInput'); if (h) h.value = '';
-  }
-  function pinBoxInput(el, idx) {
-    var d = String(el.value || '').replace(/[^0-9]/g, '').slice(-1);
-    el.value = d;
-    try { el.classList.toggle('pin-filled', !!d); } catch (e) {}
-    if (d && idx < 4) { var n = document.getElementById('pinBox' + (idx + 1)); if (n) n.focus(); }
-    if (syncPinBoxes().length === 4) { var b4 = document.getElementById('pinBox4'); if (b4) b4.blur(); performPinLogin(); }
-  }
-  function pinBoxKey(e, idx) {
-    if (e.key === 'Backspace' && !e.target.value && idx > 1) {
-      var p = document.getElementById('pinBox' + (idx - 1));
-      if (p) { p.value = ''; p.classList.remove('pin-filled'); p.focus(); }
-      syncPinBoxes(); e.preventDefault();
-    } else if (e.key === 'Enter') { e.preventDefault(); performPinLogin(); }
-  }
-  function forgotPin() {
-    if (!confirm('Forgot your FinPIN? PIN sign-in will be turned off on this device. Sign in with your password, then set a new PIN.')) return;
-    clearPinDevice();
-    showPasswordLogin();
-  }
-  /* Box-style PIN entry for the setup/change modal (syncs to hidden fields). */
-  function syncSetupPinBoxes(prefix) {
-    var v = '';
-    for (var i = 1; i <= 4; i++) { var b = document.getElementById(prefix + 'Box' + i); v += b ? (b.value || '') : ''; }
-    var h = document.getElementById(prefix); if (h) h.value = v;
-    return v;
-  }
-  function clearPinSetupBoxes() {
-    ['pinNew','pinConfirm'].forEach(function (prefix) {
-      for (var i = 1; i <= 4; i++) { var b = document.getElementById(prefix + 'Box' + i); if (b) { b.value = ''; b.classList.remove('pin-filled'); } }
-      var h = document.getElementById(prefix); if (h) h.value = '';
-    });
-  }
-  function pinSetupBoxInput(el, prefix, idx) {
-    var d = String(el.value || '').replace(/[^0-9]/g, '').slice(-1);
-    el.value = d;
-    try { el.classList.toggle('pin-filled', !!d); } catch (e) {}
-    if (d && idx < 4) { var n = document.getElementById(prefix + 'Box' + (idx + 1)); if (n) n.focus(); }
-    syncSetupPinBoxes(prefix);
-  }
-  function pinSetupBoxKey(e, prefix, idx) {
-    if (e.key === 'Backspace' && !e.target.value && idx > 1) {
-      var p = document.getElementById(prefix + 'Box' + (idx - 1));
-      if (p) { p.value = ''; p.classList.remove('pin-filled'); p.focus(); }
-      syncSetupPinBoxes(prefix); e.preventDefault();
-    }
-  }
   window.togglePasswordVisibility = togglePasswordVisibility;
-  window.pinBoxInput = pinBoxInput;
-  window.pinBoxKey = pinBoxKey;
-  window.forgotPin = forgotPin;
-  window.pinSetupBoxInput = pinSetupBoxInput;
-  window.pinSetupBoxKey = pinSetupBoxKey;
-  window.clearPinSetupBoxes = clearPinSetupBoxes;
-  window.pinStepShow = pinStepShow;
-  window.pinStepNext = pinStepNext;
-  window.pinStepBack = pinStepBack;
-  window.waitForFirebaseAuth = waitForFirebaseAuth;
-  window.showPaPinLogin = showPaPinLogin;
-  window.showPaPasswordLogin = showPaPasswordLogin;
-  window.performPaPinLogin = performPaPinLogin;
-  window.forgotPaPin = forgotPaPin;
-  window.paPinBoxInput = paPinBoxInput;
-  window.paPinBoxKey = paPinBoxKey;
-  window.savePaLoginPin = savePaLoginPin;
-  window.openPaPinSetupModal = openPaPinSetupModal;
-  window.closePaPinSetupModal = closePaPinSetupModal;
-  window.updatePaPinSwitchButton = updatePaPinSwitchButton;
 
-  /* Offer the PIN dialog right after a normal sign-in. */
-  function offerPinSetupAfterLogin() {
-    try {
-      var chk = document.getElementById('loginRememberDevice');
-      if (chk && !chk.checked) return;
-      if (!currentUser || currentUser.pinHash) return;
-      setTimeout(function () { openPinModal(); }, 700);
-    } catch (e) {}
-  }
-  window.offerPinSetupAfterLogin = offerPinSetupAfterLogin;
 
   /* Honest cloud-sync badge: online / connecting / needs sign-in / offline. */
   function setSyncBadge(state) {
